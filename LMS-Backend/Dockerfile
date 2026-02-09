@@ -1,19 +1,21 @@
-# Use an official Maven image to build the application
-FROM maven:3.9.4-openjdk-17-slim AS build
+# Use an official Maven image with Eclipse Temurin to build the application
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
 
 # Set the working directory
 WORKDIR /app
 
 # Copy the pom.xml and download dependencies
 COPY pom.xml .
+COPY mvnw .
+COPY .mvn .mvn
 RUN mvn dependency:go-offline -B
 
 # Copy the source code and build the application
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-jre-slim
+# Use Eclipse Temurin JRE for runtime
+FROM eclipse-temurin:17-jre-alpine
 
 # Set the working directory
 WORKDIR /app
