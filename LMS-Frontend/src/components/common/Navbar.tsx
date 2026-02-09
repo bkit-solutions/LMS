@@ -101,6 +101,16 @@ const Navbar: React.FC = () => {
                     >
                       + User
                     </Link>
+                    <Link
+                      to="/dashboard/profile"
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        isActive("/dashboard/profile")
+                          ? "bg-primary text-white"
+                          : "text-text-secondary hover:text-text hover:bg-gray-100"
+                      }`}
+                    >
+                      Profile
+                    </Link>
                   </>
                 )}
 
@@ -137,6 +147,16 @@ const Navbar: React.FC = () => {
                     >
                       + User
                     </Link>
+                    <Link
+                      to="/dashboard/profile"
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        isActive("/dashboard/profile")
+                          ? "bg-primary text-white"
+                          : "text-text-secondary hover:text-text hover:bg-gray-100"
+                      }`}
+                    >
+                      Profile
+                    </Link>
                   </>
                 )}
 
@@ -163,21 +183,43 @@ const Navbar: React.FC = () => {
                     >
                       + User
                     </Link>
+                    <Link
+                      to="/dashboard/profile"
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        isActive("/dashboard/profile")
+                          ? "bg-primary text-white"
+                          : "text-text-secondary hover:text-text hover:bg-gray-100"
+                      }`}
+                    >
+                      Profile
+                    </Link>
                   </>
                 )}
 
                 {/* User Navigation */}
                 {userRole === "USER" && (
-                  <Link
-                    to="/dashboard"
-                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      isActive("/dashboard")
-                        ? "bg-primary text-white"
-                        : "text-text-secondary hover:text-text hover:bg-gray-100"
-                    }`}
-                  >
-                    My Profile
-                  </Link>
+                  <>
+                    <Link
+                      to="/dashboard"
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        isActive("/dashboard")
+                          ? "bg-primary text-white"
+                          : "text-text-secondary hover:text-text hover:bg-gray-100"
+                      }`}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/dashboard/profile"
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        isActive("/dashboard/profile")
+                          ? "bg-primary text-white"
+                          : "text-text-secondary hover:text-text hover:bg-gray-100"
+                      }`}
+                    >
+                      Profile
+                    </Link>
+                  </>
                 )}
 
                 <button
@@ -304,6 +346,13 @@ const Navbar: React.FC = () => {
                     >
                       + User
                     </Link>
+                    <Link
+                      to="/dashboard/profile"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text hover:bg-gray-100"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
                   </>
                 )}
 
@@ -330,6 +379,13 @@ const Navbar: React.FC = () => {
                     >
                       + User
                     </Link>
+                    <Link
+                      to="/dashboard/profile"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text hover:bg-gray-100"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
                   </>
                 )}
 
@@ -349,17 +405,33 @@ const Navbar: React.FC = () => {
                     >
                       + User
                     </Link>
+                    <Link
+                      to="/dashboard/profile"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text hover:bg-gray-100"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
                   </>
                 )}
 
                 {userRole === "USER" && (
-                  <Link
-                    to="/dashboard"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text hover:bg-gray-100"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    My Profile
-                  </Link>
+                  <>
+                    <Link
+                      to="/dashboard"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text hover:bg-gray-100"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/dashboard/profile"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text hover:bg-gray-100"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                  </>
                 )}
 
                 <button

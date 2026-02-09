@@ -43,6 +43,8 @@ services:
     container_name: lms_frontend
     ports:
       - "80:80"
+    environment:
+      VITE_API_BASE_URL: http://lms_backend:8080
     depends_on:
       - backend
     networks:

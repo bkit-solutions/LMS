@@ -18,6 +18,12 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ test, isOpen, onClose, on
         totalMarks: test.totalMarks,
         maxAttempts: test.maxAttempts,
         proctored: test.proctored,
+        durationMinutes: test.durationMinutes,
+        instructions: test.instructions,
+        passingPercentage: test.passingPercentage,
+        difficultyLevel: test.difficultyLevel,
+        showResultsImmediately: test.showResultsImmediately,
+        allowReview: test.allowReview,
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -32,6 +38,12 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ test, isOpen, onClose, on
                 totalMarks: test.totalMarks,
                 maxAttempts: test.maxAttempts,
                 proctored: test.proctored,
+                durationMinutes: test.durationMinutes,
+                instructions: test.instructions,
+                passingPercentage: test.passingPercentage,
+                difficultyLevel: test.difficultyLevel,
+                showResultsImmediately: test.showResultsImmediately,
+                allowReview: test.allowReview,
             });
             setError(null);
         }
@@ -57,11 +69,11 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ test, isOpen, onClose, on
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: type === "number" ? Number(value) : type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+            [name]: type === "number" ? (value === "" ? undefined : Number(value)) : type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
         }));
     };
 
@@ -134,6 +146,61 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ test, isOpen, onClose, on
                         </div>
                     </div>
 
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-text mb-1">Total Marks</label>
+                            <input
+                                type="number"
+                                name="totalMarks"
+                                value={formData.totalMarks || 0}
+                                onChange={handleChange}
+                                min="0"
+                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-text mb-1">Duration (Minutes)</label>
+                            <input
+                                type="number"
+                                name="durationMinutes"
+                                value={formData.durationMinutes || ""}
+                                onChange={handleChange}
+                                min="1"
+                                placeholder="Unlimited"
+                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-text mb-1">Passing Percentage</label>
+                            <input
+                                type="number"
+                                name="passingPercentage"
+                                value={formData.passingPercentage || ""}
+                                onChange={handleChange}
+                                min="0"
+                                max="100"
+                                placeholder="40"
+                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-text mb-1">Difficulty Level</label>
+                            <select
+                                name="difficultyLevel"
+                                value={formData.difficultyLevel || "MEDIUM"}
+                                onChange={handleChange}
+                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
+                            >
+                                <option value="EASY">Easy</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="HARD">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-text mb-1">Max Attempts</label>
                         <input
@@ -146,22 +213,72 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ test, isOpen, onClose, on
                             required
                         />
                     </div>
-                    
-                    <div className="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <input
-                            type="checkbox"
-                            name="proctored"
-                            checked={formData.proctored || false}
+
+                    <div>
+                        <label className="block text-sm font-medium text-text mb-1">Detailed Instructions</label>
+                        <textarea
+                            name="instructions"
+                            value={formData.instructions || ""}
                             onChange={handleChange}
-                            className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-border rounded"
+                            rows={4}
+                            placeholder="Test instructions, rules, and guidelines"
+                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                         />
-                        <div className="ml-3">
-                            <label className="block text-sm font-semibold text-blue-900">
-                                Enable Proctoring (AI Monitoring)
-                            </label>
-                            <p className="text-xs text-blue-700">
-                                Students will be monitored with camera/audio for cheating detection
-                            </p>
+                    </div>
+                    
+                    <div className="space-y-3">
+                        <div className="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <input
+                                type="checkbox"
+                                name="proctored"
+                                checked={formData.proctored || false}
+                                onChange={handleChange}
+                                className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-border rounded"
+                            />
+                            <div className="ml-3">
+                                <label className="block text-sm font-semibold text-blue-900">
+                                    Enable Proctoring (AI Monitoring)
+                                </label>
+                                <p className="text-xs text-blue-700">
+                                    Students will be monitored with camera/audio for cheating detection
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center p-4 bg-green-50 rounded-lg border border-green-200">
+                            <input
+                                type="checkbox"
+                                name="showResultsImmediately"
+                                checked={formData.showResultsImmediately || false}
+                                onChange={handleChange}
+                                className="w-5 h-5 text-green-600 focus:ring-green-500 border-border rounded"
+                            />
+                            <div className="ml-3">
+                                <label className="block text-sm font-semibold text-green-900">
+                                    Show Results Immediately
+                                </label>
+                                <p className="text-xs text-green-700">
+                                    Display test results to students as soon as they submit
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                            <input
+                                type="checkbox"
+                                name="allowReview"
+                                checked={formData.allowReview || false}
+                                onChange={handleChange}
+                                className="w-5 h-5 text-purple-600 focus:ring-purple-500 border-border rounded"
+                            />
+                            <div className="ml-3">
+                                <label className="block text-sm font-semibold text-purple-900">
+                                    Allow Review After Submission
+                                </label>
+                                <p className="text-xs text-purple-700">
+                                    Students can review their answers and correct answers after submission
+                                </p>
+                            </div>
                         </div>
                     </div>
 

@@ -676,56 +676,58 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
             </div>
 
             {/* Stats Display */}
-            <div className="mt-2 bg-surface rounded-lg shadow border border-border p-2 text-xs">
-                {/* Test Info */}
-                {(testId || testTitle) && (
-                    <div className="mb-2 pb-2 border-b border-border">
-                        {testTitle && (
-                            <div className="font-semibold text-gray-800 mb-1 truncate">{testTitle}</div>
-                        )}
-                        {testId && (
-                            <div className="text-gray-500 text-[10px]">
-                                Test ID: <span className="font-mono text-gray-700">{testId}</span> | Attempt ID: <span className="font-mono text-gray-700">{attemptId}</span>
-                            </div>
-                        )}
+            {attemptId > 0 && (
+                <div className="mt-2 bg-surface rounded-lg shadow border border-border p-2 text-xs">
+                    {/* Test Info */}
+                    {(testId || testTitle) && (
+                        <div className="mb-2 pb-2 border-b border-border">
+                            {testTitle && (
+                                <div className="font-semibold text-gray-800 mb-1 truncate">{testTitle}</div>
+                            )}
+                            {testId && (
+                                <div className="text-gray-500 text-[10px]">
+                                    Test ID: <span className="font-mono text-gray-700">{testId}</span> | Attempt ID: <span className="font-mono text-gray-700">{attemptId}</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    
+                    {/* Total Violations Counter */}
+                    <div className={`mb-2 pb-2 border-b border-border flex justify-between items-center ${totalViolations >= maxViolations ? 'bg-red-50 -m-2 p-2 mb-0' : ''}`}>
+                        <span className="font-semibold text-gray-700">Total Violations:</span>
+                        <span className={`font-bold text-lg ${totalViolations >= maxViolations ? 'text-red-600 animate-pulse' : totalViolations >= maxViolations - 1 ? 'text-orange-600' : 'text-gray-800'}`}>
+                            {totalViolations} / {maxViolations}
+                        </span>
                     </div>
-                )}
-                
-                {/* Total Violations Counter */}
-                <div className={`mb-2 pb-2 border-b border-border flex justify-between items-center ${totalViolations >= maxViolations ? 'bg-red-50 -m-2 p-2 mb-0' : ''}`}>
-                    <span className="font-semibold text-gray-700">Total Violations:</span>
-                    <span className={`font-bold text-lg ${totalViolations >= maxViolations ? 'text-red-600 animate-pulse' : totalViolations >= maxViolations - 1 ? 'text-orange-600' : 'text-gray-800'}`}>
-                        {totalViolations} / {maxViolations}
-                    </span>
+                    
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                        <div className="flex justify-between">
+                            <span className="text-gray-500">Head/Face:</span>
+                            <span className={(violationCounts.HEAD_TURNED + violationCounts.FACE_VISIBILITY) > 0 ? "text-red-600 font-bold" : "text-gray-700"}>
+                                {violationCounts.HEAD_TURNED + violationCounts.FACE_VISIBILITY}
+                            </span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-gray-500">Audio:</span>
+                            <span className={violationCounts.AUDIO_DETECTED > 0 ? "text-red-600 font-bold" : "text-gray-700"}>
+                                {violationCounts.AUDIO_DETECTED}
+                            </span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-gray-500">Multiple:</span>
+                            <span className={violationCounts.MULTIPLE_PEOPLE > 0 ? "text-purple-600 font-bold" : "text-gray-700"}>
+                                {violationCounts.MULTIPLE_PEOPLE}
+                            </span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-gray-500">Gaze:</span>
+                            <span className={violationCounts.GAZE_AWAY > 0 ? "text-blue-600 font-bold" : "text-gray-700"}>
+                                {violationCounts.GAZE_AWAY}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                    <div className="flex justify-between">
-                        <span className="text-gray-500">Head/Face:</span>
-                        <span className={(violationCounts.HEAD_TURNED + violationCounts.FACE_VISIBILITY) > 0 ? "text-red-600 font-bold" : "text-gray-700"}>
-                            {violationCounts.HEAD_TURNED + violationCounts.FACE_VISIBILITY}
-                        </span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-500">Audio:</span>
-                        <span className={violationCounts.AUDIO_DETECTED > 0 ? "text-red-600 font-bold" : "text-gray-700"}>
-                            {violationCounts.AUDIO_DETECTED}
-                        </span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-500">Multiple:</span>
-                        <span className={violationCounts.MULTIPLE_PEOPLE > 0 ? "text-purple-600 font-bold" : "text-gray-700"}>
-                            {violationCounts.MULTIPLE_PEOPLE}
-                        </span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-500">Gaze:</span>
-                        <span className={violationCounts.GAZE_AWAY > 0 ? "text-blue-600 font-bold" : "text-gray-700"}>
-                            {violationCounts.GAZE_AWAY}
-                        </span>
-                    </div>
-                </div>
-            </div>
+            )}
         </div>
     );
 };

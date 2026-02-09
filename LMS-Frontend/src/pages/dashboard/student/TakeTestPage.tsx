@@ -7,12 +7,15 @@ import ProctoringManager from "../../../components/proctoring/ProctoringManager"
 import ConnectivityIndicator from "../../../components/common/ConnectivityIndicator";
 import { MediaStreamManager } from "../../../utils/MediaStreamManager";
 import { proctoringModelLoader } from "../../../utils/ProctoringModelLoader";
+import TestTimer from "../../../components/test/TestTimer";
 
 const TakeTest: React.FC = () => {
   const { testId: testIdParam } = useParams<{ testId: string }>();
   const testId = Number(testIdParam);
   const navigate = useNavigate();
   const location = useLocation();
+
+  console.log("TakeTest component mounted, testId:", testId);
 
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -69,6 +72,10 @@ const TakeTest: React.FC = () => {
   }, [loading, notStarted, error, attempt]);
 
   const loadTest = async () => {
+    console.log("=== TakeTestPage loadTest called ===");
+    console.log("Location state:", location.state);
+    console.log("Test ID:", testId);
+    
     try {
       setLoading(true);
       setError(null);
@@ -79,15 +86,22 @@ const TakeTest: React.FC = () => {
 
       // 1. Check for attempt in location state (passed from instructions)
       if (location.state?.attempt) {
+        console.log("Found attempt in location.state:", location.state.attempt);
         currentAttempt = location.state.attempt as Attempt;
       }
       // 2. Check localStorage for active attempt
       else {
+        console.log("No attempt in location.state, checking localStorage");
         const savedAttemptId = localStorage.getItem(`activeAttempt_${testId}`);
+        console.log("Saved attempt ID from localStorage:", savedAttemptId);
+        
         if (savedAttemptId) {
           try {
-            const res = await testApi.getAttempt(Number(savedAttemptId));
+            const attemptId = Number(JSON.parse(savedAttemptId));
+            console.log("Loading attempt with ID:", attemptId);
+            const res = await testApi.getAttempt(attemptId);
             if (res.success && res.data) {
+              console.log("Loaded attempt from API:", res.data);
               currentAttempt = res.data;
             }
           } catch (e) {
@@ -98,28 +112,38 @@ const TakeTest: React.FC = () => {
       }
 
       if (!currentAttempt) {
+        console.log("No attempt found, redirecting to instructions");
         // No attempt found, redirect to instructions page for proper flow
-        navigate(`/dashboard/student/tests/${testId}/instructions`, { replace: true });
+        navigate(`/dashboard/tests/${testId}/instructions`, { replace: true });
         return;
       }
+      
+      console.log("Current attempt loaded:", currentAttempt);
 
       // 3. Load Questions
+      console.log("Loading questions for test:", testId);
       try {
         const qRes = await testApi.getQuestions(testId);
         if (qRes.success && qRes.data) {
+          console.log("Questions loaded:", qRes.data.length, "questions");
           questionsList = qRes.data;
+        } else {
+          console.error("Failed to load questions:", qRes.message);
+          throw new Error("Failed to load test questions");
         }
       } catch (qErr) {
         console.error("Failed to load questions", qErr);
         throw new Error("Failed to load test questions");
       }
 
+      console.log("Setting attempt and questions in state");
       setAttempt(currentAttempt);
       setQuestions(questionsList);
 
       // 4. Restore answers if available (from attempt object)
       const existingAnswers: Record<number, string> = {};
       if (currentAttempt.answers) {
+        console.log("Restoring", currentAttempt.answers.length, "existing answers");
         currentAttempt.answers.forEach((ans: any) => {
           existingAnswers[ans.questionId] = ans.answerText || ans.selectedAnswer;
         });
@@ -127,25 +151,30 @@ const TakeTest: React.FC = () => {
       setAnswers(existingAnswers);
 
       if (currentAttempt.completed) {
+        console.log("Attempt already completed, redirecting");
         // This marks stored attempt as stale. Clear it.
         localStorage.removeItem(`activeAttempt_${testId}`);
         // Redirect to instructions to start fresh if allowed, or back to dashboard
-        navigate(`/dashboard/student/tests/${testId}/instructions`, { replace: true });
+        navigate(`/dashboard/tests/${testId}/instructions`, { replace: true });
         return;
       }
+      
+      console.log("Test loaded successfully, setting loading to false");
 
     } catch (err: any) {
-      console.error("Load test error:", err);
+      console.error("=== Load test error ===", err);
       const status = err?.response?.status;
       if (status === 401 || status === 403) {
+        console.log("Authentication error, redirecting to login");
         localStorage.removeItem("token");
         navigate("/login", { replace: true });
         return;
       }
-      setError(
-        err.response?.data?.message || err.message || "Failed to load test"
-      );
+      const errorMsg = err.response?.data?.message || err.message || "Failed to load test";
+      console.error("Setting error:", errorMsg);
+      setError(errorMsg);
     } finally {
+      console.log("loadTest finally block, setting loading to false");
       setLoading(false);
     }
   };
@@ -420,6 +449,46 @@ const TakeTest: React.FC = () => {
     }
   };
 
+  const handleTimeUp = async () => {
+    // Auto-submit test when time runs out
+    console.warn("⏰ TIME UP - Auto-submitting test");
+    setWarningMessage("Time is up! Test is being submitted automatically.");
+    
+    // Wait 1 second to show the message
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Auto-submit without confirmation
+    if (!attempt || submitting) return;
+    
+    setSubmitting(true);
+    try {
+      // Save current answer before submitting
+      const currentQ = questions[currentQuestionIndex];
+      if (currentQ && answers[currentQ.id]) {
+        try {
+          await testApi.submitAnswer(attempt.id, {
+            questionId: currentQ.id,
+            answerText: answers[currentQ.id],
+          });
+        } catch (err) {
+          console.error("Failed to save last answer", err);
+        }
+      }
+      
+      await testApi.submitAttempt(attempt.id);
+      navigate("/dashboard", { 
+        state: { 
+          message: "Test submitted - Time's up!" 
+        } 
+      });
+    } catch (err: any) {
+      console.error("Failed to auto-submit test:", err);
+      setError("Test could not be submitted. Please contact support.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleExit = () => {
     // Cleanup proctoring stream
     if (proctoringStream) {
@@ -509,6 +578,15 @@ const TakeTest: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
+      {/* Test Timer */}
+      {!attempt.completed && (
+        <TestTimer 
+          durationMinutes={attempt.durationMinutes ?? null} 
+          onTimeUp={handleTimeUp}
+          isPaused={submitting}
+        />
+      )}
+
       {warningMessage && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[80] bg-yellow-100 border border-yellow-300 text-yellow-900 px-4 py-2 rounded-lg shadow">
           {warningMessage}

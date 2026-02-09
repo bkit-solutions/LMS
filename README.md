@@ -191,6 +191,24 @@ docker compose restart backend
 docker compose down -v
 ```
 
+### Docker Troubleshooting
+
+If you encounter network issues when pulling Docker images (TLS handshake timeout):
+
+1. **Restart Docker Desktop** completely
+2. **Check proxy settings**:
+   - Open Docker Desktop > Settings > Resources > Proxies
+   - Ensure no manual proxy is configured, or set the correct proxy for your network
+3. **Disable VPN** temporarily (if applicable)
+4. **Change DNS settings**:
+   - Docker Desktop > Settings > Resources > Network
+   - Set DNS server to `8.8.8.8` or `1.1.1.1`
+5. **Check firewall/antivirus**:
+   - Ensure Docker Desktop is allowed through firewall
+6. **Restart your computer** if issues persist
+
+If Docker issues continue, you can run the application locally using the development setup below.
+
 ## 💻 Local Development Setup
 
 ### Backend Development

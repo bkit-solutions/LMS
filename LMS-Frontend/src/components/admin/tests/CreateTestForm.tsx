@@ -17,6 +17,12 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
     published: false,
     maxAttempts: 1,
     proctored: false,
+    durationMinutes: undefined,
+    instructions: "",
+    passingPercentage: 40,
+    difficultyLevel: "MEDIUM",
+    showResultsImmediately: false,
+    allowReview: true,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,11 +46,11 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === "number" ? Number(value) : type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      [name]: type === "number" ? (value === "" ? undefined : Number(value)) : type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -123,7 +129,70 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-text mb-2">
+              Duration (Minutes)
+            </label>
+            <input
+              type="number"
+              name="durationMinutes"
+              value={formData.durationMinutes || ""}
+              onChange={handleChange}
+              min="1"
+              placeholder="Leave empty for unlimited"
+              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+            <p className="text-xs text-text-secondary mt-1">Leave empty for unlimited duration</p>
+          </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-text mb-2">
+              Total Marks <span className="text-primary">*</span>
+            </label>
+            <input
+              type="number"
+              name="totalMarks"
+              value={formData.totalMarks}
+              onChange={handleChange}
+              min="0"
+              required
+              placeholder="100"
+              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-text mb-2">
+              Passing Percentage
+            </label>
+            <input
+              type="number"
+              name="passingPercentage"
+              value={formData.passingPercentage || ""}
+              onChange={handleChange}
+              min="0"
+              max="100"
+              placeholder="40"
+              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+            <p className="text-xs text-text-secondary mt-1">Minimum percentage required to pass (0-100)</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-text mb-2">
+              Difficulty Level
+            </label>
+            <select
+              name="difficultyLevel"
+              value={formData.difficultyLevel || "MEDIUM"}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
+            >
+              <option value="EASY">Easy</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HARD">Hard</option>
+            </select>
+          </div>
 
           <div>
             <label className="block text-sm font-semibold text-text mb-2">
@@ -139,6 +208,21 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
               placeholder="1"
               className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-text mb-2">
+              Detailed Instructions
+            </label>
+            <textarea
+              name="instructions"
+              value={formData.instructions || ""}
+              onChange={handleChange}
+              rows={4}
+              placeholder="Provide detailed test instructions, rules, and guidelines"
+              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+            />
+            <p className="text-xs text-text-secondary mt-1">These instructions will be shown to students before starting the test</p>
           </div>
         </div>
 
@@ -173,6 +257,42 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
               </label>
               <p className="text-xs text-blue-700">
                 Students will be monitored with camera/audio for cheating detection
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center p-4 bg-green-50 rounded-lg border border-green-200">
+            <input
+              type="checkbox"
+              name="showResultsImmediately"
+              checked={formData.showResultsImmediately}
+              onChange={handleChange}
+              className="w-5 h-5 text-green-600 focus:ring-green-500 border-border rounded"
+            />
+            <div className="ml-3">
+              <label className="block text-sm font-semibold text-green-900">
+                Show Results Immediately
+              </label>
+              <p className="text-xs text-green-700">
+                Display test results to students as soon as they submit
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <input
+              type="checkbox"
+              name="allowReview"
+              checked={formData.allowReview}
+              onChange={handleChange}
+              className="w-5 h-5 text-purple-600 focus:ring-purple-500 border-border rounded"
+            />
+            <div className="ml-3">
+              <label className="block text-sm font-semibold text-purple-900">
+                Allow Review After Submission
+              </label>
+              <p className="text-xs text-purple-700">
+                Students can review their answers and correct answers after submission
               </p>
             </div>
           </div>

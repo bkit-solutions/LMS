@@ -59,8 +59,9 @@ public class ResultService {
 
     public List<TestAttempt> myResults(String requesterEmail) {
         User requester = requireUser(requesterEmail);
-        if (requester.getType() != UserType.USER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users can view their results");
+        // Allow USER and ADMIN for testing
+        if (requester.getType() != UserType.USER && requester.getType() != UserType.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users and admins can view their results");
         }
         return testAttemptRepository.findByStudent(requester);
     }

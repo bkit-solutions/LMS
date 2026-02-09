@@ -36,6 +36,12 @@ export interface Test {
   maxAttempts: number;
   createdBy: number;
   proctored: boolean;
+  durationMinutes?: number; // Test duration in minutes (null/undefined = unlimited)
+  instructions?: string; // Detailed test instructions
+  passingPercentage?: number; // Minimum percentage to pass
+  difficultyLevel?: string; // EASY, MEDIUM, HARD
+  showResultsImmediately?: boolean;
+  allowReview?: boolean;
 }
 
 export interface CreateTestRequest {
@@ -47,6 +53,12 @@ export interface CreateTestRequest {
   published: boolean;
   maxAttempts: number;
   proctored: boolean;
+  durationMinutes?: number;
+  instructions?: string;
+  passingPercentage?: number;
+  difficultyLevel?: string;
+  showResultsImmediately?: boolean;
+  allowReview?: boolean;
 }
 
 export interface UpdateTestRequest {
@@ -58,6 +70,12 @@ export interface UpdateTestRequest {
   published?: boolean;
   maxAttempts?: number;
   proctored?: boolean;
+  durationMinutes?: number;
+  instructions?: string;
+  passingPercentage?: number;
+  difficultyLevel?: string;
+  showResultsImmediately?: boolean;
+  allowReview?: boolean;
 }
 
 export interface Question {
@@ -109,6 +127,7 @@ export interface Attempt {
   testId: number;
   userId: number;
   attemptNumber: number;
+  durationMinutes?: number; // Test duration
   startedAt: string;
   submittedAt?: string;
   score?: number;
@@ -202,4 +221,37 @@ export interface AttemptStateResponse {
   attempt: AttemptInfo;
   questions: Question[];
   answers: Record<string, string>;
+}
+
+// User Profile Interfaces
+export interface UserProfile {
+  id: number;
+  email: string;
+  name: string;
+  type: UserRoleType;
+  phoneNumber?: string;
+  profilePictureUrl?: string;
+  bio?: string;
+  dateOfBirth?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  createdAt?: string;
+  lastLogin?: string;
+}
+
+export interface UpdateProfileRequest {
+  name?: string;
+  phoneNumber?: string;
+  bio?: string;
+  dateOfBirth?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }

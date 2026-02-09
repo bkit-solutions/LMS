@@ -26,6 +26,14 @@ public class TestDtos {
         private Boolean published; // default false if not provided
         private Integer maxAttempts; // default 1 if null/0
         private Boolean proctored; // default false if not provided
+        
+        private Integer durationMinutes; // Test duration in minutes, null = unlimited time
+        private String instructions; // Custom test instructions (TEXT)
+        private Integer passingPercentage; // Minimum percentage required to pass
+        private String difficultyLevel; // EASY, MEDIUM, HARD
+        private Boolean showResultsImmediately; // Show results right after test submission
+        private Boolean allowReview; // Allow students to review answers after submission
+        private Integer maxViolations; // Maximum allowed proctoring violations
     }
 
     @Data
@@ -39,6 +47,13 @@ public class TestDtos {
         private Integer totalMarks;
         private Integer maxAttempts;
         private Boolean proctored;
+        private Integer durationMinutes; // Test duration in minutes, null = unlimited time
+        private String instructions; // Custom test instructions (TEXT)
+        private Integer passingPercentage; // Minimum percentage required to pass
+        private String difficultyLevel; // EASY, MEDIUM, HARD
+        private Boolean showResultsImmediately; // Show results right after test submission
+        private Boolean allowReview; // Allow students to review answers after submission
+        private Integer maxViolations; // Maximum allowed proctoring violations
     }
 
     @Data

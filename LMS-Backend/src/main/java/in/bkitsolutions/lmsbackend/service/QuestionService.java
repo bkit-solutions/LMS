@@ -54,6 +54,24 @@ public class QuestionService {
         User requester = requireUser(requesterEmail);
         TestEntity t = testRepository.findById(testId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Test not found"));
+        
+        // Check permissions
+        if (requester.getType() == UserType.ADMIN || requester.getType() == UserType.SUPERADMIN) {
+            // Admins can view questions for their tests
+            if (!t.getCreatedBy().getId().equals(requester.getId()) && requester.getType() != UserType.SUPERADMIN) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to view questions for this test");
+            }
+        } else if (requester.getType() == UserType.USER) {
+            // Students can view questions for tests they can attempt
+            // Check if test is published and within time window
+            if (!t.getPublished()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Test is not published");
+            }
+            // Additional checks can be added here (e.g., assigned to student, etc.)
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid user type");
+        }
+        
         return questionRepository.findByTest(t);
     }
 

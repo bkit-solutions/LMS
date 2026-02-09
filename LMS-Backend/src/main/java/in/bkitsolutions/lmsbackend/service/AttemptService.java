@@ -194,12 +194,15 @@ public class AttemptService {
         // Build DTOs
         AttemptDtos.AttemptInfo info = new AttemptDtos.AttemptInfo(
                 attempt.getId(),
+                test.getId(),                                                                                   // testId
                 attempt.getAttemptNumber(),
                 attempt.getCompleted(),
                 attempt.getStartedAt() == null ? null : attempt.getStartedAt().toString(),
                 attempt.getSubmittedAt() == null ? null : attempt.getSubmittedAt().toString(),
                 attempt.getUpdatedAt() == null ? null : attempt.getUpdatedAt().toString(),
-                test.getProctored() != null ? test.getProctored() : false
+                test.getProctored() != null ? test.getProctored() : false,
+                test.getDurationMinutes(),                                                                      // durationMinutes
+                test.getMaxViolations() != null ? test.getMaxViolations() : 5                                 // maxViolations
         );
 
         List<AttemptDtos.QuestionItem> questionItems = questions.stream().map(q -> new AttemptDtos.QuestionItem(

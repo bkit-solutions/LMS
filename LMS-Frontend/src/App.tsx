@@ -14,6 +14,7 @@ import GenericUserForm from "./components/admin/users/UserForm";
 import { UserCreationMode } from "./types";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import LandingPage from "./pages/public/LandingPage";
+import NotFoundPage from "./pages/public/NotFoundPage";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -131,12 +132,10 @@ function App() {
           }
         />
 
-        {/* Default Route */}
+        {/* Default Route - 404 Page */}
         <Route
           path="*"
-          element={
-            <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
-          }
+          element={<NotFoundPage />}
         />
       </Route>
     </Routes>

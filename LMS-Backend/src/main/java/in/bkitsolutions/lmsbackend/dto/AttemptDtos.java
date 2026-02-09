@@ -42,12 +42,15 @@ public class AttemptDtos {
     @AllArgsConstructor
     public static class AttemptInfo {
         private Long id;
+        private Long testId;         // Added for reference
         private Integer attemptNumber;
         private Boolean completed;
         private String startedAt;   // ISO string for simplicity in client
         private String submittedAt;  // may be null
         private String updatedAt;    // auto-updated
         private Boolean proctored;   // Whether this test requires proctoring
+        private Integer durationMinutes; // Test duration in minutes, null = unlimited
+        private Integer maxViolations;   // Maximum allowed violations
     }
 
     @Data
