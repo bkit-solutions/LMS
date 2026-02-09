@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: lms_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - lms_network
+
+  backend:
+    build:
+      context: ./LMS-Backend
+      dockerfile: Dockerfile
+    container_name: lms_backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/testdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypass
+    depends_on:
+      - mysql
+    networks:
+      - lms_network
+
+  frontend:
+    build:
+      context: ./LMS-Frontend
+      dockerfile: Dockerfile
+    container_name: lms_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - lms_network
+
+volumes:
+  mysql_data:
+
+networks:
+  lms_network:
+    driver: bridge
