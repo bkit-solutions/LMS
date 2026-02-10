@@ -8,6 +8,9 @@ import ResultsPage from "./tests/ResultsPage";
 import QuestionManagementPage from "./tests/QuestionManagementPage";
 import ProctoringTestPage from "./ProctoringTestPage";
 import ProfilePage from "../ProfilePage";
+import TopicList from "../../../components/admin/topics/TopicList";
+import CreateTopicPage from "./topics/CreateTopicPage";
+import TopicDetailPage from "./topics/TopicDetailPage";
 
 const AdminRouter: React.FC = () => {
   return (
@@ -17,6 +20,9 @@ const AdminRouter: React.FC = () => {
       <Route path="tests/create" element={<CreateTestPage />} />
       <Route path="tests/:id" element={<TestDetailPage />} />
       <Route path="tests/:id/questions" element={<QuestionManagementPage />} />
+      <Route path="topics" element={<TopicList />} />
+      <Route path="topics/create" element={<CreateTopicPage />} />
+      <Route path="topics/:id" element={<TopicDetailPage />} />
       <Route path="results" element={<ResultsPage />} />
       <Route path="proctoring-test" element={<ProctoringTestPage />} />
       <Route path="profile" element={<ProfilePage />} />

@@ -62,10 +62,24 @@ const AdminDashboard: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-text">
             Admin Dashboard
           </h1>
+          <div className="flex gap-3">
+            <Link
+              to="/dashboard/topics/create"
+              className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors text-sm font-medium"
+            >
+              + Create Topic
+            </Link>
+            <Link
+              to="/dashboard/tests/create"
+              className="inline-flex items-center px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors text-sm font-medium"
+            >
+              + Create Test
+            </Link>
+          </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <Link
             to="/dashboard/tests"
             className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow"
@@ -83,6 +97,16 @@ const AdminDashboard: React.FC = () => {
           </Link>
 
           <Link
+            to="/dashboard/topics"
+            className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow"
+          >
+            <h3 className="text-lg font-semibold text-text mb-2">Topics</h3>
+            <p className="text-text-secondary mb-4">Create topics & chapters</p>
+            <div className="text-2xl font-bold text-primary">📚</div>
+            <div className="text-sm text-text-secondary">Learning content</div>
+          </Link>
+
+          <Link
             to="/dashboard/tests"
             className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow"
           >
@@ -91,7 +115,7 @@ const AdminDashboard: React.FC = () => {
             <div className="text-2xl font-bold text-secondary">
               {tests.reduce(
                 (acc, test) => acc + (test as any).questionCount || 0,
-                0
+                0,
               )}
             </div>
             <div className="text-sm text-text-secondary">Total questions</div>
@@ -113,8 +137,12 @@ const AdminDashboard: React.FC = () => {
             to="/dashboard/proctoring-test"
             className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow"
           >
-            <h3 className="text-lg font-semibold text-text mb-2">Proctoring Test</h3>
-            <p className="text-text-secondary mb-4">Validate camera + AI model</p>
+            <h3 className="text-lg font-semibold text-text mb-2">
+              Proctoring Test
+            </h3>
+            <p className="text-text-secondary mb-4">
+              Validate camera + AI model
+            </p>
             <div className="text-2xl font-bold text-secondary">Lab</div>
             <div className="text-sm text-text-secondary">Diagnostics</div>
           </Link>

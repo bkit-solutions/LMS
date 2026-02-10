@@ -255,3 +255,59 @@ export interface ChangePasswordRequest {
   newPassword: string;
   confirmPassword: string;
 }
+
+// Topics & Chapters
+export interface TopicResponse {
+  id: number;
+  title: string;
+  description: string;
+  published: boolean;
+  displayOrder: number;
+  createdById: number;
+  createdByName: string;
+  createdAt: string;
+  updatedAt: string;
+  chapterCount: number;
+}
+
+export interface CreateTopicRequest {
+  title: string;
+  description?: string;
+  published?: boolean;
+  displayOrder?: number;
+}
+
+export interface UpdateTopicRequest {
+  title?: string;
+  description?: string;
+  published?: boolean;
+  displayOrder?: number;
+}
+
+export interface ChapterResponse {
+  id: number;
+  title: string;
+  content: string;
+  topicId: number;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChapterSummary {
+  id: number;
+  title: string;
+  displayOrder: number;
+}
+
+export interface CreateChapterRequest {
+  title: string;
+  content?: string;
+  displayOrder?: number;
+}
+
+export interface UpdateChapterRequest {
+  title?: string;
+  content?: string;
+  displayOrder?: number;
+}

@@ -8,6 +8,8 @@ import StudentDashboard from "./student/StudentDashboard";
 import TakeTest from "./student/TakeTestPage";
 import ImprovedPreTestInstructions from "./student/ImprovedPreTestInstructions";
 import ProfilePage from "./ProfilePage";
+import TopicListPage from "./student/TopicListPage";
+import TopicViewerPage from "./student/TopicViewerPage";
 
 const DashboardRouter: React.FC = () => {
   const { userRole } = useAppSelector((state) => state.auth);
@@ -42,7 +44,12 @@ const DashboardRouter: React.FC = () => {
       <Route path="profile" element={<ProfilePage />} />
       {userRole === "USER" && (
         <>
-          <Route path="tests/:testId/instructions" element={<ImprovedPreTestInstructions />} />
+          <Route path="topics" element={<TopicListPage />} />
+          <Route path="topics/:topicId" element={<TopicViewerPage />} />
+          <Route
+            path="tests/:testId/instructions"
+            element={<ImprovedPreTestInstructions />}
+          />
           <Route path="test/take/:testId" element={<TakeTest />} />
         </>
       )}

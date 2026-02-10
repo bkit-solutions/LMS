@@ -133,10 +133,7 @@ function App() {
         />
 
         {/* Default Route - 404 Page */}
-        <Route
-          path="*"
-          element={<NotFoundPage />}
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );

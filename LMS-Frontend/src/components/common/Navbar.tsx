@@ -9,7 +9,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, user, userRole } = useAppSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
 
   const handleLogout = () => {
@@ -174,6 +174,16 @@ const Navbar: React.FC = () => {
                       Dashboard
                     </Link>
                     <Link
+                      to="/dashboard/topics"
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        location.pathname.startsWith("/dashboard/topics")
+                          ? "bg-primary text-white"
+                          : "text-text-secondary hover:text-text hover:bg-gray-100"
+                      }`}
+                    >
+                      Topics
+                    </Link>
+                    <Link
                       to="/create-user"
                       className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                         isActive("/create-user")
@@ -208,6 +218,16 @@ const Navbar: React.FC = () => {
                       }`}
                     >
                       Dashboard
+                    </Link>
+                    <Link
+                      to="/dashboard/topics"
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        location.pathname.startsWith("/dashboard/topics")
+                          ? "bg-primary text-white"
+                          : "text-text-secondary hover:text-text hover:bg-gray-100"
+                      }`}
+                    >
+                      Topics
                     </Link>
                     <Link
                       to="/dashboard/profile"
@@ -399,6 +419,13 @@ const Navbar: React.FC = () => {
                       Dashboard
                     </Link>
                     <Link
+                      to="/dashboard/topics"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text hover:bg-gray-100"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Topics
+                    </Link>
+                    <Link
                       to="/create-user"
                       className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text hover:bg-gray-100"
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -423,6 +450,13 @@ const Navbar: React.FC = () => {
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Dashboard
+                    </Link>
+                    <Link
+                      to="/dashboard/topics"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text hover:bg-gray-100"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Topics
                     </Link>
                     <Link
                       to="/dashboard/profile"
