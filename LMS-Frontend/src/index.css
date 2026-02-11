@@ -1,13 +1,148 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --font-sans: "Inter", sans-serif;
-  --color-primary: #dc2626;
-  --color-secondary: #991b1b;
-  --color-accent: #ef4444;
-  --color-background: #ffffff;
-  --color-surface: #f3f4f6;
-  --color-text: #0f172a;
-  --color-text-secondary: #4b5563;
-  --color-border: #e5e7eb;
+/* Custom CSS Variables for Application */
+:root {
+  /* Custom Application Colors */
+  --color-primary: #dc2626; /* red-600 */
+  --color-secondary: #991b1b; /* red-800 */
+  --color-accent: #ef4444; /* red-500 */
+  
+  /* Background Colors */
+  --color-background: #ffffff; /* white */
+  --color-surface: #f9fafb; /* gray-50 */
+  
+  /* Text Colors */
+  --color-text: #111827; /* gray-900 */
+  --color-text-secondary: #6b7280; /* gray-500 */
+  
+  /* Border & Utility */
+  --color-border: #e5e7eb; /* gray-200 */
+  
+  /* Status Colors */
+  --color-success: #10b981; /* emerald-500 */
+  --color-warning: #f59e0b; /* amber-500 */
+  --color-error: #ef4444; /* red-500 */
+  --color-info: #3b82f6; /* blue-500 */
+  
+  /* Interactive States */
+  --color-hover: #f3f4f6; /* gray-100 */
+  --color-active: #e5e7eb; /* gray-200 */
+}
+
+/* Reset and Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Interactive Elements */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Focus States for Accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Loading and Animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Utility Classes */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
 }

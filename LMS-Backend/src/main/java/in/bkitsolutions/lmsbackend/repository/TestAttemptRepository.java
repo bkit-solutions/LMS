@@ -13,4 +13,11 @@ public interface TestAttemptRepository extends JpaRepository<TestAttempt, Long> 
     List<TestAttempt> findByStudent(User student);
     List<TestAttempt> findByTestAndStudent(TestEntity test, User student);
     Optional<TestAttempt> findTopByTestAndStudentOrderByAttemptNumberDesc(TestEntity test, User student);
+
+    @org.springframework.data.jpa.repository.Query("SELECT MAX(a.attemptNumber) FROM TestAttempt a WHERE a.test = :test AND a.student = :student")
+    Integer findMaxAttemptNumberByTestAndStudent(TestEntity test, User student);
+
+    Optional<TestAttempt> findByTestAndStudentAndCompletedFalse(TestEntity test, User student);
+    long countByTestAndStudent(TestEntity test, User student);
+    boolean existsByTestAndStudentAndAttemptNumber(TestEntity test, User student, int attemptNumber);
 }

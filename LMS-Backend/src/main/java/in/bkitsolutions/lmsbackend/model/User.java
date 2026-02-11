@@ -29,8 +29,17 @@ public class User {
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private UserType type;
+
+    // College association (NULL for ROOTADMIN/SUPERADMIN, required for others)
+    @ManyToOne
+    @JoinColumn(name = "college_id")
+    private College college;
+
+    @Column(name = "is_active")
+    @Builder.Default
+    private Boolean isActive = true;
     
     // Profile fields
     @Column(name = "phone_number")

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import { proctoringModelLoader } from "../../utils/ProctoringModelLoader";
@@ -12,6 +13,7 @@ interface ProctoringManagerProps {
     stream: MediaStream;
     attemptId: number;
     testId?: number;
+    attemptNumber?: number; // Add attempt number
     testTitle?: string;
     maxViolations?: number; // Default: 3
     onError?: (error: string) => void;
@@ -24,6 +26,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
     stream,
     attemptId,
     testId,
+    attemptNumber,
     testTitle,
     maxViolations = 3,
     onError,
@@ -51,7 +54,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
     const isMobileDetectedRef = useRef<boolean>(false);
 
     // Violation State Refs (to avoid closure staleness in loop)
-    const violationCountsRef = useRef<ViolationCounts>({
+    const violationCountsRef = useRef<ViolationCounts & { TAB_SWITCH: number; WINDOW_SWITCH: number }>({
         HEAD_TURNED: 0,
         HEAD_TILT: 0,
         GAZE_AWAY: 0,
@@ -59,6 +62,8 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
         FACE_VISIBILITY: 0,
         MOBILE_DETECTED: 0,
         AUDIO_DETECTED: 0,
+        TAB_SWITCH: 0,
+        WINDOW_SWITCH: 0,
     });
     const activeViolationsRef = useRef<Set<ViolationType>>(new Set());
     const reportTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -70,13 +75,13 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
 
     // UI State
     const [isModelLoading, setIsModelLoading] = useState(true);
-    const [violationCounts, setViolationCounts] = useState<ViolationCounts>(violationCountsRef.current);
+    const [violationCounts, setViolationCounts] = useState(violationCountsRef.current);
     const [isViolation, setIsViolation] = useState(false);
     const [violationText, setViolationText] = useState("");
     const [totalViolations, setTotalViolations] = useState(0);
     const maxViolationsReachedRef = useRef(false);
 
-    const buildSessionReport = useCallback((counts: ViolationCounts): SessionReportUpdate => ({
+    const buildSessionReport = useCallback((counts: any): SessionReportUpdate & { tabSwitches: number; windowSwitches: number } => ({
         headsTurned: counts.HEAD_TURNED,
         headTilts: counts.HEAD_TILT,
         lookAways: counts.GAZE_AWAY,
@@ -84,7 +89,39 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
         faceVisibilityIssues: counts.FACE_VISIBILITY,
         mobileDetected: counts.MOBILE_DETECTED,
         audioIncidents: counts.AUDIO_DETECTED,
+        tabSwitches: counts.TAB_SWITCH,
+        windowSwitches: counts.WINDOW_SWITCH,
     }), []);
+
+    // Event Listeners for Tab/Window Switching
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                console.warn("🚨 TAB SWITCH DETECTED");
+                violationCountsRef.current.TAB_SWITCH += 1;
+                // Force update because this is a discrete event, not a persistent state like "face missing"
+                updateViolations(new Set(activeViolationsRef.current));
+            }
+        };
+
+        const handleWindowBlur = () => {
+            // Avoid double counting if hidden happens same time
+            if (!document.hidden) {
+                console.warn("🚨 WINDOW FOCUS LOST");
+                violationCountsRef.current.WINDOW_SWITCH += 1;
+                updateViolations(new Set(activeViolationsRef.current));
+            }
+        };
+
+        // Robust binding
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        window.addEventListener("blur", handleWindowBlur);
+
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            window.removeEventListener("blur", handleWindowBlur);
+        };
+    }, []); // Keep dependency empty. updateViolations ref is stable enough or we use functional update if needed.
 
     const flushSessionReport = useCallback(async () => {
         if (!attemptId || attemptId <= 0 || isReportingRef.current) return;
@@ -144,7 +181,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
             setTotalViolations(total);
             setViolationCounts({ ...violationCountsRef.current });
             scheduleSessionReport();
-            
+
             // Check if max violations reached
             if (total >= maxViolations && !maxViolationsReachedRef.current) {
                 maxViolationsReachedRef.current = true;
@@ -203,7 +240,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                     console.log("✅ Model ready for face detection");
                     console.log("✅ Model has methods:", Object.keys(model).join(", "));
                     console.log("✅ estimateFaces type:", typeof model.estimateFaces);
-                    
+
                     // Load COCO-SSD for mobile detection
                     console.log("📱 Loading COCO-SSD for object detection...");
                     try {
@@ -213,7 +250,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                     } catch (objErr) {
                         console.warn("⚠️ Failed to load COCO-SSD, mobile detection disabled:", objErr);
                     }
-                    
+
                     setIsModelLoading(false);
                 }
             } catch (err) {
@@ -236,41 +273,42 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
     // Display stream immediately (UI Fix: Camera turns on instantly)
     useEffect(() => {
         if (!stream || !videoRef.current) return;
-        
+
         const video = videoRef.current;
+        console.log("🎥 [ProctoringManager] Attaching stream to video", stream.id);
+
+        // Ensure the video is reset before attaching new stream to prevent freeze
+        video.srcObject = null;
         video.srcObject = stream;
         video.muted = true;
         video.playsInline = true;
-        video.autoplay = true;
-        
-        const tryPlay = () => {
-            video.play()
-                .then(() => {
-                    console.log("\u2705 Video playing successfully");
-                    console.log("Video dimensions:", video.videoWidth, "x", video.videoHeight);
-                    console.log("Video ready state:", video.readyState);
-                })
-                .catch(e => {
-                    console.error("❌ Video play failed:", e);
-                    if (onError) onError("Failed to play video stream");
-                });
-        };
-        
-        if (video.readyState >= 2) {
-            console.log("\u2705 Video ready (readyState=", video.readyState, "), starting playback");
-            tryPlay();
-        } else {
-            video.onloadedmetadata = () => {
-                console.log("\u2705 Video metadata loaded");
+
+        // Removed 'autoplay' attribute setting in JS, relying on JSX + explicit play()
+
+        const tryPlay = async () => {
+            try {
+                await video.play();
+                console.log("✅ [ProctoringManager] Video playing successfully");
                 console.log("Video dimensions:", video.videoWidth, "x", video.videoHeight);
-                tryPlay();
-            };
-        }
-        
-        return () => {
-            video.srcObject = null;
+            } catch (e) {
+                console.error("❌ [ProctoringManager] Video play failed:", e);
+                // Try playing again after interaction or delay if needed, but usually autoplays
+                if (onError) onError("Failed to play video stream: " + (e as Error).message);
+            }
         };
+
+        video.onloadedmetadata = () => {
+            console.log("\u2705 [ProctoringManager] Video metadata loaded");
+            tryPlay();
+        };
+
+        // If metadata already loaded (rare race condition)
+        if (video.readyState >= 1) {
+            tryPlay();
+        }
+
     }, [stream, onError]);
+
 
     // Monitoring Loop (AI Logic)
     useEffect(() => {
@@ -298,7 +336,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                 requestRef.current = requestAnimationFrame(checkFrame);
                 return;
             }
-            
+
             // Log when video becomes ready
             if (!videoReadyLogged) {
                 console.log("✅ Video ready for detection:", {
@@ -372,23 +410,23 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                 lastObjectCheckRef.current = now;
                 try {
                     const predictions = await objectDetectorRef.current.detect(video);
-                    
+
                     // Log all detections for debugging (first time only)
                     if (Math.random() < 0.1) { // Log 10% of the time
-                        console.log("📱 Object Detection Results:", predictions.map(p => ({ 
-                            class: p.class, 
-                            score: (p.score * 100).toFixed(1) + '%' 
+                        console.log("📱 Object Detection Results:", predictions.map(p => ({
+                            class: p.class,
+                            score: (p.score * 100).toFixed(1) + '%'
                         })));
                     }
-                    
+
                     // Check for 'cell phone' class
                     const mobileDetection = predictions.find(p => p.class === 'cell phone');
                     const isMobileDetected = mobileDetection && mobileDetection.score > 0.5;
-                    
+
                     if (isMobileDetected && !isMobileDetectedRef.current) {
                         console.warn("🚨 MOBILE PHONE DETECTED! Score:", (mobileDetection.score * 100).toFixed(1) + '%');
                     }
-                    
+
                     isMobileDetectedRef.current = !!isMobileDetected;
                     if (isMobileDetected) {
                         activeViolations.add("MOBILE_DETECTED");
@@ -412,10 +450,10 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                     requestRef.current = requestAnimationFrame(checkFrame);
                     return;
                 }
-                
+
                 // Log every 100 frames (every 50 seconds at 500ms intervals)
                 const shouldLog = !firstDetectionLogged || Math.random() < 0.01;
-                
+
                 if (shouldLog) {
                     console.log("🔍 Running face detection...", {
                         videoWidth: video.videoWidth,
@@ -426,19 +464,19 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                         timestamp: new Date().toISOString()
                     });
                 }
-                
+
                 let faces;
                 try {
                     // Try detection with default config
-                    faces = await modelRef.current.estimateFaces(video, { 
+                    faces = await modelRef.current.estimateFaces(video, {
                         flipHorizontal: false,
                         staticImageMode: false
                     });
-                    
+
                     // If no faces found and it's early attempts, try with flipHorizontal
                     if ((!faces || faces.length === 0) && !firstDetectionLogged) {
                         console.log("🔄 No faces found, trying with flipHorizontal=true...");
-                        faces = await modelRef.current.estimateFaces(video, { 
+                        faces = await modelRef.current.estimateFaces(video, {
                             flipHorizontal: true,
                             staticImageMode: false
                         });
@@ -447,7 +485,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                     console.error("❌ Error during estimateFaces call:", detectionError);
                     throw detectionError;
                 }
-                
+
                 if (shouldLog) {
                     console.log("📊 Detection result:", {
                         facesFound: faces?.length || 0,
@@ -457,7 +495,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                         firstFaceBox: faces?.[0]?.box,
                         secondFaceBox: faces?.[1]?.box
                     });
-                    
+
                     // Log details of each face if multiple detected
                     if (faces && faces.length > 1) {
                         console.log("🚨 MULTIPLE FACES DETAILS:");
@@ -469,7 +507,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                         });
                     }
                 }
-                
+
                 if (!firstDetectionLogged) {
                     console.log("✅ First face detection completed. Faces found:", faces?.length || 0);
                     console.log("Video state:", {
@@ -493,7 +531,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
 
                 if (faces && faces.length > 0) {
                     detectedFacesCount = faces.length;
-                    
+
                     // Check for multiple faces first
                     if (faces.length > 1) {
                         console.log("🚨 MULTIPLE PEOPLE DETECTED:", faces.length, "faces in frame");
@@ -511,13 +549,13 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                     const nose = keypoints.find(k => k.name === "noseTip") || keypoints[1];
                     const leftMouth = keypoints.find(k => k.name === "mouthLeft") || keypoints[61];
                     const rightMouth = keypoints.find(k => k.name === "mouthRight") || keypoints[291];
-                    
+
                     // Check if critical landmarks exist
                     const hasLeftEye = leftEye && leftEye.x > 0 && leftEye.y > 0;
                     const hasRightEye = rightEye && rightEye.x > 0 && rightEye.y > 0;
                     const hasNose = nose && nose.x > 0 && nose.y > 0;
                     const hasMouth = (leftMouth && leftMouth.x > 0) || (rightMouth && rightMouth.x > 0);
-                    
+
                     // If critical facial features are missing, flag as incomplete face
                     if (!hasLeftEye || !hasRightEye || !hasNose || !hasMouth) {
                         console.warn("⚠️ Incomplete face detected (missing eyes/nose/mouth). Possible occlusion or hand covering!");
@@ -583,19 +621,19 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                         const faceHeightPx = maxY - minY;
                         const faceRatio = faceWidthPx / video.videoWidth;
                         const aspectRatio = faceWidthPx / faceHeightPx;
-                        
+
                         // Check face size (too small or too large)
                         if (faceRatio < 0.1 || faceRatio > 0.8) {
                             activeViolations.add("FACE_VISIBILITY");
                         }
-                        
+
                         // Check aspect ratio - normal face should be roughly 0.6-1.0
                         // If aspect ratio is off, might be partially covered
                         if (aspectRatio < 0.5 || aspectRatio > 1.3) {
                             console.warn("⚠️ Abnormal face aspect ratio detected:", aspectRatio, "- possible partial coverage!");
                             activeViolations.add("FACE_VISIBILITY");
                         }
-                        
+
                         // Check if face bounding box is too small in pixels (absolute check)
                         const minFaceSize = 80; // Minimum 80px width
                         if (faceWidthPx < minFaceSize || faceHeightPx < minFaceSize) {
@@ -642,8 +680,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
         };
     }, [stream, isModelLoading, onStatusChange, updateViolations, flushSessionReport]);
 
-    // Removing old isLookingAway helper as it is integrated now
-    // const isLookingAway = ...
+
 
     return (
         <div className={`relative ${className}`}>
@@ -661,7 +698,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                 {/* Loading Badge (Non-blocking) */}
                 {isModelLoading && (
                     <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur text-white px-2 py-1 rounded text-xs flex items-center z-20 border border-white/10">
-                        <svg className="animate-spin -ml-0.5 mr-2 h-3 w-3 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <Loader2 className="animate-spin -ml-0.5 mr-2 h-3 w-3 text-white" />
                         Initializing AI...
                     </div>
                 )}
@@ -686,12 +723,14 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                             )}
                             {testId && (
                                 <div className="text-gray-500 text-[10px]">
-                                    Test ID: <span className="font-mono text-gray-700">{testId}</span> | Attempt ID: <span className="font-mono text-gray-700">{attemptId}</span>
+                                    <div className="text-gray-500 text-[10px]">
+                                        Attempt: <span className="font-mono text-gray-700">#{attemptNumber ?? attemptId}</span>
+                                    </div>
                                 </div>
                             )}
                         </div>
                     )}
-                    
+
                     {/* Total Violations Counter */}
                     <div className={`mb-2 pb-2 border-b border-border flex justify-between items-center ${totalViolations >= maxViolations ? 'bg-red-50 -m-2 p-2 mb-0' : ''}`}>
                         <span className="font-semibold text-gray-700">Total Violations:</span>
@@ -699,7 +738,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                             {totalViolations} / {maxViolations}
                         </span>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex justify-between">
                             <span className="text-gray-500">Head/Face:</span>
@@ -724,6 +763,21 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                             <span className={violationCounts.GAZE_AWAY > 0 ? "text-blue-600 font-bold" : "text-gray-700"}>
                                 {violationCounts.GAZE_AWAY}
                             </span>
+                        </div>
+                        {/* System Violations Row */}
+                        <div className="col-span-2 flex justify-between border-t border-dashed border-gray-200 pt-2 mt-1">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] text-gray-500 uppercase font-bold">Tab Switches</span>
+                                <span className={violationCounts.TAB_SWITCH > 0 ? "text-red-600 font-bold" : "text-gray-700"}>
+                                    {violationCounts.TAB_SWITCH}
+                                </span>
+                            </div>
+                            <div className="flex flex-col text-right">
+                                <span className="text-[10px] text-gray-500 uppercase font-bold">Window Leaves</span>
+                                <span className={violationCounts.WINDOW_SWITCH > 0 ? "text-red-600 font-bold" : "text-gray-700"}>
+                                    {violationCounts.WINDOW_SWITCH}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

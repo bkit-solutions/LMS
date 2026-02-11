@@ -4,5 +4,6 @@ public enum UserType {
     ROOTADMIN,
     SUPERADMIN,
     ADMIN,
+    FACULTY,
     USER
 }

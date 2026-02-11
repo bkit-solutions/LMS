@@ -31,6 +31,8 @@ public class SessionReportController {
                 .faceVisibilityIssues(req.getFaceVisibilityIssues())
                 .mobileDetected(req.getMobileDetected())
                 .audioIncidents(req.getAudioIncidents())
+                .tabSwitches(req.getTabSwitches())
+                .windowSwitches(req.getWindowSwitches())
                 .build();
         SessionReport saved = sessionReportService.upsertReport(email, attemptId, partial);
         return ResponseEntity.ok(ApiResponse.ok("Session report upserted", saved));

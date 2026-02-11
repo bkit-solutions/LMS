@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { X, ChevronLeft, Plus, Loader2, Upload, CheckCircle, Pencil, Trash2, HelpCircle, Play } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { testApi } from "../../../../services/testApi";
+import { useCollegeTheme } from "../../../../hooks/useCollegeTheme";
 import type { Test, Question } from "../../../../types";
 import QuestionFormModal from "../../../../components/admin/tests/QuestionFormModal";
 import EditTestModal from "../../../../components/admin/tests/EditTestModal";
@@ -9,6 +11,7 @@ import dummyQuestions from "../../../../data/dummyQuestions.json";
 const TestDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { applyTheme } = useCollegeTheme();
   const [test, setTest] = useState<Test | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +19,10 @@ const TestDetailPage: React.FC = () => {
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [importing, setImporting] = useState(false);
+
+  useEffect(() => {
+    applyTheme();
+  }, [applyTheme]);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -24,18 +31,22 @@ const TestDetailPage: React.FC = () => {
   }, [id]);
 
   const fetchData = async () => {
-    if (!id) return;
+    if (!id || isNaN(parseInt(id))) {
+      setError("Invalid test ID");
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
+      const testId = parseInt(id);
       const [testResponse, questionsResponse] = await Promise.all([
-        testApi.getMyTests(),
-        testApi.getQuestions(parseInt(id)),
+        testApi.getTest(testId),
+        testApi.getQuestions(testId),
       ]);
 
       if (testResponse.success && testResponse.data) {
-        const foundTest = testResponse.data.find(t => t.id === parseInt(id));
-        setTest(foundTest || null);
+        setTest(testResponse.data);
       }
 
       if (questionsResponse.success && questionsResponse.data) {
@@ -74,7 +85,7 @@ const TestDetailPage: React.FC = () => {
       setLoading(true);
       const response = await testApi.deleteTest(test.id);
       if (response.success) {
-        navigate('/dashboard/tests');
+        navigate('../tests', { relative: 'path' });
       } else {
         setError(response.message || "Failed to delete test");
         setLoading(false);
@@ -82,7 +93,7 @@ const TestDetailPage: React.FC = () => {
     } catch (err: any) {
       console.error("Delete test error:", err);
       if (err.response?.status === 200) {
-        navigate('/dashboard/tests');
+        navigate('../tests', { relative: 'path' });
       } else {
         setError(err.response?.data?.message || "Failed to delete test");
         setLoading(false);
@@ -145,15 +156,13 @@ const TestDetailPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow-lg border border-red-200 p-8 max-w-md">
           <div className="flex items-center space-x-3 mb-4">
             <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-6 h-6 text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-text">Test Not Found</h3>
           </div>
           <p className="text-text-secondary mb-6">{error || "The test you're looking for doesn't exist."}</p>
           <button
-            onClick={() => navigate('/dashboard/tests')}
+            onClick={() => navigate('../tests', { relative: 'path' })}
             className="w-full px-4 py-2 bg-primary hover:bg-secondary text-white font-semibold rounded-lg transition-colors"
           >
             Back to Tests
@@ -173,12 +182,10 @@ const TestDetailPage: React.FC = () => {
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate('/dashboard/tests')}
+                onClick={() => navigate('../tests', { relative: 'path' })}
                 className="p-2 hover:bg-surface rounded-lg transition-colors"
               >
-                <svg className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <ChevronLeft className="w-5 h-5 text-text-secondary" />
               </button>
               <div>
                 <h1 className="text-xl font-bold text-text">{test.title}</h1>
@@ -190,6 +197,20 @@ const TestDetailPage: React.FC = () => {
                 }`}>
                 {test.published ? 'Published' : 'Draft'}
               </span>
+              <button
+                onClick={() => navigate('instructions')}
+                className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface rounded-lg transition-colors flex items-center"
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Preview Test
+              </button>
+              <button
+                onClick={() => navigate('results')}
+                className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface rounded-lg transition-colors flex items-center"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2 rotate-180" />
+                View Results
+              </button>
               <button
                 onClick={() => setShowEditModal(true)}
                 className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface rounded-lg transition-colors"
@@ -254,7 +275,7 @@ const TestDetailPage: React.FC = () => {
 
           {/* Right Side - Questions */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-gradient-to-r from-primary to-secondary rounded-lg shadow-lg p-6 text-white">
+            <div className="bg-primary rounded-lg shadow-lg p-6 text-white">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold mb-1">Questions Bank</h2>
@@ -269,9 +290,7 @@ const TestDetailPage: React.FC = () => {
                     disabled={importing}
                     className="px-6 py-3 bg-white text-primary hover:bg-red-50 font-semibold rounded-lg shadow-md transition-all duration-200 flex items-center space-x-2 disabled:opacity-50"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
+                    <Plus className="w-5 h-5" />
                     <span>Add Question</span>
                   </button>
                   <button
@@ -281,17 +300,12 @@ const TestDetailPage: React.FC = () => {
                   >
                     {importing ? (
                       <>
-                        <svg className="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                        <Loader2 className="animate-spin h-5 w-5 text-primary" />
                         <span>Importing... ({importProgress.current}/{importProgress.total})</span>
                       </>
                     ) : (
                       <>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
+                        <Upload className="w-5 h-5" />
                         <span>Import Dummy</span>
                       </>
                     )}
@@ -356,9 +370,7 @@ const TestDetailPage: React.FC = () => {
                                       {optionText}
                                     </span>
                                     {isCorrect && (
-                                      <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                      </svg>
+                                      <CheckCircle className="w-5 h-5 text-green-600" />
                                     )}
                                   </div>
                                 );
@@ -383,18 +395,14 @@ const TestDetailPage: React.FC = () => {
                             className="p-2 text-text-secondary hover:text-primary hover:bg-red-50 rounded-lg transition-colors"
                             title="Edit"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
+                            <Pencil className="w-5 h-5" />
                           </button>
                           <button
                             onClick={() => handleDeleteQuestion(question.id)}
                             className="p-2 text-text-secondary hover:text-primary hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                            <Trash2 className="w-5 h-5" />
                           </button>
                         </div>
                       </div>
@@ -405,9 +413,7 @@ const TestDetailPage: React.FC = () => {
             ) : (
               <div className="bg-white rounded-lg shadow-sm border border-border p-12 text-center">
                 <div className="w-20 h-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-10 h-10 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                  <HelpCircle className="w-10 h-10 text-text-secondary" />
                 </div>
                 <h3 className="text-xl font-semibold text-text mb-2">No Questions Yet</h3>
                 <p className="text-text-secondary mb-6">Start building your test by adding questions</p>
@@ -418,9 +424,7 @@ const TestDetailPage: React.FC = () => {
                   }}
                   className="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-secondary text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                 >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
+                  <Plus className="w-5 h-5 mr-2" />
                   Add Your First Question
                 </button>
               </div>

@@ -47,6 +47,12 @@ export const testApi = {
     return response.data;
   },
 
+  // Get specific test details
+  getTest: async (testId: number): Promise<ApiResponse<Test>> => {
+    const response = await api.get(`/api/tests/${testId}`);
+    return response.data;
+  },
+
   // Create test
   createTest: async (data: CreateTestRequest): Promise<ApiResponse<Test>> => {
     const response = await api.post("/api/tests", data);

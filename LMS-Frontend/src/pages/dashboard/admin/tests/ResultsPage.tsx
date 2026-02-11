@@ -1,17 +1,29 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { testApi } from "../../../../services/testApi";
 import type { Result } from "../../../../types";
+import { Video } from "lucide-react";
+import SessionReportModal from "../../../../components/admin/tests/SessionReportModal";
 
 const ResultsPage: React.FC = () => {
+  const { testId } = useParams<{ testId: string }>();
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedAttemptId, setSelectedAttemptId] = useState<number | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchResults = async () => {
       try {
         setLoading(true);
-        const response = await testApi.getAdminResults();
+        let response;
+        if (testId) {
+          response = await testApi.getTestResults(parseInt(testId));
+        } else {
+          response = await testApi.getAdminResults();
+        }
+
         if (response.success && response.data) {
           setResults(response.data);
         } else {
@@ -25,7 +37,7 @@ const ResultsPage: React.FC = () => {
     };
 
     fetchResults();
-  }, []);
+  }, [testId]);
 
   const handleDeleteResult = async (resultId: number) => {
     if (!confirm("Are you sure you want to delete this result?")) return;
@@ -91,6 +103,9 @@ const ResultsPage: React.FC = () => {
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
+                      Report
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
                       Actions
                     </th>
                   </tr>
@@ -122,6 +137,18 @@ const ResultsPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
                         <button
+                          onClick={() => {
+                            setSelectedAttemptId(result.id);
+                            setIsReportModalOpen(true);
+                          }}
+                          className="flex items-center text-blue-600 hover:text-blue-900 font-medium transition-colors"
+                        >
+                          <Video className="w-4 h-4 mr-1" />
+                          View
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
+                        <button
                           onClick={() => handleDeleteResult(result.id)}
                           className="text-red-600 hover:text-red-900 font-medium"
                         >
@@ -138,8 +165,16 @@ const ResultsPage: React.FC = () => {
               No results yet
             </div>
           )}
+
         </div>
       </div>
+
+      {/* Session Report Modal */}
+      <SessionReportModal
+        attemptId={selectedAttemptId}
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+      />
     </div>
   );
 };

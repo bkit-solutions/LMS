@@ -65,6 +65,13 @@ public class TestController {
         return ResponseEntity.ok(ApiResponse.ok("Available tests", tests));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<TestEntity>> getTest(Authentication auth, @PathVariable Long id) {
+        String email = (String) auth.getPrincipal();
+        TestEntity t = testService.getTestDetails(email, id);
+        return ResponseEntity.ok(ApiResponse.ok("Test details", t));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(Authentication auth, @PathVariable Long id) {
         String email = (String) auth.getPrincipal();

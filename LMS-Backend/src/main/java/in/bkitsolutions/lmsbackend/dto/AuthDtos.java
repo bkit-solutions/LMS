@@ -13,6 +13,8 @@ public class AuthDtos {
         private String email;
         @NotBlank
         private String password;
+        // Optional: College code for college-specific login
+        private String collegeCode;
     }
 
     @Data
@@ -30,6 +32,20 @@ public class AuthDtos {
         @NotBlank
         @Size(min = 6)
         private String password;
+        private Long collegeId;
+    }
+
+    @Data
+    public static class CreateFacultyRequest {
+        @NotBlank
+        private String name;
+        @Email
+        @NotBlank
+        private String email;
+        @NotBlank
+        @Size(min = 6)
+        private String password;
+        private Long collegeId;
     }
 
     @Data
@@ -42,6 +58,7 @@ public class AuthDtos {
         @NotBlank
         @Size(min = 6)
         private String password;
+        private Long collegeId;
     }
 
     @Data

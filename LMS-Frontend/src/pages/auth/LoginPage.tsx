@@ -1,54 +1,46 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { loginAsync } from "../../features/auth/authSlice";
+import { BookOpen, Eye, EyeOff } from "lucide-react";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.auth);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) return;
     dispatch(loginAsync({ email, password }));
   };
 
   return (
-    <div className="flex items-center justify-center p-4">
-      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md max-w-md w-full">
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-100 flex items-center justify-center p-4">
+      <div className="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-red-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <BookOpen className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-text mb-1">Welcome Back</h2>
-          <p className="text-sm text-text-secondary">
-            Please sign in to your account
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">BKIT LMS</h1>
+          <p className="text-gray-600">
+            Learning Management System
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 bg-accent/10 border border-accent/20 text-accent px-4 py-3 rounded text-sm">
-            {error}
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            <div className="font-medium">Authentication Failed</div>
+            <div>{error}</div>
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-text mb-1.5"
+              className="block text-sm font-medium text-gray-900 mb-2"
             >
               Email Address
             </label>
@@ -58,37 +50,65 @@ const LoginForm: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-text transition-colors"
-              placeholder="Enter your email"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent text-gray-900 transition-all bg-white"
+              placeholder="Enter your email address"
+              autoComplete="email"
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-text mb-1.5"
+              className="block text-sm font-medium text-gray-900 mb-2"
             >
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-text transition-colors"
-              placeholder="Enter your password"
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent text-gray-900 transition-all bg-white"
+                placeholder="Enter your password"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-primary hover:bg-secondary disabled:bg-text-secondary text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 disabled:cursor-not-allowed"
+            disabled={loading || !email || !password}
+            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 disabled:cursor-not-allowed shadow-lg hover:shadow-xl disabled:shadow-none"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Signing in...</span>
+              </div>
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
+
+        <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+          <p className="text-sm text-gray-500">
+            Secure authentication powered by JWT
+          </p>
+        </div>
       </div>
     </div>
   );

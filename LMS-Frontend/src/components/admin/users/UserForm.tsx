@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { User, FileText, ChevronDown, Download, Loader2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { clearError } from "../../../features/auth/authSlice";
 import { UserCreationMode } from "../../../types";
@@ -220,19 +221,7 @@ const GenericUserForm: React.FC<GenericUserFormProps> = ({
           <div
             className={`w-16 h-16 ${getIconColor()} rounded-lg flex items-center justify-center mx-auto mb-4`}
           >
-            <svg
-              className="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
+            <User className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-text mb-1">{title}</h2>
           <p className="text-sm text-text-secondary">{description}</p>
@@ -329,36 +318,14 @@ const GenericUserForm: React.FC<GenericUserFormProps> = ({
               className="w-full flex items-center justify-between text-left"
             >
               <div className="flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
+                <FileText className="w-5 h-5 text-primary" />
                 <span className="text-sm font-semibold text-text">
                   Bulk Create Users from CSV
                 </span>
               </div>
-              <svg
+              <ChevronDown
                 className={`w-4 h-4 text-text-secondary transition-transform ${showCsvSection ? "rotate-180" : ""}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+              />
             </button>
 
             {showCsvSection && (
@@ -373,19 +340,7 @@ const GenericUserForm: React.FC<GenericUserFormProps> = ({
                     download="sample_students.csv"
                     className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 underline"
                   >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                      />
-                    </svg>
+                    <Download className="w-3.5 h-3.5" />
                     Download sample CSV
                   </a>
                 </div>
@@ -454,25 +409,7 @@ const GenericUserForm: React.FC<GenericUserFormProps> = ({
                       >
                         {csvUploading ? (
                           <>
-                            <svg
-                              className="animate-spin h-4 w-4"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              />
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                              />
-                            </svg>
+                            <Loader2 className="animate-spin h-4 w-4" />
                             Creating users...
                           </>
                         ) : (

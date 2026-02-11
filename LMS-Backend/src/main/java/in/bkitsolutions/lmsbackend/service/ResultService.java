@@ -1,5 +1,8 @@
 package in.bkitsolutions.lmsbackend.service;
 
+import in.bkitsolutions.lmsbackend.dto.AttemptDtos;
+import in.bkitsolutions.lmsbackend.dto.TestDtos;
+import in.bkitsolutions.lmsbackend.dto.UserDtos;
 import in.bkitsolutions.lmsbackend.model.TestAttempt;
 import in.bkitsolutions.lmsbackend.model.TestEntity;
 import in.bkitsolutions.lmsbackend.model.User;
@@ -13,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ResultService {
@@ -31,39 +35,80 @@ public class ResultService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
     }
 
-    public List<TestAttempt> adminAllResults(String requesterEmail) {
+    public List<AttemptDtos.ResultDto> adminAllResults(String requesterEmail) {
         User requester = requireUser(requesterEmail);
+        List<TestAttempt> attempts;
         if (requester.getType() == UserType.SUPERADMIN) {
-            return testAttemptRepository.findAll();
-        }
-        if (requester.getType() != UserType.ADMIN) {
+            attempts = testAttemptRepository.findAll();
+        } else if (requester.getType() == UserType.ADMIN) {
+            List<TestEntity> myTests = testRepository.findByCreatedBy(requester);
+            attempts = new ArrayList<>();
+            for (TestEntity t : myTests) {
+                attempts.addAll(testAttemptRepository.findByTest(t));
+            }
+        } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin/superadmin can view results");
         }
-        List<TestEntity> myTests = testRepository.findByCreatedBy(requester);
-        List<TestAttempt> out = new ArrayList<>();
-        for (TestEntity t : myTests) {
-            out.addAll(testAttemptRepository.findByTest(t));
-        }
-        return out;
+        return attempts.stream().map(this::toResultDto).collect(Collectors.toList());
     }
 
-    public List<TestAttempt> adminTestResults(String requesterEmail, Long testId) {
+    private AttemptDtos.ResultDto toResultDto(TestAttempt attempt) {
+        AttemptDtos.ResultDto dto = new AttemptDtos.ResultDto();
+        dto.setId(attempt.getId());
+        dto.setTest(toTestResponse(attempt.getTest()));
+        dto.setStudent(toUserResponse(attempt.getStudent()));
+        dto.setAttemptNumber(attempt.getAttemptNumber());
+        dto.setStartedAt(attempt.getStartedAt() != null ? attempt.getStartedAt().toString() : null);
+        dto.setSubmittedAt(attempt.getSubmittedAt() != null ? attempt.getSubmittedAt().toString() : null);
+        dto.setScore(attempt.getScore());
+        dto.setCompleted(attempt.getCompleted());
+        dto.setUpdatedAt(attempt.getUpdatedAt() != null ? attempt.getUpdatedAt().toString() : null);
+        dto.setIsValidTest(attempt.getSessionReport() != null ? attempt.getSessionReport().getIsValidTest() : null);
+        return dto;
+    }
+
+    private TestDtos.TestResponse toTestResponse(TestEntity test) {
+        TestDtos.TestResponse dto = new TestDtos.TestResponse();
+        dto.setId(test.getId());
+        dto.setTitle(test.getTitle());
+        dto.setDescription(test.getDescription());
+        dto.setStartTime(test.getStartTime() != null ? test.getStartTime().toString() : null);
+        dto.setEndTime(test.getEndTime() != null ? test.getEndTime().toString() : null);
+        dto.setTotalMarks(test.getTotalMarks());
+        dto.setPublished(test.getPublished());
+        dto.setMaxAttempts(test.getMaxAttempts());
+        dto.setCreatedBy(toUserResponse(test.getCreatedBy()));
+        return dto;
+    }
+
+    private UserDtos.UserResponse toUserResponse(User user) {
+        UserDtos.UserResponse dto = new UserDtos.UserResponse();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setName(user.getName());
+        dto.setType(user.getType());
+        return dto;
+    }
+
+    public List<AttemptDtos.ResultDto> adminTestResults(String requesterEmail, Long testId) {
         User requester = requireUser(requesterEmail);
         TestEntity test = testRepository.findById(testId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Test not found"));
         if (requester.getType() != UserType.SUPERADMIN && !test.getCreatedBy().getId().equals(requester.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
-        return testAttemptRepository.findByTest(test);
+        List<TestAttempt> attempts = testAttemptRepository.findByTest(test);
+        return attempts.stream().map(this::toResultDto).collect(Collectors.toList());
     }
 
-    public List<TestAttempt> myResults(String requesterEmail) {
+    public List<AttemptDtos.ResultDto> myResults(String requesterEmail) {
         User requester = requireUser(requesterEmail);
         // Allow USER and ADMIN for testing
         if (requester.getType() != UserType.USER && requester.getType() != UserType.ADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users and admins can view their results");
         }
-        return testAttemptRepository.findByStudent(requester);
+        List<TestAttempt> attempts = testAttemptRepository.findByStudent(requester);
+        return attempts.stream().map(this::toResultDto).collect(Collectors.toList());
     }
 
     public void deleteResult(String requesterEmail, Long resultId) {

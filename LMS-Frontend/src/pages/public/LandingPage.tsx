@@ -1,18 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { CirclePlay, ClipboardList, BarChart3, Users, BookOpen } from "lucide-react";
 
 const LandingPage: React.FC = () => {
   return (
     <div className="bg-background min-h-screen flex flex-col">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-surface to-background pt-24 pb-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="bg-surface pt-24 pb-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="w-full text-center relative z-10">
           <div className="inline-block px-4 py-1.5 bg-red-50 text-primary rounded-full text-sm font-semibold mb-8 animate-fade-in-up border border-red-100">
             Next Generation Learning Platform
           </div>
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-text tracking-tight mb-8 leading-tight">
             Master Your Skills with <br className="hidden sm:block" />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+            <span className="text-primary">
               BKIT LMS
             </span>
           </h1>
@@ -38,13 +39,10 @@ const LandingPage: React.FC = () => {
 
           {/* Dashboard Preview Image Placeholder */}
           <div className="mt-16 relative mx-auto max-w-5xl rounded-2xl shadow-2xl border border-border overflow-hidden bg-white aspect-[16/9] animate-fade-in flex items-center justify-center group">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            <div className="absolute inset-0 bg-black/10"></div>
             <div className="text-center p-8 z-10">
               <div className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-                <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <CirclePlay className="w-10 h-10 text-primary" />
               </div>
               <p className="text-white font-semibold text-lg drop-shadow-md">Interactive Dashboard Experience</p>
             </div>
@@ -66,9 +64,7 @@ const LandingPage: React.FC = () => {
             {/* Feature 1 */}
             <div className="p-8 bg-surface rounded-2xl border border-border hover:shadow-lg transition-all duration-300 hover:border-primary/20 group">
               <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 text-primary shadow-sm group-hover:scale-110 transition-transform">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
+                <ClipboardList className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold text-text mb-3">Smart Test Management</h3>
               <p className="text-text-secondary">
@@ -79,9 +75,7 @@ const LandingPage: React.FC = () => {
             {/* Feature 2 */}
             <div className="p-8 bg-surface rounded-2xl border border-border hover:shadow-lg transition-all duration-300 hover:border-primary/20 group">
               <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 text-primary shadow-sm group-hover:scale-110 transition-transform">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
+                <BarChart3 className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold text-text mb-3">Advanced Analytics</h3>
               <p className="text-text-secondary">
@@ -92,9 +86,7 @@ const LandingPage: React.FC = () => {
             {/* Feature 3 */}
             <div className="p-8 bg-surface rounded-2xl border border-border hover:shadow-lg transition-all duration-300 hover:border-primary/20 group">
               <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 text-primary shadow-sm group-hover:scale-110 transition-transform">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
+                <Users className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold text-text mb-3">Role-Based Access</h3>
               <p className="text-text-secondary">
@@ -112,9 +104,7 @@ const LandingPage: React.FC = () => {
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
+                  <BookOpen className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-xl font-bold text-text">BKIT LMS</span>
               </div>

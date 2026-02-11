@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { X, Loader2 } from "lucide-react";
 import { testApi } from "../../../services/testApi";
 import type { Test, UpdateTestRequest } from "../../../types";
 
@@ -80,227 +81,224 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ test, isOpen, onClose, on
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden animate-fade-in">
-                <div className="px-6 py-4 border-b border-border bg-gray-50 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fade-in flex flex-col max-h-[90vh]">
+                <div className="px-6 py-4 border-b border-border bg-gray-50 flex justify-between items-center shrink-0">
                     <h3 className="text-lg font-bold text-text">Edit Test Details</h3>
-                    <button onClick={onClose} className="text-text-secondary hover:text-text">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                    <button onClick={onClose} className="text-text-secondary hover:text-text transition-colors">
+                        <X className="w-6 h-6" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {error && (
-                        <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm border border-red-200">
-                            {error}
-                        </div>
-                    )}
+                <form onSubmit={handleSubmit} className="flex flex-col flex-grow overflow-hidden">
+                    <div className="p-6 space-y-4 overflow-y-auto flex-grow custom-scrollbar">
+                        {error && (
+                            <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm border border-red-200">
+                                {error}
+                            </div>
+                        )}
 
-                    <div>
-                        <label className="block text-sm font-medium text-text mb-1">Title</label>
-                        <input
-                            type="text"
-                            name="title"
-                            value={formData.title || ""}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-text mb-1">Description</label>
-                        <textarea
-                            name="description"
-                            value={formData.description || ""}
-                            onChange={handleChange}
-                            rows={3}
-                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text mb-1">Start Time</label>
+                            <label className="block text-sm font-medium text-text mb-1">Title</label>
                             <input
-                                type="datetime-local"
-                                name="startTime"
-                                value={formData.startTime || ""}
+                                type="text"
+                                name="title"
+                                value={formData.title || ""}
                                 onChange={handleChange}
-                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                                 required
                             />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text mb-1">End Time</label>
-                            <input
-                                type="datetime-local"
-                                name="endTime"
-                                value={formData.endTime || ""}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                                required
-                            />
-                        </div>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text mb-1">Total Marks</label>
-                            <input
-                                type="number"
-                                name="totalMarks"
-                                value={formData.totalMarks || 0}
+                            <label className="block text-sm font-medium text-text mb-1">Description</label>
+                            <textarea
+                                name="description"
+                                value={formData.description || ""}
                                 onChange={handleChange}
-                                min="0"
-                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                rows={3}
+                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none transition-all"
                             />
                         </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-text mb-1">Start Time</label>
+                                <input
+                                    type="datetime-local"
+                                    name="startTime"
+                                    value={formData.startTime || ""}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-text mb-1">End Time</label>
+                                <input
+                                    type="datetime-local"
+                                    name="endTime"
+                                    value={formData.endTime || ""}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-text mb-1">Total Marks</label>
+                                <input
+                                    type="number"
+                                    name="totalMarks"
+                                    value={formData.totalMarks || 0}
+                                    onChange={handleChange}
+                                    min="0"
+                                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-text mb-1">Duration (Minutes)</label>
+                                <input
+                                    type="number"
+                                    name="durationMinutes"
+                                    value={formData.durationMinutes || ""}
+                                    onChange={handleChange}
+                                    min="1"
+                                    placeholder="Unlimited"
+                                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-text mb-1">Passing Percentage</label>
+                                <input
+                                    type="number"
+                                    name="passingPercentage"
+                                    value={formData.passingPercentage || ""}
+                                    onChange={handleChange}
+                                    min="0"
+                                    max="100"
+                                    placeholder="40"
+                                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-text mb-1">Difficulty Level</label>
+                                <select
+                                    name="difficultyLevel"
+                                    value={formData.difficultyLevel || "MEDIUM"}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white transition-all"
+                                >
+                                    <option value="EASY">Easy</option>
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="HARD">Hard</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div>
-                            <label className="block text-sm font-medium text-text mb-1">Duration (Minutes)</label>
+                            <label className="block text-sm font-medium text-text mb-1">Max Attempts</label>
                             <input
                                 type="number"
-                                name="durationMinutes"
-                                value={formData.durationMinutes || ""}
+                                name="maxAttempts"
+                                value={formData.maxAttempts || 1}
                                 onChange={handleChange}
                                 min="1"
-                                placeholder="Unlimited"
-                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                required
                             />
                         </div>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text mb-1">Passing Percentage</label>
-                            <input
-                                type="number"
-                                name="passingPercentage"
-                                value={formData.passingPercentage || ""}
+                            <label className="block text-sm font-medium text-text mb-1">Detailed Instructions</label>
+                            <textarea
+                                name="instructions"
+                                value={formData.instructions || ""}
                                 onChange={handleChange}
-                                min="0"
-                                max="100"
-                                placeholder="40"
-                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                rows={4}
+                                placeholder="Test instructions, rules, and guidelines"
+                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none transition-all"
                             />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text mb-1">Difficulty Level</label>
-                            <select
-                                name="difficultyLevel"
-                                value={formData.difficultyLevel || "MEDIUM"}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
-                            >
-                                <option value="EASY">Easy</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="HARD">Hard</option>
-                            </select>
+
+                        <div className="space-y-3">
+                            <label className="flex items-start p-4 bg-blue-50 rounded-lg border border-blue-100 cursor-pointer hover:bg-blue-100 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    name="proctored"
+                                    checked={formData.proctored || false}
+                                    onChange={handleChange}
+                                    className="mt-1 w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all"
+                                />
+                                <div className="ml-3">
+                                    <span className="block text-sm font-semibold text-blue-900">
+                                        Enable Proctoring (AI Monitoring)
+                                    </span>
+                                    <span className="block text-xs text-blue-700 mt-0.5">
+                                        Students will be monitored with camera/audio for cheating detection
+                                    </span>
+                                </div>
+                            </label>
+
+                            <label className="flex items-start p-4 bg-green-50 rounded-lg border border-green-100 cursor-pointer hover:bg-green-100 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    name="showResultsImmediately"
+                                    checked={formData.showResultsImmediately || false}
+                                    onChange={handleChange}
+                                    className="mt-1 w-5 h-5 text-green-600 focus:ring-green-500 border-gray-300 rounded transition-all"
+                                />
+                                <div className="ml-3">
+                                    <span className="block text-sm font-semibold text-green-900">
+                                        Show Results Immediately
+                                    </span>
+                                    <span className="block text-xs text-green-700 mt-0.5">
+                                        Display test results to students as soon as they submit
+                                    </span>
+                                </div>
+                            </label>
+
+                            <label className="flex items-start p-4 bg-purple-50 rounded-lg border border-purple-100 cursor-pointer hover:bg-purple-100 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    name="allowReview"
+                                    checked={formData.allowReview || false}
+                                    onChange={handleChange}
+                                    className="mt-1 w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded transition-all"
+                                />
+                                <div className="ml-3">
+                                    <span className="block text-sm font-semibold text-purple-900">
+                                        Allow Review After Submission
+                                    </span>
+                                    <span className="block text-xs text-purple-700 mt-0.5">
+                                        Students can review their answers and correct answers after submission
+                                    </span>
+                                </div>
+                            </label>
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-text mb-1">Max Attempts</label>
-                        <input
-                            type="number"
-                            name="maxAttempts"
-                            value={formData.maxAttempts || 1}
-                            onChange={handleChange}
-                            min="1"
-                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-text mb-1">Detailed Instructions</label>
-                        <textarea
-                            name="instructions"
-                            value={formData.instructions || ""}
-                            onChange={handleChange}
-                            rows={4}
-                            placeholder="Test instructions, rules, and guidelines"
-                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                        />
-                    </div>
-                    
-                    <div className="space-y-3">
-                        <div className="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <input
-                                type="checkbox"
-                                name="proctored"
-                                checked={formData.proctored || false}
-                                onChange={handleChange}
-                                className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-border rounded"
-                            />
-                            <div className="ml-3">
-                                <label className="block text-sm font-semibold text-blue-900">
-                                    Enable Proctoring (AI Monitoring)
-                                </label>
-                                <p className="text-xs text-blue-700">
-                                    Students will be monitored with camera/audio for cheating detection
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center p-4 bg-green-50 rounded-lg border border-green-200">
-                            <input
-                                type="checkbox"
-                                name="showResultsImmediately"
-                                checked={formData.showResultsImmediately || false}
-                                onChange={handleChange}
-                                className="w-5 h-5 text-green-600 focus:ring-green-500 border-border rounded"
-                            />
-                            <div className="ml-3">
-                                <label className="block text-sm font-semibold text-green-900">
-                                    Show Results Immediately
-                                </label>
-                                <p className="text-xs text-green-700">
-                                    Display test results to students as soon as they submit
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                            <input
-                                type="checkbox"
-                                name="allowReview"
-                                checked={formData.allowReview || false}
-                                onChange={handleChange}
-                                className="w-5 h-5 text-purple-600 focus:ring-purple-500 border-border rounded"
-                            />
-                            <div className="ml-3">
-                                <label className="block text-sm font-semibold text-purple-900">
-                                    Allow Review After Submission
-                                </label>
-                                <p className="text-xs text-purple-700">
-                                    Students can review their answers and correct answers after submission
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end space-x-3 pt-4 border-t border-border mt-6">
+                    <div className="flex justify-end space-x-3 px-6 py-4 border-t border-border bg-gray-50 shrink-0">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium text-text-secondary bg-surface hover:bg-gray-200 rounded-lg transition-colors"
+                            className="px-4 py-2 text-sm font-medium text-text-secondary bg-white border border-border hover:bg-gray-50 rounded-lg transition-colors shadow-sm"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-secondary rounded-lg shadow-sm transition-colors disabled:opacity-50 flex items-center"
+                            className="px-6 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg shadow-md transition-all hover:translate-y-[-1px] disabled:opacity-50 disabled:hover:translate-y-0 flex items-center"
                         >
                             {loading ? (
                                 <>
-                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
+                                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
                                     Saving...
                                 </>
                             ) : (

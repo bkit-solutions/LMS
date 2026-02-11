@@ -2,6 +2,7 @@ package in.bkitsolutions.lmsbackend.controller;
 
 import in.bkitsolutions.lmsbackend.dto.ApiResponse;
 import in.bkitsolutions.lmsbackend.dto.AuthDtos;
+import in.bkitsolutions.lmsbackend.dto.UserDtos;
 import in.bkitsolutions.lmsbackend.model.User;
 import in.bkitsolutions.lmsbackend.security.JwtUtil;
 import in.bkitsolutions.lmsbackend.service.AuthService;
@@ -65,14 +66,27 @@ public class AuthController {
     }
 
     @PostMapping("/create-user")
-    public ResponseEntity<ApiResponse<Void>> createUser(Authentication authentication,
+    public ResponseEntity<ApiResponse<UserDtos.UserResponse>> createUser(Authentication authentication,
                                            @Valid @RequestBody AuthDtos.CreateUserRequest req) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
         }
         String requesterEmail = (String) authentication.getPrincipal();
-        authService.createUser(requesterEmail, req);
+        User user = authService.createUser(requesterEmail, req);
+        UserDtos.UserResponse userResponse = UserDtos.UserResponse.fromEntity(user);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok("User created successfully"));
+                .body(ApiResponse.ok("User created successfully", userResponse));
+    }
+
+    @PostMapping("/create-faculty")
+    public ResponseEntity<ApiResponse<Void>> createFaculty(Authentication authentication,
+                                           @Valid @RequestBody AuthDtos.CreateFacultyRequest req) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+        String requesterEmail = (String) authentication.getPrincipal();
+        authService.createFaculty(requesterEmail, req);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Faculty created successfully"));
     }
 }

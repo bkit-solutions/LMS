@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { FileText, AlertCircle, Loader2, Check, Eye, Shield, TrendingUp, BookOpen } from "lucide-react";
 import { testApi } from "../../../services/testApi";
+import { useCollegeTheme } from "../../../hooks/useCollegeTheme";
 import type { CreateTestRequest } from "../../../types";
 
 interface CreateTestFormProps {
@@ -8,6 +10,7 @@ interface CreateTestFormProps {
 }
 
 const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) => {
+  const { applyTheme } = useCollegeTheme();
   const [formData, setFormData] = useState<CreateTestRequest>({
     title: "",
     description: "",
@@ -26,6 +29,10 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    applyTheme();
+  }, [applyTheme]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,13 +62,11 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg border border-border max-w-3xl mx-auto">
-      <div className="px-6 py-5 border-b border-border bg-gradient-to-r from-primary to-secondary">
+    <div className="h-full flex flex-col">
+      <div className="px-6 py-5 border-b border-border bg-primary flex-shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+            <FileText className="w-6 h-6 text-primary" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-white">Create New Test</h2>
@@ -70,275 +75,393 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-text mb-2">
-              Test Title <span className="text-primary">*</span>
-            </label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              placeholder="Enter test title"
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-text mb-2">
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={4}
-              placeholder="Provide test description and instructions"
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-text mb-2">
-              Start Time <span className="text-primary">*</span>
-            </label>
-            <input
-              type="datetime-local"
-              name="startTime"
-              value={formData.startTime}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-text mb-2">
-              End Time <span className="text-primary">*</span>
-            </label>
-            <input
-              type="datetime-local"
-              name="endTime"
-              value={formData.endTime}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-text mb-2">
-              Duration (Minutes)
-            </label>
-            <input
-              type="number"
-              name="durationMinutes"
-              value={formData.durationMinutes || ""}
-              onChange={handleChange}
-              min="1"
-              placeholder="Leave empty for unlimited"
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-            <p className="text-xs text-text-secondary mt-1">Leave empty for unlimited duration</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-text mb-2">
-              Total Marks <span className="text-primary">*</span>
-            </label>
-            <input
-              type="number"
-              name="totalMarks"
-              value={formData.totalMarks}
-              onChange={handleChange}
-              min="0"
-              required
-              placeholder="100"
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-text mb-2">
-              Passing Percentage
-            </label>
-            <input
-              type="number"
-              name="passingPercentage"
-              value={formData.passingPercentage || ""}
-              onChange={handleChange}
-              min="0"
-              max="100"
-              placeholder="40"
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-            <p className="text-xs text-text-secondary mt-1">Minimum percentage required to pass (0-100)</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-text mb-2">
-              Difficulty Level
-            </label>
-            <select
-              name="difficultyLevel"
-              value={formData.difficultyLevel || "MEDIUM"}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
-            >
-              <option value="EASY">Easy</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HARD">Hard</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-text mb-2">
-              Max Attempts <span className="text-primary">*</span>
-            </label>
-            <input
-              type="number"
-              name="maxAttempts"
-              value={formData.maxAttempts}
-              onChange={handleChange}
-              min="1"
-              required
-              placeholder="1"
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-text mb-2">
-              Detailed Instructions
-            </label>
-            <textarea
-              name="instructions"
-              value={formData.instructions || ""}
-              onChange={handleChange}
-              rows={4}
-              placeholder="Provide detailed test instructions, rules, and guidelines"
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
-            />
-            <p className="text-xs text-text-secondary mt-1">These instructions will be shown to students before starting the test</p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center p-4 bg-surface rounded-lg border border-border">
-            <input
-              type="checkbox"
-              name="published"
-              checked={formData.published}
-              onChange={handleChange}
-              className="w-5 h-5 text-primary focus:ring-primary border-border rounded"
-            />
-            <div className="ml-3">
-              <label className="block text-sm font-semibold text-text">
-                Publish Immediately
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        {/* Left Side - Form Inputs */}
+        <div className="flex-1 overflow-y-auto p-6 lg:max-w-md">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-semibold text-text mb-2">
+                Test Title <span className="text-primary">*</span>
               </label>
-              <p className="text-xs text-text-secondary">Make this test available to students right away</p>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                placeholder="Enter test title"
+                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              />
             </div>
-          </div>
-          
-          <div className="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <input
-              type="checkbox"
-              name="proctored"
-              checked={formData.proctored}
-              onChange={handleChange}
-              className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-border rounded"
-            />
-            <div className="ml-3">
-              <label className="block text-sm font-semibold text-blue-900">
-                Enable Proctoring (AI Monitoring)
+
+            <div>
+              <label className="block text-sm font-semibold text-text mb-2">
+                Description
               </label>
-              <p className="text-xs text-blue-700">
-                Students will be monitored with camera/audio for cheating detection
-              </p>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={3}
+                placeholder="Provide test description and instructions"
+                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+              />
             </div>
-          </div>
 
-          <div className="flex items-center p-4 bg-green-50 rounded-lg border border-green-200">
-            <input
-              type="checkbox"
-              name="showResultsImmediately"
-              checked={formData.showResultsImmediately}
-              onChange={handleChange}
-              className="w-5 h-5 text-green-600 focus:ring-green-500 border-border rounded"
-            />
-            <div className="ml-3">
-              <label className="block text-sm font-semibold text-green-900">
-                Show Results Immediately
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-text mb-2">
+                  Start Time <span className="text-primary">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  name="startTime"
+                  value={formData.startTime}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-text mb-2">
+                  End Time <span className="text-primary">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  name="endTime"
+                  value={formData.endTime}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-text mb-2">
+                  Duration (Minutes)
+                </label>
+                <input
+                  type="number"
+                  name="durationMinutes"
+                  value={formData.durationMinutes || ""}
+                  onChange={handleChange}
+                  min="1"
+                  placeholder="Unlimited"
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-text mb-2">
+                  Total Marks <span className="text-primary">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="totalMarks"
+                  value={formData.totalMarks}
+                  onChange={handleChange}
+                  min="0"
+                  required
+                  placeholder="100"
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-text mb-2">
+                  Passing %
+                </label>
+                <input
+                  type="number"
+                  name="passingPercentage"
+                  value={formData.passingPercentage || ""}
+                  onChange={handleChange}
+                  min="0"
+                  max="100"
+                  placeholder="40"
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-text mb-2">
+                  Difficulty
+                </label>
+                <select
+                  name="difficultyLevel"
+                  value={formData.difficultyLevel || "MEDIUM"}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
+                >
+                  <option value="EASY">Easy</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HARD">Hard</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-text mb-2">
+                Max Attempts <span className="text-primary">*</span>
               </label>
-              <p className="text-xs text-green-700">
-                Display test results to students as soon as they submit
-              </p>
+              <input
+                type="number"
+                name="maxAttempts"
+                value={formData.maxAttempts}
+                onChange={handleChange}
+                min="1"
+                required
+                placeholder="1"
+                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              />
             </div>
-          </div>
 
-          <div className="flex items-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-            <input
-              type="checkbox"
-              name="allowReview"
-              checked={formData.allowReview}
-              onChange={handleChange}
-              className="w-5 h-5 text-purple-600 focus:ring-purple-500 border-border rounded"
-            />
-            <div className="ml-3">
-              <label className="block text-sm font-semibold text-purple-900">
-                Allow Review After Submission
+            <div>
+              <label className="block text-sm font-semibold text-text mb-2">
+                Instructions
               </label>
-              <p className="text-xs text-purple-700">
-                Students can review their answers and correct answers after submission
-              </p>
+              <textarea
+                name="instructions"
+                value={formData.instructions || ""}
+                onChange={handleChange}
+                rows={3}
+                placeholder="Detailed test instructions"
+                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+              />
             </div>
-          </div>
-        </div>
 
-        {error && (
-          <div className="flex items-center space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-sm text-primary font-medium">{error}</span>
-          </div>
-        )}
+            {/* Settings */}
+            <div className="space-y-3">
+              <div className="flex items-center p-4 bg-surface rounded-lg border border-border">
+                <input
+                  type="checkbox"
+                  name="published"
+                  checked={formData.published}
+                  onChange={handleChange}
+                  className="w-5 h-5 text-primary focus:ring-primary border-border rounded"
+                />
+                <div className="ml-3">
+                  <label className="block text-sm font-semibold text-text">
+                    Publish Immediately
+                  </label>
+                  <p className="text-xs text-text-secondary">Make test available to students</p>
+                </div>
+              </div>
 
-        <div className="flex justify-end space-x-3 pt-4 border-t border-border">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-6 py-3 text-sm font-semibold text-text-secondary bg-surface hover:bg-gray-200 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-3 text-sm font-semibold text-white bg-primary hover:bg-secondary rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-          >
-            {loading ? (
-              <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Creating...</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Create Test</span>
-              </>
+              <div className="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <input
+                  type="checkbox"
+                  name="proctored"
+                  checked={formData.proctored}
+                  onChange={handleChange}
+                  className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-border rounded"
+                />
+                <div className="ml-3">
+                  <label className="block text-sm font-semibold text-blue-900">
+                    Enable Proctoring
+                  </label>
+                  <p className="text-xs text-blue-700">AI monitoring for cheating detection</p>
+                </div>
+              </div>
+
+              <div className="flex items-center p-4 bg-green-50 rounded-lg border border-green-200">
+                <input
+                  type="checkbox"
+                  name="showResultsImmediately"
+                  checked={formData.showResultsImmediately}
+                  onChange={handleChange}
+                  className="w-5 h-5 text-green-600 focus:ring-green-500 border-border rounded"
+                />
+                <div className="ml-3">
+                  <label className="block text-sm font-semibold text-green-900">
+                    Show Results Immediately
+                  </label>
+                  <p className="text-xs text-green-700">Display results after submission</p>
+                </div>
+              </div>
+
+              <div className="flex items-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <input
+                  type="checkbox"
+                  name="allowReview"
+                  checked={formData.allowReview}
+                  onChange={handleChange}
+                  className="w-5 h-5 text-purple-600 focus:ring-purple-500 border-border rounded"
+                />
+                <div className="ml-3">
+                  <label className="block text-sm font-semibold text-purple-900">
+                    Allow Review
+                  </label>
+                  <p className="text-xs text-purple-700">Students can review answers after submission</p>
+                </div>
+              </div>
+            </div>
+
+            {error && (
+              <div className="flex items-center space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                <span className="text-sm text-primary font-medium">{error}</span>
+              </div>
             )}
-          </button>
+
+            <div className="flex justify-end space-x-3 pt-4 border-t border-border">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-6 py-3 text-sm font-semibold text-text-secondary bg-surface hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-3 text-sm font-semibold text-white bg-primary hover:bg-secondary rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin h-5 w-5 text-white" />
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-5 h-5" />
+                    <span>Create Test</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+
+        {/* Right Side - Live Preview */}
+        <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <Eye className="w-5 h-5 mr-2 text-primary" />
+              Live Preview
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">See how your test will appear to students</p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-border overflow-hidden">
+            {/* Test Header Preview */}
+            <div className="px-6 py-4 border-b border-border bg-primary">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-xl font-bold text-white">
+                    {formData.title || "Test Title"}
+                  </h1>
+                  <p className="text-red-100 text-sm mt-1">
+                    {formData.description || "Test description will appear here"}
+                  </p>
+                </div>
+                <div className="text-right text-white">
+                  <div className="text-sm opacity-90">Total Marks</div>
+                  <div className="text-2xl font-bold">{formData.totalMarks || 0}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Test Info Preview */}
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Duration:</span>
+                  <span className="font-medium">
+                    {formData.durationMinutes ? `${formData.durationMinutes} min` : "Unlimited"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Attempts:</span>
+                  <span className="font-medium">{formData.maxAttempts}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Difficulty:</span>
+                  <span className="font-medium">{formData.difficultyLevel || "MEDIUM"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Passing:</span>
+                  <span className="font-medium">{formData.passingPercentage || 40}%</span>
+                </div>
+              </div>
+
+              {/* Instructions Preview */}
+              {formData.instructions && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-blue-900 mb-2">Instructions</h4>
+                  <p className="text-sm text-blue-800">{formData.instructions}</p>
+                </div>
+              )}
+
+              {/* Settings Preview */}
+              <div className="space-y-2">
+                {formData.published && (
+                  <div className="flex items-center gap-2 text-sm text-green-700">
+                    <Check className="w-4 h-4" />
+                    <span>Test will be published immediately</span>
+                  </div>
+                )}
+                {formData.proctored && (
+                  <div className="flex items-center gap-2 text-sm text-blue-700">
+                    <Shield className="w-4 h-4" />
+                    <span>Proctoring enabled (AI monitoring)</span>
+                  </div>
+                )}
+                {formData.showResultsImmediately && (
+                  <div className="flex items-center gap-2 text-sm text-green-700">
+                    <TrendingUp className="w-4 h-4" />
+                    <span>Results shown immediately after submission</span>
+                  </div>
+                )}
+                {formData.allowReview && (
+                  <div className="flex items-center gap-2 text-sm text-purple-700">
+                    <BookOpen className="w-4 h-4" />
+                    <span>Review allowed after submission</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Sample Question Preview */}
+              <div className="border-t border-border pt-4">
+                <h4 className="text-sm font-semibold text-text mb-3">Sample Question Preview</h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-text">Sample multiple choice question?</p>
+                        <div className="mt-2 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <input type="radio" name="sample" className="text-primary" />
+                            <span className="text-sm">Option A</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input type="radio" name="sample" className="text-primary" />
+                            <span className="text-sm">Option B</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input type="radio" name="sample" className="text-primary" />
+                            <span className="text-sm">Option C</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input type="radio" name="sample" className="text-primary" />
+                            <span className="text-sm">Option D</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

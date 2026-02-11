@@ -33,8 +33,8 @@ public class TestService {
                                  Integer durationMinutes, String instructions, Integer passingPercentage,
                                  String difficultyLevel, Boolean showResultsImmediately, Boolean allowReview, Integer maxViolations) {
         User requester = requireUser(requesterEmail);
-        if (requester.getType() != UserType.ADMIN) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin can create tests");
+        if (requester.getType() != UserType.ADMIN && requester.getType() != UserType.FACULTY) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin and faculty can create tests");
         }
         if (startTime != null && endTime != null && endTime.isBefore(startTime)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "endTime must be after startTime");
@@ -107,12 +107,12 @@ public class TestService {
 
     public List<TestEntity> myTests(String requesterEmail) {
         User requester = requireUser(requesterEmail);
-        if (requester.getType() == UserType.ADMIN) {
+        if (requester.getType() == UserType.ADMIN || requester.getType() == UserType.FACULTY) {
             return testRepository.findByCreatedBy(requester);
         } else if (requester.getType() == UserType.SUPERADMIN) {
             return testRepository.findAll();
         }
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin/superadmin can list tests");
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin/faculty/superadmin can list tests");
     }
 
     public List<TestEntity> availableForStudent(String requesterEmail) {
@@ -152,6 +152,19 @@ public class TestService {
         // reuse requireOwnedTest to check permission
         TestEntity t = requireOwnedTest(requesterEmail, testId, true);
         testRepository.delete(t);
+    }
+
+    public TestEntity getTestDetails(String requesterEmail, Long testId) {
+        User requester = requireUser(requesterEmail);
+        TestEntity t = testRepository.findById(testId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Test not found"));
+
+        if (requester.getType() == UserType.USER) {
+            if (!Boolean.TRUE.equals(t.getPublished())) {
+                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Test not published");
+            }
+        }
+        return t;
     }
 
     public void recalculateTotalMarks(Long testId) {

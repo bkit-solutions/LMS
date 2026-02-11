@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Menu, FileText } from "lucide-react";
 import { topicApi } from "../../../services/topicApi";
 import type {
   TopicResponse,
@@ -129,19 +130,7 @@ const TopicViewerPage: React.FC = () => {
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="ml-auto md:hidden p-2 text-text-secondary hover:text-text"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
+          <Menu className="w-5 h-5" />
         </button>
       </div>
 
@@ -267,19 +256,7 @@ const TopicViewerPage: React.FC = () => {
           ) : (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
-                <svg
-                  className="w-16 h-16 text-text-secondary mx-auto mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
+                <FileText className="w-16 h-16 text-text-secondary mx-auto mb-4" strokeWidth={1.5} />
                 <p className="text-text-secondary">
                   {chapters.length === 0
                     ? "This topic has no chapters yet."

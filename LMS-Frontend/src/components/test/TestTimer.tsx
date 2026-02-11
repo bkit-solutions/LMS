@@ -73,12 +73,14 @@ const TestTimer: React.FC<TestTimerProps> = ({ durationMinutes, onTimeUp, isPaus
     if (secondsRemaining === null) {
         return (
             <div className="fixed top-4 right-4 z-50">
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg px-6 py-3 shadow-lg">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl px-6 py-4 shadow-xl backdrop-blur-sm">
                     <div className="flex items-center space-x-3">
-                        <Clock className="w-6 h-6 text-blue-600" />
+                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-white" />
+                        </div>
                         <div>
-                            <div className="text-sm font-medium text-blue-800">Unlimited Time</div>
-                            <div className="text-xs text-blue-600">No time restrictions</div>
+                            <div className="text-lg font-bold text-blue-800">No Time Limit</div>
+                            <div className="text-sm text-blue-600">Take your time</div>
                         </div>
                     </div>
                 </div>
@@ -109,21 +111,26 @@ const TestTimer: React.FC<TestTimerProps> = ({ durationMinutes, onTimeUp, isPaus
                 </div>
             )}
 
-            {/* Timer Display */}
+            {/* Enhanced Timer Display */}
             <div className="fixed top-4 right-4 z-40">
                 <div className={`${getBackgroundColor()} border-2 ${
                     secondsRemaining <= 300 ? "border-red-400" : 
                     secondsRemaining <= 600 ? "border-orange-400" : "border-green-400"
-                } rounded-lg px-6 py-3 shadow-lg transition-all duration-300 ${
+                } rounded-xl px-6 py-4 shadow-xl backdrop-blur-sm transition-all duration-300 ${
                     secondsRemaining <= 60 ? "animate-pulse" : ""
                 }`}>
                     <div className="flex items-center space-x-3">
-                        <Clock className={`w-6 h-6 ${getTimerColor()}`} />
+                        <div className={`w-10 h-10 ${
+                            secondsRemaining <= 300 ? 'bg-red-500' : 
+                            secondsRemaining <= 600 ? 'bg-orange-500' : 'bg-green-500'
+                        } rounded-full flex items-center justify-center`}>
+                            <Clock className="w-5 h-5 text-white" />
+                        </div>
                         <div>
-                            <div className={`text-2xl font-bold ${getTimerColor()} tabular-nums`}>
+                            <div className={`text-xl font-bold ${getTimerColor()} tabular-nums`}>
                                 {formatTime(secondsRemaining)}
                             </div>
-                            <div className="text-xs text-gray-600 mt-1">
+                            <div className="text-xs opacity-75">
                                 {secondsRemaining <= 60 
                                     ? "Last minute!" 
                                     : secondsRemaining <= 300 
@@ -135,12 +142,12 @@ const TestTimer: React.FC<TestTimerProps> = ({ durationMinutes, onTimeUp, isPaus
                     </div>
                     
                     {/* Progress bar */}
-                    <div className="mt-2 h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="mt-3 w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
                             className={`h-full ${
-                                secondsRemaining <= 300 ? "bg-red-600" :
-                                secondsRemaining <= 600 ? "bg-orange-600" : "bg-green-600"
-                            } transition-all duration-1000 ease-linear`}
+                                secondsRemaining <= 300 ? "bg-red-500" :
+                                secondsRemaining <= 600 ? "bg-orange-500" : "bg-green-500"
+                            } transition-all duration-1000 ease-linear rounded-full`}
                             style={{ width: `${getProgressPercentage()}%` }}
                         />
                     </div>

@@ -62,4 +62,19 @@ public class TestDtos {
     public static class PublishRequest {
         private Boolean published;
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TestResponse {
+        private Long id;
+        private String title;
+        private String description;
+        private String startTime;
+        private String endTime;
+        private Integer totalMarks;
+        private Boolean published;
+        private Integer maxAttempts;
+        private UserDtos.UserResponse createdBy;
+    }
 }

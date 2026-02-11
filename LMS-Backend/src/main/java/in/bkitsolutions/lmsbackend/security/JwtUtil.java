@@ -28,11 +28,19 @@ public class JwtUtil {
 
     public String generateToken(User user) {
         long now = System.currentTimeMillis();
-        return JWT.create()
+        var builder = JWT.create()
                 .withIssuer("lms")
                 .withSubject(user.getEmail())
                 .withClaim("name", user.getName())
-                .withClaim("type", user.getType().name())
+                .withClaim("type", user.getType().name());
+
+        if (user.getCollege() != null) {
+            builder.withClaim("collegeId", user.getCollege().getId());
+            builder.withClaim("collegeName", user.getCollege().getName());
+            builder.withClaim("collegeCode", user.getCollege().getCode());
+        }
+
+        return builder
                 .withIssuedAt(new Date(now))
                 .withExpiresAt(new Date(now + expirationMs))
                 .sign(algorithm);

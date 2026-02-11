@@ -1,11 +1,13 @@
 package in.bkitsolutions.lmsbackend.security;
 
+import in.bkitsolutions.lmsbackend.model.User;
 import in.bkitsolutions.lmsbackend.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -33,13 +37,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             String email = jwtUtil.validateAndGetEmail(token);
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Optionally ensure user still exists
-//                if (userRepository.findByEmail(email).isPresent()) {
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            email, null, java.util.Collections.emptyList());
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-//                }
+                // Get user and check if still exists and is active
+                Optional<User> userOpt = userRepository.findByEmail(email);
+                if (userOpt.isPresent()) {
+                    User user = userOpt.get();
+                    if (user.getIsActive()) {
+                        // Create authorities based on user type for role-based security
+                        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getType().name());
+                        
+                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                                email, null, Collections.singletonList(authority));
+                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
+                }
             }
         }
         filterChain.doFilter(request, response);

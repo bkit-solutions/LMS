@@ -2,6 +2,7 @@ export const UserCreationMode = {
   INIT_ROOT_ADMIN: "INIT_ROOT_ADMIN",
   CREATE_SUPER_ADMIN: "CREATE_SUPER_ADMIN",
   CREATE_ADMIN: "CREATE_ADMIN",
+  CREATE_FACULTY: "CREATE_FACULTY",
   CREATE_USER: "CREATE_USER",
 } as const;
 
@@ -20,6 +21,7 @@ export const UserRole = {
   ROOTADMIN: "ROOTADMIN",
   SUPERADMIN: "SUPERADMIN",
   ADMIN: "ADMIN",
+  FACULTY: "FACULTY",
   USER: "USER",
 } as const;
 
@@ -134,6 +136,7 @@ export interface Attempt {
   maxScore: number;
   completed: boolean;
   proctored?: boolean; // Whether this test requires proctoring
+  maxViolations?: number; // Max allowed violations
   answers?: Answer[]; // Optional answers field if returned
 }
 
@@ -161,6 +164,8 @@ export interface SessionReport {
   faceVisibilityIssues: number;
   mobileDetected: number;
   audioIncidents: number;
+  tabSwitches: number;
+  windowSwitches: number;
   isValidTest?: boolean;
   invalidReason?: string;
 }
@@ -215,6 +220,9 @@ export interface AttemptInfo {
   startedAt: string | null;
   submittedAt: string | null;
   updatedAt: string | null;
+  proctored?: boolean;
+  durationMinutes?: number;
+  maxViolations?: number;
 }
 
 export interface AttemptStateResponse {
@@ -310,4 +318,216 @@ export interface UpdateChapterRequest {
   title?: string;
   content?: string;
   displayOrder?: number;
+}
+
+// ========================
+// V1: College Multi-Tenant Types
+// ========================
+
+export interface College {
+  id: number;
+  name: string;
+  code: string;
+  description?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  domain?: string;
+  address?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  isActive: boolean;
+  onboardedAt?: string;
+  onboardedById?: number;
+  onboardedByName?: string;
+  totalUsers: number;
+  totalCourses: number;
+}
+
+export interface CreateCollegeRequest {
+  name: string;
+  code: string;
+  description?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  domain?: string;
+  address?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+}
+
+export interface UpdateCollegeRequest {
+  name?: string;
+  code?: string;
+  description?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  domain?: string;
+  address?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  isActive?: boolean;
+}
+
+export interface CollegeBranding {
+  id: number;
+  name: string;
+  code: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+}
+
+export interface CollegeStatistics {
+  collegeId: number;
+  collegeName: string;
+  collegeCode: string;
+  totalUsers: number;
+  totalAdmins: number;
+  totalFaculty: number;
+  totalStudents: number;
+  totalCourses: number;
+  totalTests: number;
+  totalEnrollments: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  createdAt?: string;
+  lastUpdated?: string;
+}
+
+// ========================
+// V1: Course Management Types
+// ========================
+
+export interface CourseResponse {
+  id: number;
+  title: string;
+  description?: string;
+  thumbnailUrl?: string;
+  createdById: number;
+  createdByName: string;
+  collegeId: number;
+  collegeName: string;
+  published: boolean;
+  enrollmentOpen: boolean;
+  maxEnrollment?: number;
+  displayOrder?: number;
+  category?: string;
+  difficultyLevel?: string;
+  estimatedHours?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  topicCount: number;
+  testCount: number;
+  enrollmentCount: number;
+}
+
+export interface CourseDetailResponse {
+  id: number;
+  title: string;
+  description?: string;
+  thumbnailUrl?: string;
+  createdById: number;
+  createdByName: string;
+  collegeId: number;
+  collegeName: string;
+  published: boolean;
+  enrollmentOpen: boolean;
+  category?: string;
+  difficultyLevel?: string;
+  estimatedHours?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  topics?: TopicResponse[];
+  enrollmentCount: number;
+  isEnrolled: boolean;
+  progressPercentage?: number;
+}
+
+export interface CreateCourseRequest {
+  title: string;
+  description?: string;
+  thumbnailUrl?: string;
+  published?: boolean;
+  enrollmentOpen?: boolean;
+  maxEnrollment?: number;
+  displayOrder?: number;
+  category?: string;
+  difficultyLevel?: string;
+  estimatedHours?: number;
+  topicIds?: number[];
+  testIds?: number[];
+}
+
+export interface UpdateCourseRequest {
+  title?: string;
+  description?: string;
+  thumbnailUrl?: string;
+  published?: boolean;
+  enrollmentOpen?: boolean;
+  maxEnrollment?: number;
+  displayOrder?: number;
+  category?: string;
+  difficultyLevel?: string;
+  estimatedHours?: number;
+  topicIds?: number[];
+  testIds?: number[];
+}
+
+// ========================
+// V1: Enrollment Types
+// ========================
+
+export interface EnrollmentResponse {
+  id: number;
+  courseId: number;
+  courseTitle: string;
+  courseThumbnailUrl?: string;
+  studentId: number;
+  studentName: string;
+  status: string;
+  enrolledAt?: string;
+  completedAt?: string;
+  progressPercentage: number;
+}
+
+export interface ProgressResponse {
+  courseId: number;
+  courseTitle: string;
+  totalChapters: number;
+  completedChapters: number;
+  progressPercentage: number;
+  status: string;
+}
+
+// ========================
+// V1: Certificate Types
+// ========================
+
+export interface CertificateResponse {
+  id: number;
+  certificateUid: string;
+  courseId: number;
+  courseTitle: string;
+  studentId: number;
+  studentName: string;
+  collegeId: number;
+  collegeName: string;
+  collegeLogoUrl?: string;
+  issuedAt?: string;
+  downloadUrl?: string;
+}
+
+export interface CertificateVerifyResponse {
+  valid: boolean;
+  studentName: string;
+  courseTitle: string;
+  collegeName: string;
+  issuedAt?: string;
 }

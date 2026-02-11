@@ -78,4 +78,20 @@ public class AttemptDtos {
         // Map questionId -> answerText
         private java.util.Map<Long, String> answers;
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ResultDto {
+        private Long id;
+        private TestDtos.TestResponse test;
+        private UserDtos.UserResponse student;
+        private Integer attemptNumber;
+        private String startedAt;
+        private String submittedAt;
+        private Integer score;
+        private Boolean completed;
+        private String updatedAt;
+        private Boolean isValidTest;
+    }
 }

@@ -64,6 +64,12 @@ const AdminDashboard: React.FC = () => {
           </h1>
           <div className="flex gap-3">
             <Link
+              to="/dashboard/courses"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              Courses
+            </Link>
+            <Link
               to="/dashboard/topics/create"
               className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors text-sm font-medium"
             >
@@ -79,7 +85,17 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+          <Link
+            to="/dashboard/courses"
+            className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow"
+          >
+            <h3 className="text-lg font-semibold text-text mb-2">Courses</h3>
+            <p className="text-text-secondary mb-4">Create & manage courses</p>
+            <div className="text-2xl font-bold text-blue-600">📖</div>
+            <div className="text-sm text-text-secondary">Course catalog</div>
+          </Link>
+
           <Link
             to="/dashboard/tests"
             className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow"
@@ -192,7 +208,7 @@ const AdminDashboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
                         <Link
-                          to={`/dashboard/tests/${test.id}`}
+                          to={`tests/${test.id}`}
                           className="text-primary hover:text-secondary"
                         >
                           Edit

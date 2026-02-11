@@ -10,11 +10,18 @@ import ImprovedPreTestInstructions from "./student/ImprovedPreTestInstructions";
 import ProfilePage from "./ProfilePage";
 import TopicListPage from "./student/TopicListPage";
 import TopicViewerPage from "./student/TopicViewerPage";
+import EnhancedCollegeManagement from "./super-admin/EnhancedCollegeManagement";
+import AdminManagement from "./super-admin/AdminManagement";
+import StudentCoursesPage from "./student/StudentCoursesPage";
+import StudentCertificatesPage from "./student/StudentCertificatesPage";
+import TestList from "../../components/admin/tests/TestList";
+import CourseManagementPage from "./admin/courses/CourseManagementPage";
 
 const DashboardRouter: React.FC = () => {
-  const { userRole } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
+  const userRole = user?.type;
 
-  if (userRole === "ADMIN") {
+  if (userRole === "ADMIN" || userRole === "FACULTY") {
     return <AdminRouter />;
   }
 
@@ -42,8 +49,22 @@ const DashboardRouter: React.FC = () => {
         }
       />
       <Route path="profile" element={<ProfilePage />} />
+
+      {/* SuperAdmin: College Management & Admin Management */}
+      {userRole === "SUPERADMIN" && (
+        <>
+          <Route path="colleges" element={<EnhancedCollegeManagement />} />
+          <Route path="admins" element={<AdminManagement />} />
+          <Route path="tests" element={<TestList />} />
+          <Route path="courses" element={<CourseManagementPage />} />
+        </>
+      )}
+
+      {/* Student Routes */}
       {userRole === "USER" && (
         <>
+          <Route path="courses" element={<StudentCoursesPage />} />
+          <Route path="certificates" element={<StudentCertificatesPage />} />
           <Route path="topics" element={<TopicListPage />} />
           <Route path="topics/:topicId" element={<TopicViewerPage />} />
           <Route

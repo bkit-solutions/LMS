@@ -156,7 +156,7 @@ const QuestionManagementPage: React.FC = () => {
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
-              to={`/dashboard/tests/${id}`}
+              to=".."
               className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             >
               Back to Test

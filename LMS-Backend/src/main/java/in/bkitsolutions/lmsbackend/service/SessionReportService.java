@@ -60,6 +60,8 @@ public class SessionReportService {
         if (partial.getFaceVisibilityIssues() != null) report.setFaceVisibilityIssues(partial.getFaceVisibilityIssues());
         if (partial.getMobileDetected() != null) report.setMobileDetected(partial.getMobileDetected());
         if (partial.getAudioIncidents() != null) report.setAudioIncidents(partial.getAudioIncidents());
+        if (partial.getTabSwitches() != null) report.setTabSwitches(partial.getTabSwitches());
+        if (partial.getWindowSwitches() != null) report.setWindowSwitches(partial.getWindowSwitches());
         report.setUpdatedAt(LocalDateTime.now());
         return sessionReportRepository.save(report);
     }

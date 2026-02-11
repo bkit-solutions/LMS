@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Calendar, Clock, Video } from "lucide-react";
 import SystemCheck from "../../../components/test/SystemCheck";
 import { testApi } from "../../../services/testApi";
 import type { Test } from "../../../types";
@@ -16,7 +17,7 @@ interface SystemCheckResult {
 }
 
 const ImprovedPreTestInstructions: React.FC = () => {
-    const { testId } = useParams<{ testId: string }>();
+    const { collegeCode, testId } = useParams<{ collegeCode: string; testId: string }>();
     const navigate = useNavigate();
 
     const [test, setTest] = useState<Test | null>(null);
@@ -36,33 +37,37 @@ const ImprovedPreTestInstructions: React.FC = () => {
             if (!testId) return;
             try {
                 setLoading(true);
-                const response = await testApi.getAvailableTests();
+                const response = await testApi.getTest(Number(testId));
+
                 if (response.success && response.data) {
-                    const foundTest = response.data.find(t => t.id === Number(testId));
-                    if (foundTest) {
-                        // Fetch question count
-                        try {
-                            const questionsResponse = await testApi.getQuestions(Number(testId));
-                            if (questionsResponse.success && questionsResponse.data) {
-                                setQuestionCount(questionsResponse.data.length);
-                            }
-                        } catch (qErr) {
-                            console.error("Failed to fetch question count:", qErr);
+                    const foundTest = response.data;
+
+                    // Fetch question count
+                    try {
+                        const questionsResponse = await testApi.getQuestions(Number(testId));
+                        if (questionsResponse.success && questionsResponse.data) {
+                            setQuestionCount(questionsResponse.data.length);
                         }
-                        setTest(foundTest);
-                    } else {
-                        setError("Test not found or not available.");
+                    } catch (qErr) {
+                        console.error("Failed to fetch question count:", qErr);
                     }
+                    setTest(foundTest);
                 } else {
-                    setError("Failed to load test details.");
+                    setError("Test not found or access denied.");
                 }
             } catch (err) {
                 const status = (err as { response?: { status?: number } })?.response?.status;
-                if (status === 401 || status === 403) {
+                if (status === 401) {
                     localStorage.removeItem("token");
                     navigate("/login", { replace: true });
                     return;
                 }
+
+                if (status === 403) {
+                    setError("Access denied. You do not have permission to view this test.");
+                    return;
+                }
+
                 console.error("Failed to fetch test details:", err);
                 setError("Failed to load test details.");
             } finally {
@@ -103,7 +108,7 @@ const ImprovedPreTestInstructions: React.FC = () => {
         console.log("System check completed with results:", results);
         setSystemCheckComplete(true);
         _setSystemResults(results);
-        
+
         // Retrieve the camera stream from MediaStreamManager (set by SystemCheck)
         const existingStream = MediaStreamManager.getInstance().getStream();
         if (existingStream) {
@@ -122,7 +127,7 @@ const ImprovedPreTestInstructions: React.FC = () => {
                 video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
                 audio: true,
             });
-            
+
             console.log("Camera stream obtained:", stream.id);
             stream.getTracks().forEach(track => {
                 track.onended = () => {
@@ -146,7 +151,7 @@ const ImprovedPreTestInstructions: React.FC = () => {
 
     const handleStartTest = async () => {
         if (!test || !agreed || !systemCheckComplete) return;
-        
+
         console.log("handleStartTest called, test:", test);
         setStarting(true);
 
@@ -184,8 +189,8 @@ const ImprovedPreTestInstructions: React.FC = () => {
                 console.log("Test attempt started successfully:", res.data);
                 localStorage.setItem(`activeAttempt_${testId}`, String(res.data.id));
                 console.log("Navigating to test page with attempt:", res.data.id);
-                navigate(`/dashboard/test/take/${testId}`, {
-                    state: { 
+                navigate(`/${collegeCode}/dashboard/test/take/${testId}`, {
+                    state: {
                         attempt: res.data,
                         cameraReady: test.proctored || false,
                         fromInstructions: true
@@ -260,7 +265,7 @@ const ImprovedPreTestInstructions: React.FC = () => {
                 <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
                     <div className="text-red-600 mb-4 text-lg">{error || "Test not found"}</div>
                     <button
-                        onClick={() => navigate("/dashboard")}
+                        onClick={() => navigate(`/${collegeCode}/dashboard`)}
                         className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
                         Back to Dashboard
@@ -271,11 +276,11 @@ const ImprovedPreTestInstructions: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+        <div className="min-h-screen bg-surface py-8">
             <div className="max-w-5xl mx-auto px-4">
                 {/* Header Section */}
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6 text-white">
+                    <div className="bg-primary px-8 py-6 text-white">
                         <div className="flex items-start justify-between">
                             <div className="flex-1">
                                 <h1 className="text-3xl font-bold mb-2">{test.title}</h1>
@@ -316,22 +321,16 @@ const ImprovedPreTestInstructions: React.FC = () => {
                     {/* Test Schedule */}
                     <div className="p-6 space-y-3 border-b">
                         <div className="flex items-center space-x-3">
-                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                            <Calendar className="w-5 h-5 text-gray-500" />
                             <span className="text-gray-700"><strong>Available From:</strong> {formatDate(test.startTime)}</span>
                         </div>
                         <div className="flex items-center space-x-3">
-                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <Clock className="w-5 h-5 text-gray-500" />
                             <span className="text-gray-700"><strong>Available Until:</strong> {formatDate(test.endTime)}</span>
                         </div>
                         {test.proctored && (
                             <div className="flex items-center space-x-3 text-orange-700 bg-orange-50 p-3 rounded-lg">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                </svg>
+                                <Video className="w-5 h-5" />
                                 <span className="font-semibold">This is a proctored test - Camera and microphone required</span>
                             </div>
                         )}
@@ -428,7 +427,7 @@ const ImprovedPreTestInstructions: React.FC = () => {
 
                     <div className="mt-6 flex justify-between items-center">
                         <button
-                            onClick={() => navigate("/dashboard")}
+                            onClick={() => navigate(`/${collegeCode}/dashboard`)}
                             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
                         >
                             Cancel
@@ -436,11 +435,10 @@ const ImprovedPreTestInstructions: React.FC = () => {
                         <button
                             onClick={handleStartTest}
                             disabled={!canStartTest}
-                            className={`px-8 py-3 rounded-lg font-bold text-white transition-all ${
-                                canStartTest
-                                    ? "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg"
-                                    : "bg-gray-300 cursor-not-allowed"
-                            }`}
+                            className={`px-8 py-3 rounded-lg font-bold text-white transition-all ${canStartTest
+                                ? "bg-green-600 hover:bg-green-700 shadow-lg"
+                                : "bg-gray-300 cursor-not-allowed"
+                                }`}
                         >
                             {starting ? "Initializing Test..." : test?.proctored ? "Start Test (Camera & Fullscreen)" : "Start Test"}
                         </button>

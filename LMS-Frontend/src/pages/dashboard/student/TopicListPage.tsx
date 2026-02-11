@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { topicApi } from "../../../services/topicApi";
 import type { TopicResponse } from "../../../types";
@@ -60,19 +61,7 @@ const TopicListPage: React.FC = () => {
 
         {topics.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border border-border p-8 text-center">
-            <svg
-              className="w-16 h-16 text-text-secondary mx-auto mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
+            <BookOpen className="w-16 h-16 text-text-secondary mx-auto mb-4" strokeWidth={1.5} />
             <h3 className="text-lg font-medium text-text mb-2">
               No topics available yet
             </h3>
@@ -89,19 +78,7 @@ const TopicListPage: React.FC = () => {
                 className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-all hover:border-primary text-left group"
               >
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <svg
-                    className="w-6 h-6 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                    />
-                  </svg>
+                  <BookOpen className="w-6 h-6 text-primary" />
                 </div>
 
                 <h3 className="text-lg font-semibold text-text mb-2 group-hover:text-primary transition-colors">

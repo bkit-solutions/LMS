@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { X, Plus, FileText, CheckCircle, Pencil, PieChart, Calendar, ClipboardList, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { testApi } from "../../../services/testApi";
 import type { Test } from "../../../types";
@@ -45,9 +46,7 @@ const TestList: React.FC = () => {
         <div className="bg-white rounded-lg shadow-lg border border-red-200 p-8 max-w-md">
           <div className="flex items-center space-x-3 mb-4">
             <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-6 h-6 text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-text">Error Loading Tests</h3>
           </div>
@@ -68,12 +67,10 @@ const TestList: React.FC = () => {
               <p className="text-text-secondary">Create, manage, and monitor your assessments</p>
             </div>
             <Link
-              to="/dashboard/tests/create"
+              to="create"
               className="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-secondary text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <Plus className="w-5 h-5 mr-2" />
               Create New Test
             </Link>
           </div>
@@ -85,9 +82,7 @@ const TestList: React.FC = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-text-secondary">Total Tests</h3>
               <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+                <FileText className="w-6 h-6 text-primary" />
               </div>
             </div>
             <p className="text-2xl font-bold text-text">{tests.length}</p>
@@ -96,9 +91,7 @@ const TestList: React.FC = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-text-secondary">Published</h3>
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
             </div>
             <p className="text-2xl font-bold text-text">{tests.filter(t => t.published).length}</p>
@@ -107,9 +100,7 @@ const TestList: React.FC = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-text-secondary">Drafts</h3>
               <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
+                <Pencil className="w-6 h-6 text-orange-600" />
               </div>
             </div>
             <p className="text-2xl font-bold text-text">{tests.filter(t => !t.published).length}</p>
@@ -118,10 +109,7 @@ const TestList: React.FC = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-text-secondary">Total Marks</h3>
               <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                </svg>
+                <PieChart className="w-6 h-6 text-primary" />
               </div>
             </div>
             <p className="text-2xl font-bold text-text">{tests.reduce((acc, t) => acc + t.totalMarks, 0)}</p>
@@ -149,21 +137,15 @@ const TestList: React.FC = () => {
 
                   <div className="space-y-3 mb-4">
                     <div className="flex items-center text-sm text-text-secondary">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
+                      <Calendar className="w-4 h-4 mr-2" />
                       <span>{new Date(test.startTime).toLocaleDateString()} - {new Date(test.endTime).toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center text-sm text-text-secondary">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
+                      <ClipboardList className="w-4 h-4 mr-2" />
                       <span>Max {test.maxAttempts} {test.maxAttempts === 1 ? 'attempt' : 'attempts'}</span>
                     </div>
                     <div className="flex items-center text-sm font-semibold text-primary">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                      </svg>
+                      <PieChart className="w-4 h-4 mr-2" />
                       <span>{test.totalMarks} Total Marks</span>
                     </div>
                   </div>
@@ -171,20 +153,18 @@ const TestList: React.FC = () => {
 
                 <div className="border-t border-border px-6 py-4 bg-surface flex items-center justify-between">
                   <Link
-                    to={`/dashboard/tests/${test.id}`}
+                    to={`${test.id}`}
                     className="text-sm font-medium text-primary hover:text-secondary transition-colors"
                   >
                     View Details →
                   </Link>
                   <div className="flex items-center space-x-2">
                     <Link
-                      to={`/dashboard/tests/${test.id}/questions`}
+                      to={`${test.id}/questions`}
                       className="p-2 text-text-secondary hover:text-primary hover:bg-red-50 rounded-lg transition-colors"
                       title="Manage Questions"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                      <HelpCircle className="w-5 h-5" />
                     </Link>
                   </div>
                 </div>
@@ -195,19 +175,15 @@ const TestList: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-border p-12">
             <div className="text-center">
               <div className="w-20 h-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+                <FileText className="w-10 h-10 text-text-secondary" />
               </div>
               <h3 className="text-xl font-semibold text-text mb-2">No Tests Yet</h3>
               <p className="text-text-secondary mb-6">Get started by creating your first assessment</p>
               <Link
-                to="/dashboard/tests/create"
+                to="create"
                 className="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-secondary text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
+                <Plus className="w-5 h-5 mr-2" />
                 Create Your First Test
               </Link>
             </div>

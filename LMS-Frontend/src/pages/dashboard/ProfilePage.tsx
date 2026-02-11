@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { profileApi } from "../../services/profileApi";
+import { useCollegeTheme } from "../../hooks/useCollegeTheme";
 import type { UserProfile, UpdateProfileRequest, ChangePasswordRequest } from "../../types";
 
 const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
+    const { applyTheme } = useCollegeTheme();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
+
+    useEffect(() => {
+        applyTheme();
+    }, [applyTheme]);
     const [changingPassword, setChangingPassword] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -130,7 +136,7 @@ const ProfilePage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+        <div className="min-h-screen bg-surface py-8">
             <div className="max-w-4xl mx-auto px-4">
                 {message && (
                     <div className={`mb-6 p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800'}`}>
@@ -140,7 +146,7 @@ const ProfilePage: React.FC = () => {
 
                 {/* Profile Header */}
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-12 text-white relative">
+                    <div className="bg-primary px-8 py-12 text-white relative">
                         <div className="flex items-center space-x-6">
                             <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-4xl font-bold">
                                 {profile.name.split(' ').map(n => n[0]).join('').toUpperCase()}

@@ -1,23 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCollegeTheme } from "../../../../hooks/useCollegeTheme";
 import CreateTestForm from "../../../../components/admin/tests/CreateTestForm";
 
 const CreateTestPage: React.FC = () => {
   const navigate = useNavigate();
+  const { applyTheme } = useCollegeTheme();
+
+  useEffect(() => {
+    applyTheme();
+  }, [applyTheme]);
 
   const handleSuccess = () => {
-    navigate("/dashboard/tests");
+    navigate("../tests", { relative: "path" });
   };
 
   const handleCancel = () => {
-    navigate("/dashboard/tests");
+    navigate("../tests", { relative: "path" });
   };
 
   return (
-    <div className="min-h-screen bg-surface p-4 sm:p-6 lg:p-8">
-      <div className="max-w-3xl mx-auto">
-        <CreateTestForm onSuccess={handleSuccess} onCancel={handleCancel} />
-      </div>
+    <div className="h-screen bg-surface overflow-hidden">
+      <CreateTestForm onSuccess={handleSuccess} onCancel={handleCancel} />
     </div>
   );
 };

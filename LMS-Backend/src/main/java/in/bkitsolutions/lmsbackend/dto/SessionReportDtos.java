@@ -18,6 +18,8 @@ public class SessionReportDtos {
         private Integer faceVisibilityIssues;
         private Integer mobileDetected;
         private Integer audioIncidents;
+        private Integer tabSwitches;
+        private Integer windowSwitches;
     }
 
     @Data

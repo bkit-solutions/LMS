@@ -52,52 +52,54 @@ public class AttemptService {
         }
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public TestAttempt startAttempt(String requesterEmail, Long testId) {
         User requester = requireUser(requesterEmail);
         // Allow Users, Admins, and SuperAdmins to start/preview attempts
-        // if (requester.getType() != UserType.USER) {
-        //     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users can start attempts");
-        // }
         
         TestEntity test = testRepository.findById(testId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Test not found"));
         
-        // RELAXED: Removed strict ownership check to allow easier testing/hackathon usage
-        // User admin = requester.getCreatedBy();
-        // if (admin == null || !admin.getId().equals(test.getCreatedBy().getId())) {
-        //     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Test not assigned to you");
-        // }
-        
         ensureActiveWindow(test, requester);
 
         int maxAttempts = (test.getMaxAttempts() == null || test.getMaxAttempts() <= 0) ? 1 : test.getMaxAttempts();
-        Optional<TestAttempt> existingOpt = testAttemptRepository
-                .findTopByTestAndStudentOrderByAttemptNumberDesc(test, requester);
 
-        if (existingOpt.isPresent()) {
-            TestAttempt attempt = existingOpt.get();
-            int currentAttempt = attempt.getAttemptNumber() == null ? 0 : attempt.getAttemptNumber();
-            if (currentAttempt >= maxAttempts) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max attempts reached");
-            }
-            // Per requirements: increment attempt number on each POST, do not reset any fields
-            attempt.setAttemptNumber(currentAttempt + 1);
-            // updatedAt will be auto-updated by @UpdateTimestamp
-            return testAttemptRepository.save(attempt);
-        } else {
-            // First time: create row with attemptNumber=1
-            TestAttempt attempt = TestAttempt.builder()
-                    .test(test)
-                    .student(requester)
-                    .attemptNumber(1)
-                    .startedAt(LocalDateTime.now())
-                    .completed(false)
-                    .score(0)
-                    .build();
-            return testAttemptRepository.save(attempt);
+        // 1. Check for any incomplete attempt first to resume (optimization)
+        Optional<TestAttempt> existingIncomplete = testAttemptRepository.findByTestAndStudentAndCompletedFalse(test, requester);
+        if (existingIncomplete.isPresent()) {
+             System.out.println("Resuming existing incomplete attempt: " + existingIncomplete.get().getId());
+             return existingIncomplete.get();
         }
+
+        // 2. Calculate the next attempt number dynamically based on existing count
+        // User wants: If I have 1 attempt (even if it's #8), next should be #2.
+        long count = testAttemptRepository.countByTestAndStudent(test, requester);
+        int nextAttemptNumber = (int) count + 1;
+
+        // Safety: Ensure we don't collide with an existing attempt number (e.g. if we have #1, #3 -> count is 2 -> next is #3 -> collision!)
+        while (testAttemptRepository.existsByTestAndStudentAndAttemptNumber(test, requester, nextAttemptNumber)) {
+            nextAttemptNumber++;
+        }
+
+        if (nextAttemptNumber > maxAttempts) {
+             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max attempts reached");
+        }
+
+        // 3. Create a NEW attempt record for the new attempt
+        TestAttempt newAttempt = TestAttempt.builder()
+                .test(test)
+                .student(requester)
+                .attemptNumber(nextAttemptNumber)
+                .startedAt(LocalDateTime.now())
+                .completed(false)
+                .score(0)
+                .build();
+        TestAttempt saved = testAttemptRepository.save(newAttempt);
+        System.out.println("Started new attempt: " + saved.getId() + " (Attempt #" + nextAttemptNumber + ") for user: " + requesterEmail);
+        return saved;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void submitOrUpdateAnswer(String requesterEmail, Long attemptId, Long questionId, String answerText) {
         User requester = requireUser(requesterEmail);
         TestAttempt attempt = testAttemptRepository.findById(attemptId)
@@ -124,8 +126,10 @@ public class AttemptService {
         answer.setAnswerText(answerText);
         answer.setCorrect(isCorrect);
         answerRepository.save(answer);
+        System.out.println("Saved answer for Q:" + questionId + " Attempt:" + attemptId + " Correct:" + isCorrect);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public TestAttempt submitAttempt(String requesterEmail, Long attemptId) {
         User requester = requireUser(requesterEmail);
         TestAttempt attempt = testAttemptRepository.findById(attemptId)
@@ -134,6 +138,7 @@ public class AttemptService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your attempt");
         }
         if (Boolean.TRUE.equals(attempt.getCompleted())) {
+            System.out.println("Attempt " + attemptId + " already completed. Skipping update.");
             return attempt; // idempotent
         }
         // After end time we still allow finalization but not new answers (handled earlier)
@@ -141,7 +146,9 @@ public class AttemptService {
         attempt.setScore(score);
         attempt.setSubmittedAt(LocalDateTime.now());
         attempt.setCompleted(true);
-        return testAttemptRepository.save(attempt);
+        TestAttempt saved = testAttemptRepository.save(attempt);
+        System.out.println("Submitted attempt: " + attemptId + " Score: " + score);
+        return saved;
     }
 
     public TestAttempt getAttempt(String requesterEmail, Long attemptId) {
@@ -202,7 +209,7 @@ public class AttemptService {
                 attempt.getUpdatedAt() == null ? null : attempt.getUpdatedAt().toString(),
                 test.getProctored() != null ? test.getProctored() : false,
                 test.getDurationMinutes(),                                                                      // durationMinutes
-                test.getMaxViolations() != null ? test.getMaxViolations() : 5                                 // maxViolations
+                test.getMaxViolations() != null ? test.getMaxViolations() : 10                                 // maxViolations
         );
 
         List<AttemptDtos.QuestionItem> questionItems = questions.stream().map(q -> new AttemptDtos.QuestionItem(

@@ -58,7 +58,7 @@ public class TestEntity {
     private Boolean allowReview = false; // Allow reviewing answers after submission
     
     @Column(name = "max_violations")
-    private Integer maxViolations = 5; // Maximum allowed proctoring violations (default: 5)
+    private Integer maxViolations = 10; // Maximum allowed proctoring violations (default: 10)
 
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, orphanRemoval = true)
     @com.fasterxml.jackson.annotation.JsonIgnore

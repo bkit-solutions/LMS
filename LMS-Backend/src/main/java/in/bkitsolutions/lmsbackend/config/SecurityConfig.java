@@ -32,13 +32,38 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/certificates/verify/**", 
+                                "/api/colleges/active",  // Public college list
+                                "/uploads/**",  // Public access to uploaded files (logos, banners)
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/swagger-resources/**")
+                                "/swagger-resources/**"
+                        )
                         .permitAll()
+                        // Admin data initialization endpoints - temporary for development
+                        .requestMatchers("/api/admin/data/**")
+                        .permitAll()
+                        // User management endpoints with role-based access
+                        .requestMatchers("/api/user-management/super-admin").hasAuthority("ROOTADMIN")
+                        .requestMatchers("/api/user-management/admin").hasAuthority("SUPERADMIN")
+                        .requestMatchers("/api/user-management/faculty").hasAuthority("ADMIN")
+                        .requestMatchers("/api/user-management/student").hasAnyAuthority("ADMIN", "FACULTY")
+                        // Role-based API access
+                        .requestMatchers("/api/users/super-admins").hasAuthority("ROOTADMIN")
+                        .requestMatchers("/api/users/admins").hasAnyAuthority("ROOTADMIN", "SUPERADMIN")
+                        .requestMatchers("/api/colleges").hasAnyAuthority("ROOTADMIN", "SUPERADMIN", "ADMIN")
+                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/user-management/**").authenticated()
+                        .requestMatchers("/api/colleges/**").authenticated()
+                        .requestMatchers("/api/courses/**").authenticated()
+                        .requestMatchers("/api/tests/**").authenticated()
+                        .requestMatchers("/api/profile/**").authenticated()
+                        // All other API requests require authentication
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
