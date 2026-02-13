@@ -71,37 +71,40 @@ const TopicListPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {topics.map((topic) => (
-              <button
-                key={topic.id}
-                onClick={() => navigate(`/dashboard/topics/${topic.id}`)}
-                className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-all hover:border-primary text-left group"
-              >
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <BookOpen className="w-6 h-6 text-primary" />
-                </div>
+            {topics.map((topic) => {
+              const collegeCode = window.location.pathname.split("/")[1];
+              return (
+                <button
+                  key={topic.id}
+                  onClick={() => navigate(`/${collegeCode}/dashboard/topics/${topic.id}`)}
+                  className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-all hover:border-primary text-left group"
+                >
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                    <BookOpen className="w-6 h-6 text-primary" />
+                  </div>
 
-                <h3 className="text-lg font-semibold text-text mb-2 group-hover:text-primary transition-colors">
-                  {topic.title}
-                </h3>
+                  <h3 className="text-lg font-semibold text-text mb-2 group-hover:text-primary transition-colors">
+                    {topic.title}
+                  </h3>
 
-                <p className="text-text-secondary text-sm mb-4 line-clamp-2">
-                  {topic.description || "No description available"}
-                </p>
+                  <p className="text-text-secondary text-sm mb-4 line-clamp-2">
+                    {topic.description || "No description available"}
+                  </p>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-text-secondary">
-                    <span className="font-medium text-primary">
-                      {topic.chapterCount}
-                    </span>{" "}
-                    {topic.chapterCount === 1 ? "chapter" : "chapters"}
-                  </span>
-                  <span className="text-primary text-sm font-medium group-hover:translate-x-1 transition-transform inline-block">
-                    Start Learning →
-                  </span>
-                </div>
-              </button>
-            ))}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-text-secondary">
+                      <span className="font-medium text-primary">
+                        {topic.chapterCount}
+                      </span>{" "}
+                      {topic.chapterCount === 1 ? "chapter" : "chapters"}
+                    </span>
+                    <span className="text-primary text-sm font-medium group-hover:translate-x-1 transition-transform inline-block">
+                      Start Learning →
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

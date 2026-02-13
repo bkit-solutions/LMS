@@ -56,4 +56,48 @@ public class EnrollmentController {
         EnrollmentDtos.ProgressResponse progress = enrollmentService.getProgress(email, courseId);
         return ResponseEntity.ok(ApiResponse.ok("Progress retrieved", progress));
     }
+
+    // --- Admin Enrollment Management ---
+
+    @PostMapping("/admin/courses/{courseId}/students/{studentId}")
+    public ResponseEntity<ApiResponse<EnrollmentDtos.EnrollmentResponse>> adminEnroll(
+            Authentication auth, @PathVariable Long courseId, @PathVariable Long studentId) {
+        String email = (String) auth.getPrincipal();
+        EnrollmentDtos.EnrollmentResponse enrollment = enrollmentService.adminEnrollStudent(email, courseId, studentId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Student enrolled by admin", enrollment));
+    }
+
+    @PostMapping("/admin/courses/{courseId}/bulk-enroll")
+    public ResponseEntity<ApiResponse<List<EnrollmentDtos.EnrollmentResponse>>> adminBulkEnroll(
+            Authentication auth, @PathVariable Long courseId,
+            @RequestBody EnrollmentDtos.BulkEnrollRequest req) {
+        String email = (String) auth.getPrincipal();
+        List<EnrollmentDtos.EnrollmentResponse> enrollments = enrollmentService.adminBulkEnroll(email, courseId, req.getStudentIds());
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Students enrolled", enrollments));
+    }
+
+    @DeleteMapping("/admin/courses/{courseId}/students/{studentId}")
+    public ResponseEntity<ApiResponse<Void>> adminUnenroll(
+            Authentication auth, @PathVariable Long courseId, @PathVariable Long studentId) {
+        String email = (String) auth.getPrincipal();
+        enrollmentService.adminUnenrollStudent(email, courseId, studentId);
+        return ResponseEntity.ok(ApiResponse.ok("Student unenrolled by admin", null));
+    }
+
+    @PatchMapping("/admin/{enrollmentId}/status")
+    public ResponseEntity<ApiResponse<EnrollmentDtos.EnrollmentResponse>> adminUpdateStatus(
+            Authentication auth, @PathVariable Long enrollmentId,
+            @RequestBody EnrollmentDtos.UpdateEnrollmentStatusRequest req) {
+        String email = (String) auth.getPrincipal();
+        EnrollmentDtos.EnrollmentResponse enrollment = enrollmentService.adminUpdateEnrollmentStatus(email, enrollmentId, req.getStatus());
+        return ResponseEntity.ok(ApiResponse.ok("Enrollment status updated", enrollment));
+    }
+
+    @GetMapping("/admin/college/{collegeId}/stats")
+    public ResponseEntity<ApiResponse<EnrollmentDtos.EnrollmentStatsResponse>> enrollmentStats(
+            Authentication auth, @PathVariable Long collegeId) {
+        String email = (String) auth.getPrincipal();
+        EnrollmentDtos.EnrollmentStatsResponse stats = enrollmentService.getEnrollmentStats(email, collegeId);
+        return ResponseEntity.ok(ApiResponse.ok("Enrollment statistics", stats));
+    }
 }

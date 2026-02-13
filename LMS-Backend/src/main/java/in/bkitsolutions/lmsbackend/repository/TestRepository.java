@@ -12,9 +12,12 @@ import java.util.List;
 public interface TestRepository extends JpaRepository<TestEntity, Long> {
     List<TestEntity> findByCreatedBy(User createdBy);
 
-    @Query("SELECT t FROM TestEntity t WHERE t.published = true OR t.startTime <= :now AND t.endTime >= :now AND t.createdBy = :admin")
+    @Query("SELECT t FROM TestEntity t WHERE t.createdBy = :admin AND t.published = true AND (t.startTime IS NULL OR t.startTime <= :now) AND (t.endTime IS NULL OR t.endTime >= :now)")
     List<TestEntity> findActivePublishedByAdmin(@Param("admin") User admin, @Param("now") LocalDateTime now);
 
     @Query("SELECT t FROM TestEntity t JOIN t.createdBy u WHERE u.college.id = :collegeId")
     List<TestEntity> findByCollegeId(@Param("collegeId") Long collegeId);
+
+    @Query("SELECT t FROM TestEntity t JOIN t.createdBy u WHERE u.college.id = :collegeId AND t.published = true AND (t.startTime IS NULL OR t.startTime <= :now) AND (t.endTime IS NULL OR t.endTime >= :now)")
+    List<TestEntity> findActivePublishedByCollegeId(@Param("collegeId") Long collegeId, @Param("now") LocalDateTime now);
 }

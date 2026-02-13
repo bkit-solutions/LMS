@@ -55,7 +55,7 @@ const CollegeLoginPage: React.FC = () => {
       ).unwrap();
       
       if (result) {
-        navigate("/dashboard");
+        navigate(`/${branding?.code || collegeCode}/dashboard`);
       }
     } catch (err: any) {
       setError(typeof err === 'string' ? err : "Login failed");

@@ -5,6 +5,7 @@ import in.bkitsolutions.lmsbackend.model.*;
 import in.bkitsolutions.lmsbackend.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
@@ -155,11 +157,179 @@ public class EnrollmentService {
                 .courseThumbnailUrl(enrollment.getCourse().getThumbnailUrl())
                 .studentId(enrollment.getStudent().getId())
                 .studentName(enrollment.getStudent().getName())
+                .studentEmail(enrollment.getStudent().getEmail())
                 .status(enrollment.getStatus().name())
                 .enrolledAt(enrollment.getEnrolledAt() != null ? enrollment.getEnrolledAt().toString() : null)
                 .completedAt(enrollment.getCompletedAt() != null ? enrollment.getCompletedAt().toString() : null)
                 .progressPercentage(enrollment.getProgressPercentage())
                 .build();
+    }
+
+    // --- Admin Enrollment Management ---
+
+    /**
+     * Admin/Faculty can enroll a student into a course (batch enrollment)
+     */
+    public EnrollmentDtos.EnrollmentResponse adminEnrollStudent(String requesterEmail, Long courseId, Long studentId) {
+        User requester = requireUser(requesterEmail);
+        verifyAdminAccess(requester);
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
+
+        // Verify requester has access to this course's college
+        verifyCollegeAccess(requester, course);
+
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
+
+        if (student.getType() != UserType.USER) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can only enroll student users");
+        }
+
+        if (enrollmentRepository.existsByCourseIdAndStudentId(courseId, studentId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Student already enrolled");
+        }
+
+        Enrollment enrollment = Enrollment.builder()
+                .course(course)
+                .student(student)
+                .status(EnrollmentStatus.ACTIVE)
+                .progressPercentage(0)
+                .build();
+
+        enrollment = enrollmentRepository.save(enrollment);
+        return toResponse(enrollment);
+    }
+
+    /**
+     * Bulk enroll multiple students into a course
+     */
+    public List<EnrollmentDtos.EnrollmentResponse> adminBulkEnroll(String requesterEmail, Long courseId, List<Long> studentIds) {
+        User requester = requireUser(requesterEmail);
+        verifyAdminAccess(requester);
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
+        verifyCollegeAccess(requester, course);
+
+        return studentIds.stream()
+                .filter(studentId -> !enrollmentRepository.existsByCourseIdAndStudentId(courseId, studentId))
+                .map(studentId -> {
+                    User student = userRepository.findById(studentId)
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student " + studentId + " not found"));
+                    if (student.getType() != UserType.USER) return null;
+
+                    Enrollment enrollment = Enrollment.builder()
+                            .course(course)
+                            .student(student)
+                            .status(EnrollmentStatus.ACTIVE)
+                            .progressPercentage(0)
+                            .build();
+                    return toResponse(enrollmentRepository.save(enrollment));
+                })
+                .filter(r -> r != null)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Admin can remove a student from a course
+     */
+    public void adminUnenrollStudent(String requesterEmail, Long courseId, Long studentId) {
+        User requester = requireUser(requesterEmail);
+        verifyAdminAccess(requester);
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
+        verifyCollegeAccess(requester, course);
+
+        Enrollment enrollment = enrollmentRepository.findByCourseIdAndStudentId(courseId, studentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Enrollment not found"));
+
+        enrollment.setStatus(EnrollmentStatus.DROPPED);
+        enrollmentRepository.save(enrollment);
+    }
+
+    /**
+     * Admin can update enrollment status (ACTIVE, COMPLETED, DROPPED, SUSPENDED)
+     */
+    public EnrollmentDtos.EnrollmentResponse adminUpdateEnrollmentStatus(String requesterEmail, Long enrollmentId, String status) {
+        User requester = requireUser(requesterEmail);
+        verifyAdminAccess(requester);
+
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Enrollment not found"));
+
+        verifyCollegeAccess(requester, enrollment.getCourse());
+
+        try {
+            EnrollmentStatus newStatus = EnrollmentStatus.valueOf(status.toUpperCase());
+            enrollment.setStatus(newStatus);
+            if (newStatus == EnrollmentStatus.COMPLETED) {
+                enrollment.setCompletedAt(LocalDateTime.now());
+                enrollment.setProgressPercentage(100);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status: " + status);
+        }
+
+        enrollment = enrollmentRepository.save(enrollment);
+        return toResponse(enrollment);
+    }
+
+    /**
+     * Get enrollment statistics for a college
+     */
+    public EnrollmentDtos.EnrollmentStatsResponse getEnrollmentStats(String requesterEmail, Long collegeId) {
+        User requester = requireUser(requesterEmail);
+        verifyAdminAccess(requester);
+
+        // Verify college access
+        if (requester.getType() != UserType.SUPERADMIN && requester.getType() != UserType.ROOTADMIN) {
+            if (requester.getCollege() == null || !requester.getCollege().getId().equals(collegeId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            }
+        }
+
+        long totalEnrollments = enrollmentRepository.countByCollegeId(collegeId);
+        List<Course> courses = courseRepository.findByCollegeId(collegeId);
+
+        long activeEnrollments = 0;
+        long completedEnrollments = 0;
+        long droppedEnrollments = 0;
+
+        for (Course course : courses) {
+            activeEnrollments += enrollmentRepository.countByCourseIdAndStatus(course.getId(), EnrollmentStatus.ACTIVE);
+            completedEnrollments += enrollmentRepository.countByCourseIdAndStatus(course.getId(), EnrollmentStatus.COMPLETED);
+            droppedEnrollments += enrollmentRepository.countByCourseIdAndStatus(course.getId(), EnrollmentStatus.DROPPED);
+        }
+
+        double completionRate = totalEnrollments > 0 ? (double) completedEnrollments / totalEnrollments * 100 : 0;
+
+        return EnrollmentDtos.EnrollmentStatsResponse.builder()
+                .totalEnrollments(totalEnrollments)
+                .activeEnrollments(activeEnrollments)
+                .completedEnrollments(completedEnrollments)
+                .droppedEnrollments(droppedEnrollments)
+                .completionRate(Math.round(completionRate * 100.0) / 100.0)
+                .totalCourses(courses.size())
+                .build();
+    }
+
+    // --- Helper Methods ---
+
+    private void verifyAdminAccess(User user) {
+        if (user.getType() != UserType.ADMIN && user.getType() != UserType.FACULTY
+                && user.getType() != UserType.SUPERADMIN && user.getType() != UserType.ROOTADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient permissions");
+        }
+    }
+
+    private void verifyCollegeAccess(User requester, Course course) {
+        if (requester.getType() == UserType.SUPERADMIN || requester.getType() == UserType.ROOTADMIN) return;
+        if (requester.getCollege() == null || !requester.getCollege().getId().equals(course.getCollege().getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this course's college");
+        }
     }
 
     private User requireUser(String email) {

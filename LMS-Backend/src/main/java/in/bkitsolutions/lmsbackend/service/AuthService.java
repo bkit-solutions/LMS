@@ -44,19 +44,10 @@ public class AuthService {
     }
 
     public String login(AuthDtos.LoginRequest req) {
-        System.out.println("Login attempt for: " + req.getEmail());
         User user = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> {
-                    System.out.println("User not found: " + req.getEmail());
-                    return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
-                });
-        
-        System.out.println("User found: " + user.getId() + ", Hash: " + user.getPasswordHash());
-        System.out.println("Input password: " + req.getPassword());
-        boolean matches = passwordEncoder.matches(req.getPassword(), user.getPasswordHash());
-        System.out.println("Password match result: " + matches);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
-        if (!matches) {
+        if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 

@@ -10,4 +10,6 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
     List<Chapter> findByTopicOrderByDisplayOrderAsc(Topic topic);
 
     List<Chapter> findByTopicIdOrderByDisplayOrderAsc(Long topicId);
+    
+    long countByTopicId(Long topicId);
 }

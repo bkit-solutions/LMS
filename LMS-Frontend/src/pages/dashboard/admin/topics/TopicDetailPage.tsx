@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { topicApi } from "../../../../services/topicApi";
+import RichTextEditor from "../../../../components/common/RichTextEditor";
 import type {
   TopicResponse,
   ChapterSummary,
@@ -90,6 +91,27 @@ const TopicDetailPage: React.FC = () => {
     }
   };
 
+  const handleUnpublish = async () => {
+    try {
+      const response = await topicApi.unpublishTopic(topicId);
+      if (response.success && response.data) {
+        setTopic(response.data);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to unpublish topic");
+    }
+  };
+
+  const handleDeleteTopic = async () => {
+    if (!confirm("Delete this topic and all its chapters permanently?")) return;
+    try {
+      await topicApi.deleteTopic(topicId);
+      navigate("../topics");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to delete topic");
+    }
+  };
+
   const handleAddChapter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newChapterTitle.trim()) return;
@@ -98,6 +120,7 @@ const TopicDetailPage: React.FC = () => {
       const response = await topicApi.createChapter(topicId, {
         title: newChapterTitle.trim(),
         content: newChapterContent.trim() || undefined,
+        contentType: 'TEXT',
         displayOrder: chapters.length,
       });
       if (response.success && response.data) {
@@ -106,6 +129,9 @@ const TopicDetailPage: React.FC = () => {
           {
             id: response.data.id,
             title: response.data.title,
+            contentType: response.data.contentType || 'TEXT',
+            estimatedMinutes: response.data.estimatedMinutes,
+            isMandatory: response.data.isMandatory,
             displayOrder: response.data.displayOrder,
           },
         ]);
@@ -196,7 +222,7 @@ const TopicDetailPage: React.FC = () => {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Back button */}
         <button
-          onClick={() => navigate("/dashboard/topics")}
+          onClick={() => navigate("../topics")}
           className="text-primary hover:text-secondary text-sm font-medium"
         >
           ← Back to Topics
@@ -286,14 +312,27 @@ const TopicDetailPage: React.FC = () => {
                 >
                   Edit
                 </button>
-                {!topic.published && (
+                {!topic.published ? (
                   <button
                     onClick={handlePublish}
                     className="px-3 py-1.5 text-sm font-medium text-green-600 hover:bg-green-600 hover:text-white border border-green-600 rounded-md transition-colors"
                   >
                     Publish
                   </button>
+                ) : (
+                  <button
+                    onClick={handleUnpublish}
+                    className="px-3 py-1.5 text-sm font-medium text-yellow-600 hover:bg-yellow-600 hover:text-white border border-yellow-600 rounded-md transition-colors"
+                  >
+                    Unpublish
+                  </button>
                 )}
+                <button
+                  onClick={handleDeleteTopic}
+                  className="px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white border border-red-600 rounded-md transition-colors"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           )}
@@ -334,12 +373,11 @@ const TopicDetailPage: React.FC = () => {
                   <label className="block text-sm font-medium text-text mb-1">
                     Content
                   </label>
-                  <textarea
+                  <RichTextEditor
                     value={newChapterContent}
-                    onChange={(e) => setNewChapterContent(e.target.value)}
-                    rows={6}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white font-mono text-sm"
-                    placeholder="Write the chapter content here... (supports plain text and HTML)"
+                    onChange={setNewChapterContent}
+                    placeholder="Write the chapter content here... Use the rich text editor to format your content with headers, bold text, lists, and more."
+                    height="250px"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -397,11 +435,11 @@ const TopicDetailPage: React.FC = () => {
                     <label className="block text-sm font-medium text-text mb-1">
                       Content
                     </label>
-                    <textarea
+                    <RichTextEditor
                       value={editChapterContent}
-                      onChange={(e) => setEditChapterContent(e.target.value)}
-                      rows={15}
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-sm"
+                      onChange={setEditChapterContent}
+                      placeholder="Write the chapter content here... Use the rich text editor to format your content with headers, bold text, lists, and more."
+                      height="300px"
                     />
                   </div>
                   <div className="flex gap-2">

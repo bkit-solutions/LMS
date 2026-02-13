@@ -217,7 +217,7 @@ const ImprovedPreTestInstructions: React.FC = () => {
         }
     };
 
-    const canStartTest = agreed && systemCheckComplete && (!test?.proctored || (modelStatus === "ready" && proctoringStream)) && !starting;
+    const canStartTest = agreed && (systemCheckComplete || !test?.proctored) && (!test?.proctored || (modelStatus === "ready" && proctoringStream)) && !starting;
 
     // Debug logging for button state
     useEffect(() => {

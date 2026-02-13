@@ -12,4 +12,18 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     List<Topic> findByPublishedTrueOrderByDisplayOrderAsc();
 
     List<Topic> findByCreatedByOrderByDisplayOrderAsc(User createdBy);
+
+    List<Topic> findByCreatedByCollegeIdOrderByDisplayOrderAsc(Long collegeId);
+
+    List<Topic> findByCreatedByCollegeIdAndPublishedTrueOrderByDisplayOrderAsc(Long collegeId);
+
+    long countByCreatedById(Long userId);
+
+    long countByCreatedByCollegeId(Long collegeId);
+    
+    // Find all topics for a specific course (ordered by display order)
+    List<Topic> findByCourseIdOrderByDisplayOrderAsc(Long courseId);
+    
+    // Find published topics for a specific course
+    List<Topic> findByCourseIdAndPublishedTrueOrderByDisplayOrderAsc(Long courseId);
 }

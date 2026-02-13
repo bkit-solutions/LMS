@@ -329,10 +329,18 @@ const TestDetailPage: React.FC = () => {
                               {/* Type Badge */}
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${question.questionType === 'MCQ' ? 'bg-blue-100 text-blue-700' :
                                 question.questionType === 'MAQ' ? 'bg-purple-100 text-purple-700' :
-                                  'bg-green-100 text-green-700'
+                                question.questionType === 'TRUE_FALSE' ? 'bg-green-100 text-green-700' :
+                                question.questionType === 'ESSAY' ? 'bg-yellow-100 text-yellow-700' :
+                                question.questionType === 'IMAGE_BASED' ? 'bg-orange-100 text-orange-700' :
+                                question.questionType === 'UPLOAD_ANSWER' ? 'bg-indigo-100 text-indigo-700' :
+                                  'bg-gray-100 text-gray-700'
                                 }`}>
                                 {question.questionType === 'MCQ' ? 'Single Choice' :
-                                  question.questionType === 'MAQ' ? 'Multiple Choice' : 'Fill in Blank'}
+                                  question.questionType === 'MAQ' ? 'Multiple Choice' :
+                                  question.questionType === 'TRUE_FALSE' ? 'True/False' :
+                                  question.questionType === 'ESSAY' ? 'Essay' :
+                                  question.questionType === 'IMAGE_BASED' ? 'Image Based' :
+                                  question.questionType === 'UPLOAD_ANSWER' ? 'File Upload' : 'Fill in Blank'}
                               </span>
                               <div className="flex items-center space-x-1 text-sm">
                                 <span className="font-semibold text-primary">{question.marks}</span>
@@ -382,6 +390,88 @@ const TestDetailPage: React.FC = () => {
                             <div className="ml-13 p-3 bg-green-50 border border-green-200 rounded-lg">
                               <span className="text-sm font-semibold text-green-900">Answer: </span>
                               <span className="text-sm text-green-700">{question.correctAnswer}</span>
+                            </div>
+                          )}
+
+                          {question.questionType === 'TRUE_FALSE' && (
+                            <div className="space-y-2 ml-13">
+                              {['A', 'B'].map((opt) => {
+                                const optionText = question[`option${opt}` as keyof Question];
+                                if (!optionText) return null;
+
+                                const isCorrect = question.correctOption === opt;
+
+                                return (
+                                  <div key={opt} className={`flex items-center space-x-3 p-3 rounded-lg ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-surface'
+                                    }`}>
+                                    <span className={`flex items-center justify-center w-8 h-8 rounded-full font-semibold text-sm ${isCorrect ? 'bg-green-500 text-white' : 'bg-white text-text-secondary border border-border'
+                                      }`}>
+                                      {opt}
+                                    </span>
+                                    <span className={`flex-1 ${isCorrect ? 'font-medium text-green-900' : 'text-text'}`}>
+                                      {optionText}
+                                    </span>
+                                    {isCorrect && (
+                                      <CheckCircle className="w-5 h-5 text-green-600" />
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {question.questionType === 'ESSAY' && (
+                            <div className="ml-13 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                              <span className="text-sm font-semibold text-yellow-900">Essay Question</span>
+                              {question.characterLimit && (
+                                <span className="text-sm text-yellow-700 ml-2">· Character limit: {question.characterLimit}</span>
+                              )}
+                            </div>
+                          )}
+
+                          {question.questionType === 'IMAGE_BASED' && (
+                            <div className="ml-13 space-y-3">
+                              {question.imageUrl && (
+                                <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                                  <span className="text-sm font-semibold text-orange-900">Image: </span>
+                                  <span className="text-sm text-orange-700">{question.imageUrl}</span>
+                                </div>
+                              )}
+                              <div className="space-y-2">
+                                {['A', 'B', 'C', 'D'].map((opt) => {
+                                  const optionText = question[`option${opt}` as keyof Question];
+                                  if (!optionText) return null;
+
+                                  const isCorrect = question.correctOption === opt;
+
+                                  return (
+                                    <div key={opt} className={`flex items-center space-x-3 p-3 rounded-lg ${isCorrect ? 'bg-orange-50 border border-orange-200' : 'bg-surface'
+                                      }`}>
+                                      <span className={`flex items-center justify-center w-8 h-8 rounded-full font-semibold text-sm ${isCorrect ? 'bg-orange-500 text-white' : 'bg-white text-text-secondary border border-border'
+                                        }`}>
+                                        {opt}
+                                      </span>
+                                      <span className={`flex-1 ${isCorrect ? 'font-medium text-orange-900' : 'text-text'}`}>
+                                        {optionText}
+                                      </span>
+                                      {isCorrect && (
+                                        <CheckCircle className="w-5 h-5 text-orange-600" />
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {question.questionType === 'UPLOAD_ANSWER' && (
+                            <div className="ml-13 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+                              <span className="text-sm font-semibold text-indigo-900">File Upload Required</span>
+                              {question.fileUploadInstructions && (
+                                <div className="text-sm text-indigo-700 mt-1">
+                                  Instructions: {question.fileUploadInstructions}
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>

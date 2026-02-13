@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
-import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import { proctoringModelLoader } from "../../utils/ProctoringModelLoader";
 import { testApi } from "../../services/testApi";
 import type { SessionReportUpdate, ViolationCounts, ViolationType } from "../../types/proctoring";
@@ -37,8 +35,8 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
     const videoRef = useRef<HTMLVideoElement>(null);
     const requestRef = useRef<number>(0);
     // Use a ref to hold the model, but we fetch it from singleton
-    const modelRef = useRef<faceLandmarksDetection.FaceLandmarksDetector | null>(null);
-    const objectDetectorRef = useRef<cocoSsd.ObjectDetection | null>(null);
+    const modelRef = useRef<any>(null);
+    const objectDetectorRef = useRef<any>(null);
 
     // Audio Context
     const audioContextRef = useRef<AudioContext | null>(null);
@@ -244,6 +242,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                     // Load COCO-SSD for mobile detection
                     console.log("📱 Loading COCO-SSD for object detection...");
                     try {
+                        const cocoSsd = await import("@tensorflow-models/coco-ssd");
                         const objectDetector = await cocoSsd.load();
                         objectDetectorRef.current = objectDetector;
                         console.log("✅ COCO-SSD loaded for mobile detection");
@@ -413,14 +412,14 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
 
                     // Log all detections for debugging (first time only)
                     if (Math.random() < 0.1) { // Log 10% of the time
-                        console.log("📱 Object Detection Results:", predictions.map(p => ({
+                        console.log("📱 Object Detection Results:", predictions.map((p: any) => ({
                             class: p.class,
                             score: (p.score * 100).toFixed(1) + '%'
                         })));
                     }
 
                     // Check for 'cell phone' class
-                    const mobileDetection = predictions.find(p => p.class === 'cell phone');
+                    const mobileDetection = predictions.find((p: any) => p.class === 'cell phone');
                     const isMobileDetected = mobileDetection && mobileDetection.score > 0.5;
 
                     if (isMobileDetected && !isMobileDetectedRef.current) {
@@ -499,7 +498,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                     // Log details of each face if multiple detected
                     if (faces && faces.length > 1) {
                         console.log("🚨 MULTIPLE FACES DETAILS:");
-                        faces.forEach((face, idx) => {
+                        faces.forEach((face: any, idx: number) => {
                             console.log(`  Face ${idx + 1}:`, {
                                 box: face.box,
                                 keypointsCount: face.keypoints?.length
@@ -544,11 +543,11 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
 
                     // CRITICAL: Face Completeness Check to prevent cheating
                     // Check if both eyes, nose, and mouth are visible
-                    const leftEye = keypoints.find(k => k.name === "leftEye") || keypoints[33];
-                    const rightEye = keypoints.find(k => k.name === "rightEye") || keypoints[263];
-                    const nose = keypoints.find(k => k.name === "noseTip") || keypoints[1];
-                    const leftMouth = keypoints.find(k => k.name === "mouthLeft") || keypoints[61];
-                    const rightMouth = keypoints.find(k => k.name === "mouthRight") || keypoints[291];
+                    const leftEye = keypoints.find((k: any) => k.name === "leftEye") || keypoints[33];
+                    const rightEye = keypoints.find((k: any) => k.name === "rightEye") || keypoints[263];
+                    const nose = keypoints.find((k: any) => k.name === "noseTip") || keypoints[1];
+                    const leftMouth = keypoints.find((k: any) => k.name === "mouthLeft") || keypoints[61];
+                    const rightMouth = keypoints.find((k: any) => k.name === "mouthRight") || keypoints[291];
 
                     // Check if critical landmarks exist
                     const hasLeftEye = leftEye && leftEye.x > 0 && leftEye.y > 0;
@@ -611,7 +610,7 @@ const ProctoringManager: React.FC<ProctoringManagerProps> = ({
                         // D. FACE SIZE / DISTANCE & ASPECT RATIO CHECK
                         let minX = video.videoWidth, maxX = 0;
                         let minY = video.videoHeight, maxY = 0;
-                        keypoints.forEach(k => {
+                        keypoints.forEach((k: any) => {
                             if (k.x < minX) minX = k.x;
                             if (k.x > maxX) maxX = k.x;
                             if (k.y < minY) minY = k.y;

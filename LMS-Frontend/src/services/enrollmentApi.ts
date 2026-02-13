@@ -1,19 +1,6 @@
-import axios from "axios";
+import api from "./apiClient";
 import type { ApiResponse } from "./authApi";
-import type { EnrollmentResponse, ProgressResponse } from "../types";
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
-  withCredentials: true,
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import type { EnrollmentResponse, ProgressResponse, EnrollmentStatsResponse } from "../types";
 
 export const enrollmentApi = {
   // Enroll in a course
@@ -61,6 +48,38 @@ export const enrollmentApi = {
   // Get chapter completion status
   getChapterStatus: async (chapterId: number): Promise<ApiResponse<boolean>> => {
     const response = await api.get(`/api/progress/chapters/${chapterId}/status`);
+    return response.data;
+  },
+
+  // --- Admin Enrollment Management ---
+
+  // Admin: enroll a student into a course
+  adminEnrollStudent: async (courseId: number, studentId: number): Promise<ApiResponse<EnrollmentResponse>> => {
+    const response = await api.post(`/api/enrollments/admin/courses/${courseId}/students/${studentId}`);
+    return response.data;
+  },
+
+  // Admin: bulk enroll students
+  adminBulkEnroll: async (courseId: number, studentIds: number[]): Promise<ApiResponse<EnrollmentResponse[]>> => {
+    const response = await api.post(`/api/enrollments/admin/courses/${courseId}/bulk-enroll`, { studentIds });
+    return response.data;
+  },
+
+  // Admin: unenroll a student
+  adminUnenrollStudent: async (courseId: number, studentId: number): Promise<ApiResponse<void>> => {
+    const response = await api.delete(`/api/enrollments/admin/courses/${courseId}/students/${studentId}`);
+    return response.data;
+  },
+
+  // Admin: update enrollment status
+  adminUpdateStatus: async (enrollmentId: number, status: string): Promise<ApiResponse<EnrollmentResponse>> => {
+    const response = await api.patch(`/api/enrollments/admin/${enrollmentId}/status`, { status });
+    return response.data;
+  },
+
+  // Admin: get enrollment statistics by college
+  getEnrollmentStats: async (collegeId: number): Promise<ApiResponse<EnrollmentStatsResponse>> => {
+    const response = await api.get(`/api/enrollments/admin/college/${collegeId}/stats`);
     return response.data;
   },
 };

@@ -42,6 +42,74 @@ const QuestionPaperModal: React.FC<QuestionPaperModalProps> = ({ questions, onCl
                     })}
                   </div>
                 )}
+                {question.questionType === "MAQ" && (
+                  <div className="ml-4 space-y-1">
+                    {["A", "B", "C", "D"].map((opt) => {
+                      const text = question[`option${opt}` as keyof Question] as string;
+                      if (!text) return null;
+                      return (
+                        <div key={opt} className="text-sm text-gray-700">
+                          {opt}. {text}
+                        </div>
+                      );
+                    })}
+                    <div className="text-xs text-gray-500 mt-2 italic">
+                      (Multiple correct answers)
+                    </div>
+                  </div>
+                )}
+                {question.questionType === "TRUE_FALSE" && (
+                  <div className="ml-4 space-y-1">
+                    {["A", "B"].map((opt) => {
+                      const text = question[`option${opt}` as keyof Question] as string;
+                      if (!text) return null;
+                      return (
+                        <div key={opt} className="text-sm text-gray-700">
+                          {opt}. {text}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {question.questionType === "ESSAY" && (
+                  <div className="ml-4 text-sm text-gray-500 italic">
+                    Essay question {question.characterLimit ? `(${question.characterLimit} characters max)` : '(unlimited length)'}
+                  </div>
+                )}
+                {question.questionType === "IMAGE_BASED" && (
+                  <div className="ml-4 space-y-2">
+                    {question.imageUrl && (
+                      <div className="mb-2">
+                        <img
+                          src={question.imageUrl}
+                          alt="Question"
+                          className="max-w-full max-h-48 rounded border"
+                        />
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      {["A", "B", "C", "D"].map((opt) => {
+                        const text = question[`option${opt}` as keyof Question] as string;
+                        if (!text) return null;
+                        return (
+                          <div key={opt} className="text-sm text-gray-700">
+                            {opt}. {text}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {question.questionType === "UPLOAD_ANSWER" && (
+                  <div className="ml-4 text-sm text-gray-500 italic">
+                    File upload required
+                    {question.fileUploadInstructions && (
+                      <div className="mt-1 text-xs">
+                        Instructions: {question.fileUploadInstructions}
+                      </div>
+                    )}
+                  </div>
+                )}
                 {question.questionType === "FILL_BLANK" && (
                   <div className="ml-4 text-sm text-gray-500 italic">
                     Fill in the blank

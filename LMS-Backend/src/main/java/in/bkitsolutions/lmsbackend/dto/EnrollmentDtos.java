@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 public class EnrollmentDtos {
 
     @Data
@@ -18,6 +20,7 @@ public class EnrollmentDtos {
         private String courseThumbnailUrl;
         private Long studentId;
         private String studentName;
+        private String studentEmail;
         private String status;
         private String enrolledAt;
         private String completedAt;
@@ -35,5 +38,32 @@ public class EnrollmentDtos {
         private Integer completedChapters;
         private Integer progressPercentage;
         private String status;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BulkEnrollRequest {
+        private List<Long> studentIds;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateEnrollmentStatusRequest {
+        private String status;  // ACTIVE, COMPLETED, DROPPED, SUSPENDED
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EnrollmentStatsResponse {
+        private long totalEnrollments;
+        private long activeEnrollments;
+        private long completedEnrollments;
+        private long droppedEnrollments;
+        private double completionRate;
+        private long totalCourses;
     }
 }

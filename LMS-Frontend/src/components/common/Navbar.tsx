@@ -51,16 +51,22 @@ const Navbar: React.FC = () => {
       { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
       { label: "Colleges", path: "/dashboard/colleges", icon: BookOpen },
       { label: "Admins", path: "/dashboard/admins", icon: User },
+      { label: "Courses", path: "/dashboard/courses", icon: BookText },
+      { label: "Topics", path: "/dashboard/topics", icon: BookOpen },
+      { label: "Tests", path: "/dashboard/tests", icon: FileCheck },
     ],
     ADMIN: [
       { label: "Dashboard", path: getDashboardPath(), icon: LayoutDashboard },
       { label: "Faculty", path: getDashboardPath("/users/faculty"), icon: GraduationCap },
       { label: "Students", path: getDashboardPath("/users/students"), icon: User },
       { label: "Courses", path: getDashboardPath("/courses"), icon: BookText },
+      { label: "Topics", path: getDashboardPath("/topics"), icon: BookOpen },
+      { label: "Tests", path: getDashboardPath("/tests"), icon: FileCheck },
     ],
     FACULTY: [
       { label: "Dashboard", path: getDashboardPath(), icon: LayoutDashboard },
       { label: "Courses", path: getDashboardPath("/courses"), icon: BookText },
+      { label: "Topics", path: getDashboardPath("/topics"), icon: BookOpen },
       { label: "Tests", path: getDashboardPath("/tests"), icon: FileCheck },
     ],
     USER: [
@@ -71,8 +77,20 @@ const Navbar: React.FC = () => {
   };
 
   const handleLogout = () => {
+    // Capture user info before logout clears it
+    const currentUserRole = user?.type;
+    const currentCollegeCode = user?.collegeCode;
+
     dispatch(logout());
-    navigate("/login");
+
+    // Redirect to college-specific login for college users, general login for system admins
+    if (currentUserRole === "ROOTADMIN" || currentUserRole === "SUPERADMIN") {
+      navigate("/login");
+    } else if (currentCollegeCode) {
+      navigate(`/login/${currentCollegeCode}`);
+    } else {
+      navigate("/login");
+    }
   };
 
   const isActive = (path: string) => location.pathname === path || (path !== getDashboardPath() && location.pathname.startsWith(path));

@@ -1,10 +1,9 @@
-import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
-import { initTF } from "./tfInit";
-
+// Dynamic imports to avoid loading TensorFlow on every page
+// Using 'any' for detector type since it's loaded dynamically
 class ProctoringModelLoader {
     private static instance: ProctoringModelLoader;
-    private model: faceLandmarksDetection.FaceLandmarksDetector | null = null;
-    private loadingPromise: Promise<faceLandmarksDetection.FaceLandmarksDetector> | null = null;
+    private model: any = null;
+    private loadingPromise: Promise<any> | null = null;
 
     private constructor() { }
 
@@ -15,7 +14,7 @@ class ProctoringModelLoader {
         return ProctoringModelLoader.instance;
     }
 
-    public async loadModel(timeoutMs: number = 60000): Promise<faceLandmarksDetection.FaceLandmarksDetector> {
+    public async loadModel(timeoutMs: number = 60000): Promise<any> {
         if (this.model) {
             console.log("✅ Model already loaded, returning cached instance");
             return this.model;
@@ -28,6 +27,12 @@ class ProctoringModelLoader {
 
         const loadPromise = (async () => {
             try {
+                // Dynamic imports - only load TensorFlow when needed
+                console.log("📦 Loading TensorFlow libraries...");
+                const [faceLandmarksDetection, { initTF }] = await Promise.all([
+                    import("@tensorflow-models/face-landmarks-detection"),
+                    import("./tfInit")
+                ]);
                 // Ensure TensorFlow is initialized first
                 console.log("🔧 Ensuring TensorFlow backend is ready...");
                 await initTF();
@@ -78,7 +83,7 @@ class ProctoringModelLoader {
             }
         })();
 
-        const timeoutPromise = new Promise<faceLandmarksDetection.FaceLandmarksDetector>((_, reject) => {
+        const timeoutPromise = new Promise<any>((_, reject) => {
             setTimeout(() => {
                 reject(new Error("Proctoring model load timed out after " + (timeoutMs / 1000) + " seconds"));
             }, timeoutMs);
@@ -92,7 +97,7 @@ class ProctoringModelLoader {
         return this.loadingPromise;
     }
 
-    public getModel(): faceLandmarksDetection.FaceLandmarksDetector | null {
+    public getModel(): any {
         return this.model;
     }
 }

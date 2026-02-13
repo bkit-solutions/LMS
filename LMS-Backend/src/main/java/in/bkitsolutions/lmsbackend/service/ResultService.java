@@ -12,6 +12,7 @@ import in.bkitsolutions.lmsbackend.repository.TestRepository;
 import in.bkitsolutions.lmsbackend.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ResultService {
     private final TestAttemptRepository testAttemptRepository;
     private final TestRepository testRepository;
@@ -38,16 +40,28 @@ public class ResultService {
     public List<AttemptDtos.ResultDto> adminAllResults(String requesterEmail) {
         User requester = requireUser(requesterEmail);
         List<TestAttempt> attempts;
-        if (requester.getType() == UserType.SUPERADMIN) {
+        if (requester.getType() == UserType.SUPERADMIN || requester.getType() == UserType.ROOTADMIN) {
             attempts = testAttemptRepository.findAll();
         } else if (requester.getType() == UserType.ADMIN) {
+            // Admin sees results for all tests in their college
+            if (requester.getCollege() != null) {
+                List<TestEntity> collegeTests = testRepository.findByCollegeId(requester.getCollege().getId());
+                attempts = new ArrayList<>();
+                for (TestEntity t : collegeTests) {
+                    attempts.addAll(testAttemptRepository.findByTest(t));
+                }
+            } else {
+                attempts = new ArrayList<>();
+            }
+        } else if (requester.getType() == UserType.FACULTY) {
+            // Faculty sees results for tests they created
             List<TestEntity> myTests = testRepository.findByCreatedBy(requester);
             attempts = new ArrayList<>();
             for (TestEntity t : myTests) {
                 attempts.addAll(testAttemptRepository.findByTest(t));
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin/superadmin can view results");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin/faculty/superadmin can view results");
         }
         return attempts.stream().map(this::toResultDto).collect(Collectors.toList());
     }
@@ -103,9 +117,9 @@ public class ResultService {
 
     public List<AttemptDtos.ResultDto> myResults(String requesterEmail) {
         User requester = requireUser(requesterEmail);
-        // Allow USER and ADMIN for testing
-        if (requester.getType() != UserType.USER && requester.getType() != UserType.ADMIN) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users and admins can view their results");
+        // Allow USER, FACULTY, and ADMIN
+        if (requester.getType() != UserType.USER && requester.getType() != UserType.FACULTY && requester.getType() != UserType.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users, faculty, and admins can view their results");
         }
         List<TestAttempt> attempts = testAttemptRepository.findByStudent(requester);
         return attempts.stream().map(this::toResultDto).collect(Collectors.toList());

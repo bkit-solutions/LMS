@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/topics")
@@ -70,5 +72,40 @@ public class TopicController {
         String email = (String) auth.getPrincipal();
         TopicDtos.TopicResponse topic = topicService.publishTopic(email, id);
         return ResponseEntity.ok(ApiResponse.ok("Topic published", topic));
+    }
+
+    @PatchMapping("/{id}/unpublish")
+    public ResponseEntity<ApiResponse<TopicDtos.TopicResponse>> unpublish(Authentication auth, @PathVariable Long id) {
+        String email = (String) auth.getPrincipal();
+        TopicDtos.TopicResponse topic = topicService.unpublishTopic(email, id);
+        return ResponseEntity.ok(ApiResponse.ok("Topic unpublished", topic));
+    }
+
+    @PatchMapping("/{id}/reorder")
+    public ResponseEntity<ApiResponse<TopicDtos.TopicResponse>> reorderTopic(
+            Authentication auth, @PathVariable Long id, @RequestBody Map<String, Integer> body) {
+        String email = (String) auth.getPrincipal();
+        Integer newOrder = body.get("displayOrder");
+        if (newOrder == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "displayOrder is required");
+        }
+        TopicDtos.TopicResponse topic = topicService.updateTopicOrder(email, id, newOrder);
+        return ResponseEntity.ok(ApiResponse.ok("Topic reordered", topic));
+    }
+
+    @GetMapping("/college/{collegeId}")
+    public ResponseEntity<ApiResponse<List<TopicDtos.TopicResponse>>> byCollege(
+            Authentication auth, @PathVariable Long collegeId) {
+        String email = (String) auth.getPrincipal();
+        List<TopicDtos.TopicResponse> topics = topicService.getTopicsByCollege(email, collegeId);
+        return ResponseEntity.ok(ApiResponse.ok("College topics", topics));
+    }
+    
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<ApiResponse<List<TopicDtos.TopicResponse>>> byCourse(
+            Authentication auth, @PathVariable Long courseId) {
+        String email = (String) auth.getPrincipal();
+        List<TopicDtos.TopicResponse> topics = topicService.getTopicsByCourse(email, courseId);
+        return ResponseEntity.ok(ApiResponse.ok("Course curriculum", topics));
     }
 }

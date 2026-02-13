@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { testApi } from "../../../../services/testApi";
-import type { Question, Test } from "../../../../types";
+import type { Question, Test, QuestionTypeType } from "../../../../types";
 import dummyQuestions from "../../../../data/dummyQuestions.json";
 
 const QuestionManagementPage: React.FC = () => {
@@ -216,6 +216,10 @@ const QuestionManagementPage: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
                         {question.questionType === "MCQ" ? "Multiple Choice (Single)" :
                          question.questionType === "MAQ" ? "Multiple Choice (Multiple)" :
+                         question.questionType === "TRUE_FALSE" ? "True/False" :
+                         question.questionType === "ESSAY" ? "Essay" :
+                         question.questionType === "IMAGE_BASED" ? "Image Based" :
+                         question.questionType === "UPLOAD_ANSWER" ? "File Upload" :
                          "Fill in the Blank"}
                       </td>
                       <td className="px-6 py-4 text-sm text-text max-w-md">
@@ -280,7 +284,7 @@ const CreateQuestionModal: React.FC<{
 }> = ({ testId, onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
     questionText: "",
-    questionType: "MCQ" as "MCQ" | "MAQ" | "FILL_BLANK",
+    questionType: "MCQ" as QuestionTypeType,
     marks: 1,
     negativeMarks: 0,
     optionA: "",
@@ -290,6 +294,10 @@ const CreateQuestionModal: React.FC<{
     correctOption: "",
     correctOptionsCsv: "",
     correctAnswer: "",
+    characterLimit: undefined as number | undefined,
+    imageUrl: "",
+    allowFileUpload: false,
+    fileUploadInstructions: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -319,8 +327,28 @@ const CreateQuestionModal: React.FC<{
           optionD: formData.optionD,
           correctOptionsCsv: formData.correctOptionsCsv,
         }),
+        ...(formData.questionType === "TRUE_FALSE" && {
+          optionA: formData.optionA,
+          optionB: formData.optionB,
+          correctOption: formData.correctOption,
+        }),
         ...(formData.questionType === "FILL_BLANK" && {
           correctAnswer: formData.correctAnswer,
+        }),
+        ...(formData.questionType === "ESSAY" && {
+          characterLimit: formData.characterLimit,
+        }),
+        ...(formData.questionType === "IMAGE_BASED" && {
+          imageUrl: formData.imageUrl,
+          optionA: formData.optionA,
+          optionB: formData.optionB,
+          optionC: formData.optionC,
+          optionD: formData.optionD,
+          correctOption: formData.correctOption,
+        }),
+        ...(formData.questionType === "UPLOAD_ANSWER" && {
+          allowFileUpload: formData.allowFileUpload,
+          fileUploadInstructions: formData.fileUploadInstructions,
         }),
       };
 
@@ -358,14 +386,18 @@ const CreateQuestionModal: React.FC<{
                 value={formData.questionType}
                 onChange={(e) => setFormData({
                   ...formData,
-                  questionType: e.target.value as "MCQ" | "MAQ" | "FILL_BLANK"
+                  questionType: e.target.value as QuestionTypeType
                 })}
                 className="w-full p-2 border border-border rounded-md"
                 required
               >
                 <option value="MCQ">Multiple Choice (Single Correct)</option>
                 <option value="MAQ">Multiple Choice (Multiple Correct)</option>
+                <option value="TRUE_FALSE">True/False</option>
                 <option value="FILL_BLANK">Fill in the Blank</option>
+                <option value="ESSAY">Essay</option>
+                <option value="IMAGE_BASED">Image Based</option>
+                <option value="UPLOAD_ANSWER">File Upload</option>
               </select>
             </div>
 
@@ -573,6 +605,145 @@ const CreateQuestionModal: React.FC<{
                 <p className="text-xs text-text-secondary mt-1">
                   Note: Answer comparison is case-insensitive and ignores spaces/dashes/underscores
                 </p>
+              </div>
+            )}
+
+            {formData.questionType === "TRUE_FALSE" && (
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  Options
+                </label>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-6 text-sm font-medium">A:</span>
+                    <input
+                      type="text"
+                      value={formData.optionA}
+                      onChange={(e) => setFormData({ ...formData, optionA: e.target.value })}
+                      className="flex-1 p-2 border border-border rounded-md"
+                      placeholder="True"
+                      required
+                    />
+                    <input
+                      type="radio"
+                      name="correctOption"
+                      value="A"
+                      checked={formData.correctOption === "A"}
+                      onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="w-6 text-sm font-medium">B:</span>
+                    <input
+                      type="text"
+                      value={formData.optionB}
+                      onChange={(e) => setFormData({ ...formData, optionB: e.target.value })}
+                      className="flex-1 p-2 border border-border rounded-md"
+                      placeholder="False"
+                      required
+                    />
+                    <input
+                      type="radio"
+                      name="correctOption"
+                      value="B"
+                      checked={formData.correctOption === "B"}
+                      onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formData.questionType === "ESSAY" && (
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-1">
+                  Character Limit (Optional)
+                </label>
+                <input
+                  type="number"
+                  value={formData.characterLimit || ""}
+                  onChange={(e) => setFormData({ ...formData, characterLimit: e.target.value ? parseInt(e.target.value) : undefined })}
+                  className="w-full p-2 border border-border rounded-md"
+                  placeholder="Leave empty for unlimited"
+                  min="1"
+                />
+              </div>
+            )}
+
+            {formData.questionType === "IMAGE_BASED" && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
+                    Image URL
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    className="w-full p-2 border border-border rounded-md"
+                    placeholder="https://example.com/image.jpg"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                    Options
+                  </label>
+                  <div className="space-y-2">
+                    {['A', 'B', 'C', 'D'].map((opt) => (
+                      <div key={opt} className="flex items-center space-x-2">
+                        <span className="w-6 text-sm font-medium">{opt}:</span>
+                        <input
+                          type="text"
+                          value={formData[`option${opt}` as keyof typeof formData] as string}
+                          onChange={(e) => setFormData({ ...formData, [`option${opt}`]: e.target.value })}
+                          className="flex-1 p-2 border border-border rounded-md"
+                          placeholder={`Option ${opt}`}
+                          required
+                        />
+                        <input
+                          type="radio"
+                          name="correctOption"
+                          value={opt}
+                          checked={formData.correctOption === opt}
+                          onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
+                          required
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formData.questionType === "UPLOAD_ANSWER" && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
+                    File Upload Instructions
+                  </label>
+                  <textarea
+                    value={formData.fileUploadInstructions}
+                    onChange={(e) => setFormData({ ...formData, fileUploadInstructions: e.target.value })}
+                    className="w-full p-2 border border-border rounded-md"
+                    rows={3}
+                    placeholder="Instructions for students on what to upload..."
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="allowFileUpload"
+                    checked={formData.allowFileUpload}
+                    onChange={(e) => setFormData({ ...formData, allowFileUpload: e.target.checked })}
+                    required
+                  />
+                  <label htmlFor="allowFileUpload" className="text-sm text-text-secondary">
+                    Allow file uploads for this question
+                  </label>
+                </div>
               </div>
             )}
 
@@ -617,6 +788,10 @@ const EditQuestionModal: React.FC<{
     correctOption: question.correctOption || "",
     correctOptionsCsv: question.correctOptionsCsv || "",
     correctAnswer: question.correctAnswer || "",
+    characterLimit: question.characterLimit,
+    imageUrl: question.imageUrl || "",
+    allowFileUpload: question.allowFileUpload || false,
+    fileUploadInstructions: question.fileUploadInstructions || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -648,6 +823,26 @@ const EditQuestionModal: React.FC<{
         }),
         ...(formData.questionType === "FILL_BLANK" && {
           correctAnswer: formData.correctAnswer,
+        }),
+        ...(formData.questionType === "TRUE_FALSE" && {
+          optionA: formData.optionA,
+          optionB: formData.optionB,
+          correctOption: formData.correctOption,
+        }),
+        ...(formData.questionType === "ESSAY" && {
+          characterLimit: formData.characterLimit,
+        }),
+        ...(formData.questionType === "IMAGE_BASED" && {
+          imageUrl: formData.imageUrl,
+          optionA: formData.optionA,
+          optionB: formData.optionB,
+          optionC: formData.optionC,
+          optionD: formData.optionD,
+          correctOption: formData.correctOption,
+        }),
+        ...(formData.questionType === "UPLOAD_ANSWER" && {
+          allowFileUpload: formData.allowFileUpload,
+          fileUploadInstructions: formData.fileUploadInstructions,
         }),
       };
 
@@ -685,14 +880,18 @@ const EditQuestionModal: React.FC<{
                 value={formData.questionType}
                 onChange={(e) => setFormData({
                   ...formData,
-                  questionType: e.target.value as "MCQ" | "MAQ" | "FILL_BLANK"
+                  questionType: e.target.value as QuestionTypeType
                 })}
                 className="w-full p-2 border border-border rounded-md"
                 required
               >
                 <option value="MCQ">Multiple Choice (Single Correct)</option>
                 <option value="MAQ">Multiple Choice (Multiple Correct)</option>
+                <option value="TRUE_FALSE">True/False</option>
                 <option value="FILL_BLANK">Fill in the Blank</option>
+                <option value="ESSAY">Essay</option>
+                <option value="IMAGE_BASED">Image Based</option>
+                <option value="UPLOAD_ANSWER">File Upload</option>
               </select>
             </div>
 
@@ -900,6 +1099,145 @@ const EditQuestionModal: React.FC<{
                 <p className="text-xs text-text-secondary mt-1">
                   Note: Answer comparison is case-insensitive and ignores spaces/dashes/underscores
                 </p>
+              </div>
+            )}
+
+            {formData.questionType === "TRUE_FALSE" && (
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  Options
+                </label>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-6 text-sm font-medium">A:</span>
+                    <input
+                      type="text"
+                      value={formData.optionA}
+                      onChange={(e) => setFormData({ ...formData, optionA: e.target.value })}
+                      className="flex-1 p-2 border border-border rounded-md"
+                      placeholder="True"
+                      required
+                    />
+                    <input
+                      type="radio"
+                      name="correctOption"
+                      value="A"
+                      checked={formData.correctOption === "A"}
+                      onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="w-6 text-sm font-medium">B:</span>
+                    <input
+                      type="text"
+                      value={formData.optionB}
+                      onChange={(e) => setFormData({ ...formData, optionB: e.target.value })}
+                      className="flex-1 p-2 border border-border rounded-md"
+                      placeholder="False"
+                      required
+                    />
+                    <input
+                      type="radio"
+                      name="correctOption"
+                      value="B"
+                      checked={formData.correctOption === "B"}
+                      onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formData.questionType === "ESSAY" && (
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-1">
+                  Character Limit (Optional)
+                </label>
+                <input
+                  type="number"
+                  value={formData.characterLimit || ""}
+                  onChange={(e) => setFormData({ ...formData, characterLimit: e.target.value ? parseInt(e.target.value) : undefined })}
+                  className="w-full p-2 border border-border rounded-md"
+                  placeholder="Leave empty for unlimited"
+                  min="1"
+                />
+              </div>
+            )}
+
+            {formData.questionType === "IMAGE_BASED" && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
+                    Image URL
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    className="w-full p-2 border border-border rounded-md"
+                    placeholder="https://example.com/image.jpg"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                    Options
+                  </label>
+                  <div className="space-y-2">
+                    {['A', 'B', 'C', 'D'].map((opt) => (
+                      <div key={opt} className="flex items-center space-x-2">
+                        <span className="w-6 text-sm font-medium">{opt}:</span>
+                        <input
+                          type="text"
+                          value={formData[`option${opt}` as keyof typeof formData] as string}
+                          onChange={(e) => setFormData({ ...formData, [`option${opt}`]: e.target.value })}
+                          className="flex-1 p-2 border border-border rounded-md"
+                          placeholder={`Option ${opt}`}
+                          required
+                        />
+                        <input
+                          type="radio"
+                          name="correctOption"
+                          value={opt}
+                          checked={formData.correctOption === opt}
+                          onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
+                          required
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formData.questionType === "UPLOAD_ANSWER" && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
+                    File Upload Instructions
+                  </label>
+                  <textarea
+                    value={formData.fileUploadInstructions}
+                    onChange={(e) => setFormData({ ...formData, fileUploadInstructions: e.target.value })}
+                    className="w-full p-2 border border-border rounded-md"
+                    rows={3}
+                    placeholder="Instructions for students on what to upload..."
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="allowFileUpload"
+                    checked={formData.allowFileUpload}
+                    onChange={(e) => setFormData({ ...formData, allowFileUpload: e.target.checked })}
+                    required
+                  />
+                  <label htmlFor="allowFileUpload" className="text-sm text-text-secondary">
+                    Allow file uploads for this question
+                  </label>
+                </div>
               </div>
             )}
 

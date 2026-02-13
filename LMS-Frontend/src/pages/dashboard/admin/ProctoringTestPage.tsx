@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import ProctoringDiagnostics from "../../../components/proctoring/ProctoringDiagnostics";
 import { MediaStreamManager } from "../../../utils/MediaStreamManager";
 import { proctoringModelLoader } from "../../../utils/ProctoringModelLoader";
-import { initTF } from "../../../utils/tfInit";
 
 const ProctoringTestPage: React.FC = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -44,8 +43,7 @@ const ProctoringTestPage: React.FC = () => {
     const initModel = async () => {
       try {
         // Initialize TensorFlow first
-        console.log("\ud83d\udd27 Initializing TensorFlow backend...");
-        await initTF();
+        console.log("\ud83d\udd27 Initializing TensorFlow backend...");        const { initTF } = await import("../../../utils/tfInit");        await initTF();
         
         // Check if model already loaded
         if (proctoringModelLoader.getModel()) {
@@ -131,8 +129,7 @@ const ProctoringTestPage: React.FC = () => {
                 setModelStatus("loading");
                 setModelError(null);
                 try {
-                  console.log("\ud83d\udd04 Retrying model load...");
-                  await initTF();
+                  console.log("\ud83d\udd04 Retrying model load...");                  const { initTF } = await import("../../../utils/tfInit");                  await initTF();
                   await proctoringModelLoader.loadModel();
                   console.log("\u2705 Model loaded on retry");
                   setModelStatus("ready");

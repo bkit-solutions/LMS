@@ -95,7 +95,7 @@ const StudentCoursesPage: React.FC = () => {
             <div
               key={enrollment.id}
               className="bg-white rounded-xl shadow-md border border-border overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => navigate(`/dashboard/courses/${enrollment.courseId}`)}
+              onClick={() => navigate(`${enrollment.courseId}`)}
             >
               <div className="p-5">
                 <div className="flex items-start justify-between">

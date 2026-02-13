@@ -8,6 +8,7 @@ import EnhancedAdminDashboard from "./admin/EnhancedAdminDashboard";
 import FacultyManagementPage from "./admin/users/FacultyManagementPage";
 import StudentManagementPage from "./admin/users/StudentManagementPage";
 import CourseManagementPage from "./admin/courses/CourseManagementPage";
+import CourseDetailPage from "./admin/courses/CourseDetailPage";
 import TestList from "../../components/admin/tests/TestList";
 import CreateTestPage from "./admin/tests/CreateTestPage";
 import TestDetailPage from "./admin/tests/TestDetailPage";
@@ -16,6 +17,8 @@ import ResultsPage from "./admin/tests/ResultsPage";
 import TopicList from "../../components/admin/topics/TopicList";
 import CreateTopicPage from "./admin/topics/CreateTopicPage";
 import TopicDetailPage from "./admin/topics/TopicDetailPage";
+import TopicEditPage from "./admin/topics/TopicEditPage";
+import ChapterEditPage from "./admin/topics/ChapterEditPage";
 import ProctoringTestPage from "./admin/ProctoringTestPage";
 
 // Student Components
@@ -25,7 +28,10 @@ import ImprovedPreTestInstructions from "./student/ImprovedPreTestInstructions";
 import TopicListPage from "./student/TopicListPage";
 import TopicViewerPage from "./student/TopicViewerPage";
 import StudentCoursesPage from "./student/StudentCoursesPage";
+import StudentCourseViewPage from "./student/StudentCourseViewPage";
 import StudentCertificatesPage from "./student/StudentCertificatesPage";
+import StudentSearchPage from "./student/StudentSearchPage";
+import StudentBookmarksPage from "./student/StudentBookmarksPage";
 
 // Shared Components
 import ProfilePage from "./ProfilePage";
@@ -73,6 +79,11 @@ const CollegeDashboardRouter: React.FC = () => {
 
             {/* Course Management */}
             <Route path="courses" element={<CourseManagementPage />} />
+            <Route path="courses/create" element={<CourseManagementPage />} />
+            <Route path="courses/:id" element={<CourseDetailPage />} />
+            <Route path="courses/:courseId/topics/:topicId/edit" element={<TopicEditPage />} />
+            <Route path="courses/:courseId/topics/:topicId/chapters/create" element={<ChapterEditPage />} />
+            <Route path="courses/:courseId/topics/:topicId/chapters/:chapterId/edit" element={<ChapterEditPage />} />
 
             {/* Test Management */}
             <Route path="tests" element={<TestList />} />
@@ -97,10 +108,13 @@ const CollegeDashboardRouter: React.FC = () => {
         {/* Student Routes */}
         {userRole === "USER" && (
           <>
+            <Route path="courses/:id" element={<StudentCourseViewPage />} />
             <Route path="courses" element={<StudentCoursesPage />} />
             <Route path="certificates" element={<StudentCertificatesPage />} />
             <Route path="topics" element={<TopicListPage />} />
             <Route path="topics/:topicId" element={<TopicViewerPage />} />
+            <Route path="search" element={<StudentSearchPage />} />
+            <Route path="bookmarks" element={<StudentBookmarksPage />} />
             <Route
               path="tests/:testId/instructions"
               element={<ImprovedPreTestInstructions />}

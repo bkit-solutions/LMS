@@ -21,7 +21,42 @@ public class Chapter {
     private String title;
 
     @Column(columnDefinition = "LONGTEXT")
-    private String content;
+    private String content; // Rich HTML content
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "content_type", nullable = false)
+    @Builder.Default
+    private ContentType contentType = ContentType.TEXT;
+
+    // For VIDEO type
+    @Column(name = "video_url", length = 500)
+    private String videoUrl;
+
+    @Column(name = "video_platform") // YOUTUBE, VIMEO, UPLOAD
+    private String videoPlatform;
+
+    // For DOCUMENT type
+    @Column(name = "document_url", length = 500)
+    private String documentUrl;
+
+    @Column(name = "document_name")
+    private String documentName;
+
+    @Column(name = "document_type") // PDF, DOCX, PPTX, etc.
+    private String documentType;
+
+    // For QUIZ/TEST type
+    @Column(name = "test_id")
+    private Long testId;
+
+    // Estimated time to complete (in minutes)
+    @Column(name = "estimated_minutes")
+    private Integer estimatedMinutes;
+
+    // Whether this chapter is mandatory for course completion
+    @Column(name = "is_mandatory")
+    @Builder.Default
+    private Boolean isMandatory = true;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "topic_id", nullable = false)

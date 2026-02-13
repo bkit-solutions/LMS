@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -59,5 +60,18 @@ public class ChapterController {
         String email = (String) auth.getPrincipal();
         chapterService.deleteChapter(email, id);
         return ResponseEntity.ok(ApiResponse.ok("Chapter deleted"));
+    }
+
+    @PatchMapping("/chapters/{id}/reorder")
+    public ResponseEntity<ApiResponse<Void>> reorderChapter(Authentication auth,
+            @PathVariable Long id,
+            @RequestBody java.util.Map<String, Integer> body) {
+        String email = (String) auth.getPrincipal();
+        Integer displayOrder = body.get("displayOrder");
+        if (displayOrder == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "displayOrder is required");
+        }
+        chapterService.updateChapterOrder(email, id, displayOrder);
+        return ResponseEntity.ok(ApiResponse.ok("Chapter reordered"));
     }
 }

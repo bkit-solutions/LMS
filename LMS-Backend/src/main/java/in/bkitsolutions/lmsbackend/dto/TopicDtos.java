@@ -2,6 +2,7 @@ package in.bkitsolutions.lmsbackend.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,7 @@ public class TopicDtos {
         private String description;
         private Boolean published;
         private Integer displayOrder;
+        private Long courseId; // Required - topic belongs to a course
     }
 
     @Data
@@ -29,6 +31,7 @@ public class TopicDtos {
     }
 
     @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class TopicResponse {
@@ -37,8 +40,12 @@ public class TopicDtos {
         private String description;
         private Boolean published;
         private Integer displayOrder;
+        private Long courseId;
+        private String courseTitle;
         private Long createdById;
         private String createdByName;
+        private Long collegeId;
+        private String collegeName;
         private String createdAt;
         private String updatedAt;
         private Integer chapterCount;

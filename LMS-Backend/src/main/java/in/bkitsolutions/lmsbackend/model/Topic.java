@@ -26,6 +26,10 @@ public class Topic {
     private String description;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 

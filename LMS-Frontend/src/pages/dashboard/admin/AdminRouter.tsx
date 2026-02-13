@@ -11,7 +11,10 @@ import ProfilePage from "../ProfilePage";
 import TopicList from "../../../components/admin/topics/TopicList";
 import CreateTopicPage from "./topics/CreateTopicPage";
 import TopicDetailPage from "./topics/TopicDetailPage";
+import TopicEditPage from "./topics/TopicEditPage";
+import ChapterEditPage from "./topics/ChapterEditPage";
 import CourseManagementPage from "./courses/CourseManagementPage";
+import CourseDetailPage from "./courses/CourseDetailPage";
 import FacultyManagementPage from "./users/FacultyManagementPage";
 import StudentManagementPage from "./users/StudentManagementPage";
 
@@ -20,6 +23,11 @@ const AdminRouter: React.FC = () => {
     <Routes>
       <Route index element={<EnhancedAdminDashboard />} />
       <Route path="courses" element={<CourseManagementPage />} />
+      <Route path="courses/create" element={<CourseManagementPage />} />
+      <Route path="courses/:id" element={<CourseDetailPage />} />
+      <Route path="courses/:courseId/topics/:topicId/edit" element={<TopicEditPage />} />
+      <Route path="courses/:courseId/topics/:topicId/chapters/create" element={<ChapterEditPage />} />
+      <Route path="courses/:courseId/topics/:topicId/chapters/:chapterId/edit" element={<ChapterEditPage />} />
       <Route path="tests" element={<TestList />} />
       <Route path="tests/create" element={<CreateTestPage />} />
       <Route path="tests/:id" element={<TestDetailPage />} />

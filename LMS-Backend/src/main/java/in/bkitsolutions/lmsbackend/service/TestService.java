@@ -9,10 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional
 public class TestService {
     private final TestRepository testRepository;
     private final UserRepository userRepository;
@@ -68,7 +71,7 @@ public class TestService {
         User requester = requireUser(requesterEmail);
         TestEntity t = testRepository.findById(testId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Test not found"));
-        if (!t.getCreatedBy().getId().equals(requester.getId()) && requester.getType() != UserType.SUPERADMIN) {
+        if (!t.getCreatedBy().getId().equals(requester.getId()) && requester.getType() != UserType.SUPERADMIN && requester.getType() != UserType.ROOTADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
         if (title != null) t.setTitle(title);
@@ -98,7 +101,7 @@ public class TestService {
         User requester = requireUser(requesterEmail);
         TestEntity t = testRepository.findById(testId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Test not found"));
-        if (!t.getCreatedBy().getId().equals(requester.getId()) && requester.getType() != UserType.SUPERADMIN) {
+        if (!t.getCreatedBy().getId().equals(requester.getId()) && requester.getType() != UserType.SUPERADMIN && requester.getType() != UserType.ROOTADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
         t.setPublished(true);
@@ -117,25 +120,16 @@ public class TestService {
 
     public List<TestEntity> availableForStudent(String requesterEmail) {
         User requester = requireUser(requesterEmail);
-        // Allow USER and ADMIN for testing purposes
-        if (requester.getType() != UserType.USER && requester.getType() != UserType.ADMIN) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users and admins can view available tests");
+        // Allow USER, FACULTY, and ADMIN
+        if (requester.getType() != UserType.USER && requester.getType() != UserType.FACULTY && requester.getType() != UserType.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users, faculty, and admins can view available tests");
         }
         
-        User admin;
-        if (requester.getType() == UserType.ADMIN) {
-            // ADMIN sees tests they created
-            admin = requester;
-        } else {
-            // USER sees tests created by their admin
-            admin = requester.getCreatedBy();
-            if (admin == null) {
-                // No admin linkage; nothing visible
-                return List.of();
-            }
+        // Use college-based lookup since tests are created by FACULTY, not ADMIN
+        if (requester.getCollege() == null) {
+            return List.of();
         }
-        
-        return testRepository.findActivePublishedByAdmin(admin, LocalDateTime.now());
+        return testRepository.findActivePublishedByCollegeId(requester.getCollege().getId(), LocalDateTime.now());
     }
 
     public TestEntity requireOwnedTest(String requesterEmail, Long testId, boolean allowSuperadmin) {
@@ -162,6 +156,11 @@ public class TestService {
         if (requester.getType() == UserType.USER) {
             if (!Boolean.TRUE.equals(t.getPublished())) {
                  throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Test not published");
+            }
+            // Ensure test belongs to student's college
+            if (requester.getCollege() == null || t.getCreatedBy().getCollege() == null
+                    || !requester.getCollege().getId().equals(t.getCreatedBy().getCollege().getId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Test not available");
             }
         }
         return t;

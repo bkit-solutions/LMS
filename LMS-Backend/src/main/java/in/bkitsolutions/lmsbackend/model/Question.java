@@ -45,6 +45,16 @@ public class Question {
     // For fill-in-the-blank
     private String correctAnswer;
 
+    // For essay/short answer questions
+    private Integer characterLimit;
+
+    // For image-based questions
+    private String imageUrl;
+
+    // For upload-based answers
+    private Boolean allowFileUpload;
+    private String fileUploadInstructions;
+
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @com.fasterxml.jackson.annotation.JsonIgnore
     private java.util.List<Answer> answers = new java.util.ArrayList<>();

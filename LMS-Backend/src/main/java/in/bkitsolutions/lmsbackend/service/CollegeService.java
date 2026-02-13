@@ -11,6 +11,7 @@ import in.bkitsolutions.lmsbackend.repository.EnrollmentRepository;
 import in.bkitsolutions.lmsbackend.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CollegeService {
     private final CollegeRepository collegeRepository;
     private final UserRepository userRepository;

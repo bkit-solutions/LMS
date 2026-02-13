@@ -4,11 +4,13 @@ import in.bkitsolutions.lmsbackend.model.*;
 import in.bkitsolutions.lmsbackend.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
 @Service
+@Transactional
 public class ProgressService {
     private final ChapterProgressRepository chapterProgressRepository;
     private final ChapterRepository chapterRepository;

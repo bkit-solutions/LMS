@@ -9,7 +9,7 @@ import QuestionPaperModal from "../../../components/common/QuestionPaperModal";
 import { MediaStreamManager } from "../../../utils/MediaStreamManager";
 import {
   ClipboardList, ChevronRight, AlertTriangle,
-  VideoOff, ChevronLeft, ShieldCheck, Info, Clock, CheckSquare, Square
+  VideoOff, ChevronLeft, ShieldCheck, Info, Clock, CheckSquare, Square, Upload, CheckCircle
 } from "lucide-react";
 
 const TakeTest: React.FC = () => {
@@ -552,6 +552,123 @@ const TakeTest: React.FC = () => {
                   value={answers[currentQuestion.id] || ""}
                   onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                 />
+              )}
+
+              {/* True/False Logic */}
+              {currentQuestion.questionType === "TRUE_FALSE" && ["A", "B"].map((opt) => {
+                const text = currentQuestion[`option${opt}` as keyof Question] as string;
+                if (!text) return null;
+                const active = answers[currentQuestion.id] === opt;
+                return (
+                  <button
+                    key={opt}
+                    onClick={() => handleAnswerChange(currentQuestion.id, opt)}
+                    className={`
+                      w-full text-left p-4 rounded-xl border-2 transition-all flex items-center space-x-4
+                      ${active ? 'border-green-600 bg-green-50 shadow-sm' : 'border-gray-100 hover:border-gray-200'}
+                    `}
+                  >
+                    <span className={`h-8 w-8 rounded-lg flex items-center justify-center font-bold text-sm ${active ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                      {opt}
+                    </span>
+                    <span className="text-gray-700 font-medium">{text}</span>
+                  </button>
+                );
+              })}
+
+              {/* Essay Logic */}
+              {currentQuestion.questionType === "ESSAY" && (
+                <div className="space-y-2">
+                  <textarea
+                    className="w-full h-40 border-2 border-gray-100 rounded-xl p-4 focus:border-blue-600 focus:outline-none text-gray-700 font-medium transition-all"
+                    placeholder="Type your essay answer here..."
+                    value={answers[currentQuestion.id] || ""}
+                    onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+                    maxLength={currentQuestion.characterLimit || undefined}
+                  />
+                  {currentQuestion.characterLimit && (
+                    <div className="text-sm text-gray-500 text-right">
+                      {(answers[currentQuestion.id] || "").length}/{currentQuestion.characterLimit} characters
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Image Based Logic */}
+              {currentQuestion.questionType === "IMAGE_BASED" && (
+                <div className="space-y-4">
+                  {currentQuestion.imageUrl && (
+                    <div className="flex justify-center">
+                      <img
+                        src={currentQuestion.imageUrl}
+                        alt="Question"
+                        className="max-w-full max-h-96 rounded-lg shadow-md"
+                      />
+                    </div>
+                  )}
+                  {/* Render based on the underlying question type - for now, support MCQ style */}
+                  {["A", "B", "C", "D"].map((opt) => {
+                    const text = currentQuestion[`option${opt}` as keyof Question] as string;
+                    if (!text) return null;
+                    const active = answers[currentQuestion.id] === opt;
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => handleAnswerChange(currentQuestion.id, opt)}
+                        className={`
+                          w-full text-left p-4 rounded-xl border-2 transition-all flex items-center space-x-4
+                          ${active ? 'border-orange-600 bg-orange-50 shadow-sm' : 'border-gray-100 hover:border-gray-200'}
+                        `}
+                      >
+                        <span className={`h-8 w-8 rounded-lg flex items-center justify-center font-bold text-sm ${active ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                          {opt}
+                        </span>
+                        <span className="text-gray-700 font-medium">{text}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Upload Answer Logic */}
+              {currentQuestion.questionType === "UPLOAD_ANSWER" && (
+                <div className="space-y-4">
+                  {currentQuestion.fileUploadInstructions && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-blue-800 text-sm">{currentQuestion.fileUploadInstructions}</p>
+                    </div>
+                  )}
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-2">Click to upload or drag and drop</p>
+                    <p className="text-sm text-gray-500">PNG, JPG, PDF up to 10MB</p>
+                    <input
+                      type="file"
+                      accept=".png,.jpg,.jpeg,.pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          // In a real implementation, you'd upload the file and store the URL
+                          handleAnswerChange(currentQuestion.id, `file:${file.name}`);
+                        }
+                      }}
+                      className="hidden"
+                      id={`file-upload-${currentQuestion.id}`}
+                    />
+                    <label
+                      htmlFor={`file-upload-${currentQuestion.id}`}
+                      className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
+                    >
+                      Select File
+                    </label>
+                  </div>
+                  {answers[currentQuestion.id] && answers[currentQuestion.id].startsWith('file:') && (
+                    <div className="flex items-center space-x-2 text-green-600">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="text-sm">{answers[currentQuestion.id].replace('file:', '')}</span>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

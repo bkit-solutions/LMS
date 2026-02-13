@@ -7,6 +7,7 @@ import type { UserProfile, UpdateProfileRequest, ChangePasswordRequest } from ".
 const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
     const { applyTheme } = useCollegeTheme();
+    const collegeCode = window.location.pathname.split("/")[1];
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
@@ -129,7 +130,7 @@ const ProfilePage: React.FC = () => {
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-red-600 text-lg mb-4">Failed to load profile</p>
-                    <button onClick={() => navigate("/dashboard")} className="px-6 py-2 bg-blue-600 text-white rounded-lg">Back to Dashboard</button>
+                    <button onClick={() => navigate(collegeCode ? `/${collegeCode}/dashboard` : "/dashboard")} className="px-6 py-2 bg-blue-600 text-white rounded-lg">Back to Dashboard</button>
                 </div>
             </div>
         );

@@ -15,7 +15,11 @@ import AdminManagement from "./super-admin/AdminManagement";
 import StudentCoursesPage from "./student/StudentCoursesPage";
 import StudentCertificatesPage from "./student/StudentCertificatesPage";
 import TestList from "../../components/admin/tests/TestList";
+import TopicList from "../../components/admin/topics/TopicList";
+import CreateTopicPage from "./admin/topics/CreateTopicPage";
+import TopicDetailPage from "./admin/topics/TopicDetailPage";
 import CourseManagementPage from "./admin/courses/CourseManagementPage";
+import CourseDetailPage from "./admin/courses/CourseDetailPage";
 
 const DashboardRouter: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
@@ -57,6 +61,11 @@ const DashboardRouter: React.FC = () => {
           <Route path="admins" element={<AdminManagement />} />
           <Route path="tests" element={<TestList />} />
           <Route path="courses" element={<CourseManagementPage />} />
+          <Route path="courses/create" element={<CourseManagementPage />} />
+          <Route path="courses/:id" element={<CourseDetailPage />} />
+          <Route path="topics" element={<TopicList />} />
+          <Route path="topics/create" element={<CreateTopicPage />} />
+          <Route path="topics/:id" element={<TopicDetailPage />} />
         </>
       )}
 

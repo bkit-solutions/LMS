@@ -193,10 +193,55 @@
         "correctAnswer": "WHERE"
     },
     {
-        "questionType": "FILL_BLANK",
-        "questionText": "In Git, the command to save your changes to the local repository is 'git _____'.",
+        "questionType": "TRUE_FALSE",
+        "questionText": "JavaScript is a compiled language.",
         "marks": 1,
         "negativeMarks": 0,
-        "correctAnswer": "commit"
+        "optionA": "True",
+        "optionB": "False",
+        "correctOption": "B"
+    },
+    {
+        "questionType": "TRUE_FALSE",
+        "questionText": "The HTTP status code 200 indicates a successful response.",
+        "marks": 1,
+        "negativeMarks": 0,
+        "optionA": "True",
+        "optionB": "False",
+        "correctOption": "A"
+    },
+    {
+        "questionType": "ESSAY",
+        "questionText": "Explain the concept of polymorphism in object-oriented programming with examples.",
+        "marks": 10,
+        "negativeMarks": 0,
+        "characterLimit": 1000
+    },
+    {
+        "questionType": "ESSAY",
+        "questionText": "Describe the differences between TCP and UDP protocols.",
+        "marks": 8,
+        "negativeMarks": 0,
+        "characterLimit": 500
+    },
+    {
+        "questionType": "IMAGE_BASED",
+        "questionText": "What design pattern is illustrated in this UML diagram?",
+        "marks": 3,
+        "negativeMarks": 1,
+        "optionA": "Singleton Pattern",
+        "optionB": "Factory Pattern",
+        "optionC": "Observer Pattern",
+        "optionD": "Strategy Pattern",
+        "correctOption": "C",
+        "imageUrl": "/images/design-pattern-uml.png"
+    },
+    {
+        "questionType": "UPLOAD_ANSWER",
+        "questionText": "Create a flowchart for the login process and upload it as an image file.",
+        "marks": 5,
+        "negativeMarks": 0,
+        "allowFileUpload": true,
+        "fileUploadInstructions": "Upload a PNG, JPG, or PDF file containing your flowchart."
     }
 ]

@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "./apiClient";
 import type { ApiResponse } from "./authApi";
 import type {
   TopicResponse,
@@ -9,19 +9,6 @@ import type {
   CreateChapterRequest,
   UpdateChapterRequest,
 } from "../types";
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
-  withCredentials: true,
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 export const topicApi = {
   // Admin: get topics created by the logged-in admin
@@ -65,9 +52,27 @@ export const topicApi = {
     return response.data;
   },
 
+  // Admin: unpublish a topic
+  unpublishTopic: async (id: number): Promise<ApiResponse<TopicResponse>> => {
+    const response = await api.patch(`/api/topics/${id}/unpublish`);
+    return response.data;
+  },
+
   // Admin: delete a topic
   deleteTopic: async (id: number): Promise<ApiResponse<void>> => {
     const response = await api.delete(`/api/topics/${id}`);
+    return response.data;
+  },
+
+  // Get topics by college (SuperAdmin)
+  getTopicsByCollege: async (collegeId: number): Promise<ApiResponse<TopicResponse[]>> => {
+    const response = await api.get(`/api/topics/college/${collegeId}`);
+    return response.data;
+  },
+
+  // Get topics by course (curriculum)
+  getTopicsByCourse: async (courseId: number): Promise<ApiResponse<TopicResponse[]>> => {
+    const response = await api.get(`/api/topics/course/${courseId}`);
     return response.data;
   },
 

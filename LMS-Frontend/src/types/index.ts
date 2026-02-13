@@ -13,6 +13,10 @@ export const QuestionType = {
   MCQ: "MCQ",
   MAQ: "MAQ",
   FILL_BLANK: "FILL_BLANK",
+  TRUE_FALSE: "TRUE_FALSE",
+  ESSAY: "ESSAY",
+  IMAGE_BASED: "IMAGE_BASED",
+  UPLOAD_ANSWER: "UPLOAD_ANSWER",
 } as const;
 
 export type QuestionTypeType = (typeof QuestionType)[keyof typeof QuestionType];
@@ -94,6 +98,10 @@ export interface Question {
   correctOption?: string;
   correctOptionsCsv?: string;
   correctAnswer?: string;
+  characterLimit?: number;
+  imageUrl?: string;
+  allowFileUpload?: boolean;
+  fileUploadInstructions?: string;
 }
 
 export interface CreateQuestionRequest {
@@ -108,6 +116,10 @@ export interface CreateQuestionRequest {
   correctOption?: string;
   correctOptionsCsv?: string;
   correctAnswer?: string;
+  characterLimit?: number;
+  imageUrl?: string;
+  allowFileUpload?: boolean;
+  fileUploadInstructions?: string;
 }
 
 export interface UpdateQuestionRequest {
@@ -122,6 +134,10 @@ export interface UpdateQuestionRequest {
   correctOption?: string;
   correctOptionsCsv?: string;
   correctAnswer?: string;
+  characterLimit?: number;
+  imageUrl?: string;
+  allowFileUpload?: boolean;
+  fileUploadInstructions?: string;
 }
 
 export interface Attempt {
@@ -271,8 +287,12 @@ export interface TopicResponse {
   description: string;
   published: boolean;
   displayOrder: number;
+  courseId: number;
+  courseTitle: string;
   createdById: number;
   createdByName: string;
+  collegeId?: number;
+  collegeName?: string;
   createdAt: string;
   updatedAt: string;
   chapterCount: number;
@@ -283,6 +303,7 @@ export interface CreateTopicRequest {
   description?: string;
   published?: boolean;
   displayOrder?: number;
+  courseId: number; // Required - topic must belong to a course
 }
 
 export interface UpdateTopicRequest {
@@ -292,10 +313,21 @@ export interface UpdateTopicRequest {
   displayOrder?: number;
 }
 
+export type ContentType = 'TEXT' | 'VIDEO' | 'DOCUMENT' | 'QUIZ' | 'MIXED';
+
 export interface ChapterResponse {
   id: number;
   title: string;
   content: string;
+  contentType: ContentType;
+  videoUrl?: string;
+  videoPlatform?: string;
+  documentUrl?: string;
+  documentName?: string;
+  documentType?: string;
+  testId?: number;
+  estimatedMinutes?: number;
+  isMandatory?: boolean;
   topicId: number;
   displayOrder: number;
   createdAt: string;
@@ -305,18 +337,39 @@ export interface ChapterResponse {
 export interface ChapterSummary {
   id: number;
   title: string;
+  contentType: ContentType;
+  estimatedMinutes?: number;
+  isMandatory?: boolean;
   displayOrder: number;
 }
 
 export interface CreateChapterRequest {
   title: string;
   content?: string;
+  contentType?: ContentType;
+  videoUrl?: string;
+  videoPlatform?: string;
+  documentUrl?: string;
+  documentName?: string;
+  documentType?: string;
+  testId?: number;
+  estimatedMinutes?: number;
+  isMandatory?: boolean;
   displayOrder?: number;
 }
 
 export interface UpdateChapterRequest {
   title?: string;
   content?: string;
+  contentType?: ContentType;
+  videoUrl?: string;
+  videoPlatform?: string;
+  documentUrl?: string;
+  documentName?: string;
+  documentType?: string;
+  testId?: number;
+  estimatedMinutes?: number;
+  isMandatory?: boolean;
   displayOrder?: number;
 }
 
@@ -405,22 +458,38 @@ export interface CollegeStatistics {
 // V1: Course Management Types
 // ========================
 
+export const CourseStatus = {
+  DRAFT: "DRAFT",
+  PUBLISHED: "PUBLISHED",
+  ARCHIVED: "ARCHIVED",
+} as const;
+
+export type CourseStatusType = (typeof CourseStatus)[keyof typeof CourseStatus];
+
 export interface CourseResponse {
   id: number;
   title: string;
+  courseCode?: string;
   description?: string;
   thumbnailUrl?: string;
   createdById: number;
   createdByName: string;
   collegeId: number;
   collegeName: string;
+  status: CourseStatusType;
   published: boolean;
   enrollmentOpen: boolean;
   maxEnrollment?: number;
   displayOrder?: number;
   category?: string;
+  department?: string;
+  semester?: string;
+  credits?: number;
   difficultyLevel?: string;
   estimatedHours?: number;
+  prerequisites?: string;
+  learningObjectives?: string;
+  tags?: string;
   createdAt?: string;
   updatedAt?: string;
   topicCount: number;
@@ -428,23 +497,44 @@ export interface CourseResponse {
   enrollmentCount: number;
 }
 
+export interface TopicWithChaptersResponse {
+  id: number;
+  title: string;
+  description?: string;
+  published: boolean;
+  displayOrder?: number;
+  createdById: number;
+  createdByName: string;
+  chapterCount: number;
+  chapters: ChapterResponse[];
+}
+
 export interface CourseDetailResponse {
   id: number;
   title: string;
+  courseCode?: string;
   description?: string;
   thumbnailUrl?: string;
   createdById: number;
   createdByName: string;
   collegeId: number;
   collegeName: string;
+  status: CourseStatusType;
   published: boolean;
   enrollmentOpen: boolean;
+  maxEnrollment?: number;
   category?: string;
+  department?: string;
+  semester?: string;
+  credits?: number;
   difficultyLevel?: string;
   estimatedHours?: number;
+  prerequisites?: string;
+  learningObjectives?: string;
+  tags?: string;
   createdAt?: string;
   updatedAt?: string;
-  topics?: TopicResponse[];
+  topics?: TopicWithChaptersResponse[];
   enrollmentCount: number;
   isEnrolled: boolean;
   progressPercentage?: number;
@@ -452,6 +542,7 @@ export interface CourseDetailResponse {
 
 export interface CreateCourseRequest {
   title: string;
+  courseCode?: string;
   description?: string;
   thumbnailUrl?: string;
   published?: boolean;
@@ -459,14 +550,23 @@ export interface CreateCourseRequest {
   maxEnrollment?: number;
   displayOrder?: number;
   category?: string;
+  department?: string;
+  semester?: string;
+  credits?: number;
   difficultyLevel?: string;
   estimatedHours?: number;
+  prerequisites?: string;
+  learningObjectives?: string;
+  tags?: string;
+  status?: CourseStatusType;
+  collegeId?: number;
   topicIds?: number[];
   testIds?: number[];
 }
 
 export interface UpdateCourseRequest {
   title?: string;
+  courseCode?: string;
   description?: string;
   thumbnailUrl?: string;
   published?: boolean;
@@ -474,8 +574,15 @@ export interface UpdateCourseRequest {
   maxEnrollment?: number;
   displayOrder?: number;
   category?: string;
+  department?: string;
+  semester?: string;
+  credits?: number;
   difficultyLevel?: string;
   estimatedHours?: number;
+  prerequisites?: string;
+  learningObjectives?: string;
+  tags?: string;
+  status?: CourseStatusType;
   topicIds?: number[];
   testIds?: number[];
 }
@@ -491,6 +598,7 @@ export interface EnrollmentResponse {
   courseThumbnailUrl?: string;
   studentId: number;
   studentName: string;
+  studentEmail?: string;
   status: string;
   enrolledAt?: string;
   completedAt?: string;
@@ -504,6 +612,46 @@ export interface ProgressResponse {
   completedChapters: number;
   progressPercentage: number;
   status: string;
+}
+
+export interface CourseStatsResponse {
+  courseId: number;
+  courseTitle: string;
+  totalEnrollments: number;
+  activeEnrollments: number;
+  completedEnrollments: number;
+  droppedEnrollments: number;
+  completionRate: number;
+  totalTopics: number;
+  totalChapters: number;
+  totalTests: number;
+  published: boolean;
+  enrollmentOpen: boolean;
+  status: CourseStatusType;
+}
+
+export interface DashboardStatsResponse {
+  totalCourses: number;
+  publishedCourses: number;
+  draftCourses: number;
+  archivedCourses: number;
+  totalEnrollments: number;
+  activeEnrollments: number;
+  completedEnrollments: number;
+  totalTopics: number;
+  totalChapters: number;
+  categoryDistribution: Record<string, number>;
+  difficultyDistribution: Record<string, number>;
+  statusDistribution: Record<string, number>;
+}
+
+export interface EnrollmentStatsResponse {
+  totalEnrollments: number;
+  activeEnrollments: number;
+  completedEnrollments: number;
+  droppedEnrollments: number;
+  completionRate: number;
+  totalCourses: number;
 }
 
 // ========================

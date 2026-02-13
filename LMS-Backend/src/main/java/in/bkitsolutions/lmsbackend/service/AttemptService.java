@@ -173,14 +173,11 @@ public class AttemptService {
 
     public AttemptDtos.AttemptStateResponse getAttemptStateByTest(String requesterEmail, Long testId) {
         User requester = requireUser(requesterEmail);
-        if (requester.getType() != UserType.USER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users can view their attempt state");
-        }
         TestEntity test = testRepository.findById(testId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Test not found"));
-        // Ensure the test is assigned to the same admin that created the user
-        User admin = requester.getCreatedBy();
-        if (admin == null || !admin.getId().equals(test.getCreatedBy().getId())) {
+        // Ensure the test belongs to the same college
+        if (requester.getCollege() == null || test.getCreatedBy().getCollege() == null
+                || !requester.getCollege().getId().equals(test.getCreatedBy().getCollege().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Test not assigned to you");
         }
 
@@ -236,14 +233,11 @@ public class AttemptService {
 
     public Optional<TestAttempt> getLatestAttemptForUser(String requesterEmail, Long testId, boolean onlyIncomplete) {
         User requester = requireUser(requesterEmail);
-        if (requester.getType() != UserType.USER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only users can query their attempts");
-        }
         TestEntity test = testRepository.findById(testId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Test not found"));
-        // Ensure the test belongs to the same admin
-        User admin = requester.getCreatedBy();
-        if (admin == null || !admin.getId().equals(test.getCreatedBy().getId())) {
+        // Ensure the test belongs to the same college
+        if (requester.getCollege() == null || test.getCreatedBy().getCollege() == null
+                || !requester.getCollege().getId().equals(test.getCreatedBy().getCollege().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Test not assigned to you");
         }
 

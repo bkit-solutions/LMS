@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import {
   restoreSession,
@@ -19,6 +19,12 @@ import CollegeDashboardRouter from "./pages/dashboard/CollegeDashboardRouter";
 import DashboardRedirect from "./components/common/DashboardRedirect";
 import LandingPage from "./pages/public/LandingPage";
 import NotFoundPage from "./pages/public/NotFoundPage";
+
+// Component to handle college-specific login redirect
+const CollegeLoginRedirect: React.FC = () => {
+  const { collegeCode } = useParams<{ collegeCode: string }>();
+  return <Navigate to={`/login/${collegeCode}`} replace />;
+};
 
 function App() {
   const dispatch = useAppDispatch();
@@ -100,7 +106,7 @@ function App() {
               isAuthenticated ? (
                 <CollegeDashboardRouter />
               ) : (
-                <Navigate to="/login" replace />
+                <CollegeLoginRedirect />
               )
             }
           />

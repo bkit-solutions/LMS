@@ -68,7 +68,7 @@ const TopicList: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold text-text">Topics</h1>
           <Link
-            to="topics/create"
+            to="create"
             className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors text-sm font-medium"
           >
             + Create Topic
@@ -91,7 +91,7 @@ const TopicList: React.FC = () => {
               students.
             </p>
             <Link
-              to="topics/create"
+              to="create"
               className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors text-sm font-medium"
             >
               Create Topic
@@ -134,7 +134,7 @@ const TopicList: React.FC = () => {
 
                 <div className="flex items-center gap-2 flex-wrap">
                   <Link
-                    to={`/dashboard/topics/${topic.id}`}
+                    to={`${topic.id}`}
                     className="px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary hover:text-white border border-primary rounded-md transition-colors"
                   >
                     Manage

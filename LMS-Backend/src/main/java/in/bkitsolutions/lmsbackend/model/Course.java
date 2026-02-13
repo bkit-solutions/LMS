@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "courses")
+@Table(name = "courses", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"course_code", "college_id"})
+})
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,6 +25,9 @@ public class Course {
 
     @Column(nullable = false)
     private String title;
+
+    @Column(name = "course_code", length = 50)
+    private String courseCode;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -37,6 +42,11 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "college_id", nullable = false)
     private College college;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    @Builder.Default
+    private CourseStatus status = CourseStatus.DRAFT;
 
     @Column(nullable = false)
     @Builder.Default
@@ -55,11 +65,29 @@ public class Course {
     @Column(name = "category")
     private String category;
 
+    @Column(name = "department", length = 100)
+    private String department;
+
+    @Column(name = "semester", length = 50)
+    private String semester;
+
+    @Column(name = "credits")
+    private Integer credits;
+
     @Column(name = "difficulty_level", length = 50)
     private String difficultyLevel;
 
     @Column(name = "estimated_hours")
     private Integer estimatedHours;
+
+    @Column(name = "prerequisites", columnDefinition = "TEXT")
+    private String prerequisites;
+
+    @Column(name = "learning_objectives", columnDefinition = "TEXT")
+    private String learningObjectives;
+
+    @Column(name = "tags", length = 500)
+    private String tags;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -67,12 +95,8 @@ public class Course {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ManyToMany
-    @JoinTable(
-        name = "course_topics",
-        joinColumns = @JoinColumn(name = "course_id"),
-        inverseJoinColumns = @JoinColumn(name = "topic_id")
-    )
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
     @Builder.Default
     private List<Topic> topics = new ArrayList<>();
 
@@ -89,6 +113,7 @@ public class Course {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (status == null) status = CourseStatus.DRAFT;
     }
 
     @PreUpdate

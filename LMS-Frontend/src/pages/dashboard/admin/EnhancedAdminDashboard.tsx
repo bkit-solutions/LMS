@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAppSelector } from "../../../app/hooks";
 import { testApi } from "../../../services/testApi";
 import { userApi } from "../../../services/authApi";
+import { courseApi } from "../../../services/courseApi";
 import { useCollegeTheme } from "../../../hooks/useCollegeTheme";
 import {
   BookOpen,
@@ -11,13 +12,16 @@ import {
   Award,
   TrendingUp,
   GraduationCap,
+  Layout,
+  Layers,
 } from "lucide-react";
-import type { Test } from "../../../types";
+import type { Test, DashboardStatsResponse } from "../../../types";
 
 const EnhancedAdminDashboard: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   const { applyTheme } = useCollegeTheme();
   const [tests, setTests] = useState<Test[]>([]);
+  const [contentStats, setContentStats] = useState<DashboardStatsResponse | null>(null);
   const [stats, setStats] = useState({
     totalTests: 0,
     publishedTests: 0,
@@ -40,12 +44,17 @@ const EnhancedAdminDashboard: React.FC = () => {
           userApi.getFaculty().catch(() => ({ success: false, data: [] })),
         ]);
 
+        // Load content stats
+        courseApi.getDashboardStats().then((res) => {
+          if (res.success && res.data) setContentStats(res.data);
+        }).catch(() => {});
+
         if (testsRes.success && testsRes.data) {
           setTests(testsRes.data);
           setStats((prev) => ({
             ...prev,
             totalTests: testsRes.data?.length || 0,
-            publishedTests: testsRes.data?.filter((t: any) => t.isPublished).length || 0,
+            publishedTests: testsRes.data?.filter((t: any) => t.published).length || 0,
           }));
         }
 
@@ -175,6 +184,56 @@ const EnhancedAdminDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* LMS Content Overview */}
+        {contentStats && (
+          <div className="bg-white rounded-xl shadow-sm border border-border p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-text flex items-center gap-2">
+                <Layout className="w-5 h-5" />
+                LMS Content Overview
+              </h3>
+              <Link
+                to="courses"
+                className="text-sm font-medium text-primary hover:text-secondary"
+              >
+                Manage Content →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg p-4 text-center border border-cyan-200">
+                <Layers className="w-6 h-6 text-cyan-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-cyan-800">{contentStats.totalCourses}</p>
+                <p className="text-xs text-cyan-600">Courses</p>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 text-center border border-green-200">
+                <BookOpen className="w-6 h-6 text-green-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-green-800">{contentStats.publishedCourses}</p>
+                <p className="text-xs text-green-600">Published</p>
+              </div>
+              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 text-center border border-yellow-200">
+                <FileText className="w-6 h-6 text-yellow-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-yellow-800">{contentStats.draftCourses}</p>
+                <p className="text-xs text-yellow-600">Drafts</p>
+              </div>
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 text-center border border-blue-200">
+                <Users className="w-6 h-6 text-blue-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-blue-800">{contentStats.totalEnrollments}</p>
+                <p className="text-xs text-blue-600">Enrollments</p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 text-center border border-purple-200">
+                <Layers className="w-6 h-6 text-purple-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-purple-800">{contentStats.totalTopics}</p>
+                <p className="text-xs text-purple-600">Topics</p>
+              </div>
+              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 text-center border border-indigo-200">
+                <FileText className="w-6 h-6 text-indigo-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-indigo-800">{contentStats.totalChapters}</p>
+                <p className="text-xs text-indigo-600">Chapters</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Recent Tests */}
         {tests.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
@@ -214,12 +273,12 @@ const EnhancedAdminDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                            (test as any).isPublished
+                            test.published
                               ? "bg-green-100 text-green-800"
                               : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {(test as any).isPublished ? "Published" : "Draft"}
+                          {test.published ? "Published" : "Draft"}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-text-secondary">

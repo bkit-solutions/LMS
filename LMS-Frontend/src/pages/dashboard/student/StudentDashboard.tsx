@@ -17,6 +17,8 @@ import {
   BarChart3,
   XCircle,
   User,
+  Search,
+  Bookmark,
 } from "lucide-react";
 
 const StudentDashboard: React.FC = () => {
@@ -56,7 +58,8 @@ const StudentDashboard: React.FC = () => {
         }
       } else {
         const status = testsResponse.reason?.response?.status;
-        if (status === 401 || status === 403) {
+        // Only redirect to login on 401 (not authenticated), not on 403 (not authorized)
+        if (status === 401) {
           localStorage.removeItem("token");
           navigate("/login", { replace: true });
           return;
@@ -93,7 +96,8 @@ const StudentDashboard: React.FC = () => {
         }
       } else {
         const status = resultsResponse.reason?.response?.status;
-        if (status === 401 || status === 403) {
+        // Only redirect to login on 401 (not authenticated), not on 403 (not authorized)
+        if (status === 401) {
           localStorage.removeItem("token");
           navigate("/login", { replace: true });
           return;
@@ -105,7 +109,8 @@ const StudentDashboard: React.FC = () => {
       }
     } catch (err: any) {
       const status = err?.response?.status;
-      if (status === 401 || status === 403) {
+      // Only redirect to login on 401, not 403
+      if (status === 401) {
         localStorage.removeItem("token");
         navigate("/login", { replace: true });
         return;
@@ -185,7 +190,7 @@ const StudentDashboard: React.FC = () => {
         </div>
 
         {/* Quick Nav Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <button
             onClick={() => navigate("courses")}
             className="bg-white rounded-lg shadow-sm border border-border p-5 hover:shadow-md transition-shadow text-left"
@@ -211,6 +216,34 @@ const StudentDashboard: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-text">Topics</h3>
                 <p className="text-xs text-text-secondary">Study learning materials</p>
+              </div>
+            </div>
+          </button>
+          <button
+            onClick={() => navigate("search")}
+            className="bg-white rounded-lg shadow-sm border border-border p-5 hover:shadow-md transition-shadow text-left"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Search className="w-6 h-6 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-text">Search</h3>
+                <p className="text-xs text-text-secondary">Find courses & topics</p>
+              </div>
+            </div>
+          </button>
+          <button
+            onClick={() => navigate("bookmarks")}
+            className="bg-white rounded-lg shadow-sm border border-border p-5 hover:shadow-md transition-shadow text-left"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <Bookmark className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-text">Bookmarks</h3>
+                <p className="text-xs text-text-secondary">Saved topics for later</p>
               </div>
             </div>
           </button>

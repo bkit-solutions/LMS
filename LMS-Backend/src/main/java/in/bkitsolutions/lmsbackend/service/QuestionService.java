@@ -8,11 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class QuestionService {
     private static final Logger logger = LoggerFactory.getLogger(QuestionService.class);
 
@@ -172,6 +174,27 @@ public class QuestionService {
         } else if (q.getQuestionType() == QuestionType.FILL_BLANK) {
             if (q.getCorrectAnswer() == null || q.getCorrectAnswer().isBlank()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "correctAnswer is required for fill-in-the-blank");
+            }
+        } else if (q.getQuestionType() == QuestionType.TRUE_FALSE) {
+            if (q.getCorrectOption() == null || q.getCorrectOption().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "correctOption is required for true/false (use 'A' for True, 'B' for False)");
+            }
+            if (!"A".equals(q.getCorrectOption()) && !"B".equals(q.getCorrectOption())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "correctOption must be 'A' (True) or 'B' (False) for true/false questions");
+            }
+        } else if (q.getQuestionType() == QuestionType.ESSAY) {
+            // Essay questions don't require a correct answer as they're manually graded
+            if (q.getCharacterLimit() != null && q.getCharacterLimit() <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "characterLimit must be positive for essay questions");
+            }
+        } else if (q.getQuestionType() == QuestionType.IMAGE_BASED) {
+            if (q.getImageUrl() == null || q.getImageUrl().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "imageUrl is required for image-based questions");
+            }
+            // Image-based questions can have any of the existing answer types (MCQ, fill-blank, etc.)
+        } else if (q.getQuestionType() == QuestionType.UPLOAD_ANSWER) {
+            if (q.getAllowFileUpload() == null || !q.getAllowFileUpload()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "allowFileUpload must be true for upload-based answer questions");
             }
         }
     }
