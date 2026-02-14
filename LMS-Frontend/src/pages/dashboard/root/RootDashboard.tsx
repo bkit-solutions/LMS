@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../../app/hooks";
 import { getCurrentUserAsync, selectUser } from "../../../features/auth/authSlice";
-import { 
-  Users, 
-  Building, 
-  Shield, 
-  BarChart3, 
+import {
+  Users,
+  Building,
+  Shield,
+  BarChart3,
   UserPlus,
   Activity,
   AlertCircle,
@@ -16,12 +16,12 @@ import { userApi, adminApi, type UserStats } from "../../../services/authApi";
 const RootDashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [dataInitLoading, setDataInitLoading] = useState(false);
 
   useEffect(() => {
-    // Refresh user data on mount
     dispatch(getCurrentUserAsync());
     loadDashboardData();
   }, [dispatch]);
@@ -32,8 +32,6 @@ const RootDashboard: React.FC = () => {
       if (statsResponse.success && statsResponse.data) {
         setStats(statsResponse.data);
       }
-    } catch (error) {
-      console.error("Failed to load dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -43,35 +41,20 @@ const RootDashboard: React.FC = () => {
     setDataInitLoading(true);
     try {
       const response = await adminApi.initializeData();
-      if (response.success) {
-        alert("✅ " + response.message);
-        loadDashboardData(); // Refresh stats
-      } else {
-        alert("❌ " + response.message);
-      }
-    } catch (error: any) {
-      alert("❌ Failed to initialize data: " + (error.response?.data?.message || error.message));
+      alert(response.success ? "✅ " + response.message : "❌ " + response.message);
+      loadDashboardData();
     } finally {
       setDataInitLoading(false);
     }
   };
 
   const handleDataReset = async () => {
-    if (!confirm("⚠️ This will clear ALL data and reinitialize with dummy data. Are you sure?")) {
-      return;
-    }
-    
+    if (!confirm("⚠️ This will clear ALL data and reinitialize with dummy data. Are you sure?")) return;
     setDataInitLoading(true);
     try {
       const response = await adminApi.resetData();
-      if (response.success) {
-        alert("✅ " + response.message);
-        loadDashboardData(); // Refresh stats
-      } else {
-        alert("❌ " + response.message);
-      }
-    } catch (error: any) {
-      alert("❌ Failed to reset data: " + (error.response?.data?.message || error.message));
+      alert(response.success ? "✅ " + response.message : "❌ " + response.message);
+      loadDashboardData();
     } finally {
       setDataInitLoading(false);
     }
@@ -79,33 +62,33 @@ const RootDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-96">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-text-secondary">Loading dashboard...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const StatCard = ({ 
-    title, 
-    count, 
-    icon: Icon, 
-    color = "bg-primary" 
-  }: {
-    title: string;
-    count: number;
-    icon: React.ComponentType<any>;
-    color?: string;
-  }) => (
-    <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+  const StatCard = ({
+    title,
+    count,
+    icon: Icon,
+    color
+  }: any) => (
+    <div
+      className="rounded-2xl p-6 border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      style={{
+        background: "var(--surface)",
+        borderColor: "var(--border)"
+      }}
+    >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-gray-600 text-sm font-medium mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{count.toLocaleString()}</p>
+          <p className="text-sm text-[var(--muted-foreground)] mb-1">{title}</p>
+          <p className="text-3xl font-bold">{count.toLocaleString()}</p>
         </div>
-        <div className={`${color} p-3 rounded-lg`}>
+
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+             style={{ background: color }}>
           <Icon className="w-6 h-6 text-white" />
         </div>
       </div>
@@ -113,49 +96,67 @@ const RootDashboard: React.FC = () => {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">System Administration</h1>
-          <p className="text-gray-600 mt-2">
-            Complete system oversight and management • Welcome back, {user?.name}
+          <h1 className="text-4xl font-black heading-font">
+            System Administration
+          </h1>
+          <p className="text-[var(--muted-foreground)] mt-2">
+            Complete system oversight • Welcome back, {user?.name}
           </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-2">
-            <Shield className="w-4 h-4" />
-            <span>Root Administrator</span>
-          </div>
+
+        <div className="px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2"
+             style={{
+               background: "rgba(239,68,68,0.1)",
+               color: "rgb(185,28,28)"
+             }}>
+          <Shield className="w-4 h-4" />
+          Root Administrator
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-xl p-6 text-white">
-        <h2 className="text-xl font-semibold mb-4">Development Tools</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="bg-white/10 rounded-lg p-4">
-            <h3 className="font-medium mb-2">Initialize System Data</h3>
-            <p className="text-white/80 text-sm mb-3">
-              Create complete dummy data with all roles, colleges, and users for testing.
+      {/* Development Tools */}
+      <div
+        className="rounded-3xl p-8 border"
+        style={{
+          background: "linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.03))",
+          borderColor: "rgba(220,38,38,0.2)"
+        }}
+      >
+        <h2 className="text-xl font-semibold mb-6">Development Tools</h2>
+
+        <div className="grid md:grid-cols-2 gap-6">
+
+          <div className="p-6 rounded-2xl bg-white/60 backdrop-blur border border-white/40">
+            <h3 className="font-semibold mb-2">Initialize System Data</h3>
+            <p className="text-sm text-[var(--muted-foreground)] mb-4">
+              Create dummy users, colleges, roles and system hierarchy for testing.
             </p>
+
             <button
               onClick={handleDataInit}
               disabled={dataInitLoading}
-              className="bg-white text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-white/90 transition-colors disabled:opacity-50"
+              className="px-5 py-2 rounded-xl font-medium transition hover:-translate-y-1 hover:shadow-md"
+              style={{ background: "var(--primary)", color: "white" }}
             >
               {dataInitLoading ? "Initializing..." : "Initialize Data"}
             </button>
           </div>
-          <div className="bg-white/10 rounded-lg p-4">
-            <h3 className="font-medium mb-2">Reset All Data</h3>
-            <p className="text-white/80 text-sm mb-3">
-              Clear all existing data and reinitialize with fresh dummy data.
+
+          <div className="p-6 rounded-2xl bg-white/60 backdrop-blur border border-white/40">
+            <h3 className="font-semibold mb-2">Reset All Data</h3>
+            <p className="text-sm text-[var(--muted-foreground)] mb-4">
+              Completely reset system and recreate structured demo dataset.
             </p>
+
             <button
               onClick={handleDataReset}
               disabled={dataInitLoading}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+              className="px-5 py-2 rounded-xl font-medium bg-red-600 text-white hover:bg-red-700 transition"
             >
               {dataInitLoading ? "Resetting..." : "Reset Data"}
             </button>
@@ -163,92 +164,75 @@ const RootDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* System Statistics */}
+      {/* Stats */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          <StatCard 
-            title="Total Users" 
-            count={stats.totalUsers} 
-            icon={Users}
-            color="bg-blue-600"
-          />
-          <StatCard 
-            title="Root Admins" 
-            count={stats.rootAdmins} 
-            icon={Shield}
-            color="bg-red-600"
-          />
-          <StatCard 
-            title="Super Admins" 
-            count={stats.superAdmins} 
-            icon={Users}
-            color="bg-purple-600"
-          />
-          <StatCard 
-            title="College Admins" 
-            count={stats.admins} 
-            icon={Building}
-            color="bg-indigo-600"
-          />
-          <StatCard 
-            title="Faculty" 
-            count={stats.faculty} 
-            icon={UserPlus}
-            color="bg-green-600"
-          />
-          <StatCard 
-            title="Students" 
-            count={stats.students} 
-            icon={Users}
-            color="bg-orange-600"
-          />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <StatCard title="Total Users" count={stats.totalUsers} icon={Users} color="#2563eb" />
+          <StatCard title="Root Admins" count={stats.rootAdmins} icon={Shield} color="#dc2626" />
+          <StatCard title="Super Admins" count={stats.superAdmins} icon={Users} color="#7c3aed" />
+          <StatCard title="College Admins" count={stats.admins} icon={Building} color="#4f46e5" />
+          <StatCard title="Faculty" count={stats.faculty} icon={UserPlus} color="#16a34a" />
+          <StatCard title="Students" count={stats.students} icon={Users} color="#ea580c" />
         </div>
       )}
 
-      {/* Status Overview */}
+      {/* Status */}
       {stats && (
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-              <Activity className="w-5 h-5 text-red-600" />
-              <span>User Activity Status</span>
+        <div className="grid lg:grid-cols-2 gap-8">
+
+          <div
+            className="rounded-2xl p-6 border"
+            style={{
+              background: "var(--surface)",
+              borderColor: "var(--border)"
+            }}
+          >
+            <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-[var(--primary)]" />
+              User Activity
             </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-green-800 font-medium">Active Users</span>
-                </div>
-                <span className="text-green-900 font-bold">{stats.activeUsers}</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <AlertCircle className="w-5 h-5 text-red-600" />
-                  <span className="text-red-800 font-medium">Inactive Users</span>
-                </div>
-                <span className="text-red-900 font-bold">{stats.inactiveUsers}</span>
-              </div>
+
+            <div className="space-y-4">
+              <StatusItem
+                label="Active Users"
+                value={stats.activeUsers}
+                icon={CheckCircle}
+                bg="rgba(34,197,94,0.1)"
+                color="#15803d"
+              />
+
+              <StatusItem
+                label="Inactive Users"
+                value={stats.inactiveUsers}
+                icon={AlertCircle}
+                bg="rgba(239,68,68,0.1)"
+                color="#b91c1c"
+              />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-              <BarChart3 className="w-5 h-5 text-red-600" />
-              <span>System Health</span>
+          <div
+            className="rounded-2xl p-6 border"
+            style={{
+              background: "var(--surface)",
+              borderColor: "var(--border)"
+            }}
+          >
+            <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-[var(--primary)]" />
+              System Health
             </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <span className="text-blue-800 font-medium">User Activation Rate</span>
-                <span className="text-blue-900 font-bold">
-                  {stats.totalUsers > 0 ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}%
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                <span className="text-purple-800 font-medium">Admin Coverage</span>
-                <span className="text-purple-900 font-bold">
-                  {(stats.rootAdmins + stats.superAdmins + stats.admins)} Administrators
-                </span>
-              </div>
+
+            <div className="space-y-4">
+              <MetricItem
+                label="User Activation Rate"
+                value={`${Math.round((stats.activeUsers / stats.totalUsers) * 100)}%`}
+              />
+
+              <MetricItem
+                label="Admin Coverage"
+                value={`${stats.rootAdmins + stats.superAdmins + stats.admins} Administrators`}
+              />
             </div>
           </div>
         </div>
@@ -256,5 +240,24 @@ const RootDashboard: React.FC = () => {
     </div>
   );
 };
+
+const StatusItem = ({ label, value, icon: Icon, bg, color }: any) => (
+  <div className="flex items-center justify-between p-4 rounded-xl"
+       style={{ background: bg }}>
+    <div className="flex items-center gap-2">
+      <Icon className="w-5 h-5" style={{ color }} />
+      <span className="font-medium">{label}</span>
+    </div>
+    <span className="font-bold">{value}</span>
+  </div>
+);
+
+const MetricItem = ({ label, value }: any) => (
+  <div className="flex items-center justify-between p-4 rounded-xl"
+       style={{ background: "rgba(59,130,246,0.08)" }}>
+    <span className="font-medium">{label}</span>
+    <span className="font-bold">{value}</span>
+  </div>
+);
 
 export default RootDashboard;

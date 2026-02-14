@@ -63,17 +63,55 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-6 py-5 border-b border-border bg-primary flex-shrink-0">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-            <FileText className="w-6 h-6 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-white">Create New Test</h2>
-            <p className="text-red-100 text-sm">Design your assessment with custom settings</p>
-          </div>
-        </div>
-      </div>
+      <div
+  className="px-6 py-5 border-b flex-shrink-0"
+  style={{
+    background: "var(--primary)",
+    borderColor: "var(--border)",
+  }}
+>
+  <div className="flex items-center space-x-3">
+
+    <div
+      className="w-10 h-10 rounded-lg flex items-center justify-center"
+      style={{
+        background: "var(--card)",
+      }}
+    >
+      <FileText
+        className="w-6 h-6"
+        style={{
+          color: "var(--primary)",
+        }}
+      />
+    </div>
+
+    <div>
+
+      <h2
+        className="text-xl font-bold"
+        style={{
+          color: "var(--primary-foreground)",
+        }}
+      >
+        Create New Test
+      </h2>
+
+      <p
+        className="text-sm"
+        style={{
+          color: "var(--primary-foreground)",
+          opacity: 0.8,
+        }}
+      >
+        Design your assessment with custom settings
+      </p>
+
+    </div>
+
+  </div>
+</div>
+
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Left Side - Form Inputs */}
@@ -342,7 +380,11 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
         <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-              <Eye className="w-5 h-5 mr-2 text-primary" />
+              <Eye
+  className="w-5 h-5 mr-2"
+  style={{ color: "var(--primary)" }}
+/>
+
               Live Preview
             </h3>
             <p className="text-sm text-gray-600 mt-1">See how your test will appear to students</p>
@@ -350,7 +392,14 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
 
           <div className="bg-white rounded-lg shadow-sm border border-border overflow-hidden">
             {/* Test Header Preview */}
-            <div className="px-6 py-4 border-b border-border bg-primary">
+            <div
+  className="px-6 py-4 border-b"
+  style={{
+    background: "var(--primary)",
+    borderColor: "var(--border)",
+  }}
+>
+
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-xl font-bold text-white">
@@ -432,7 +481,15 @@ const CreateTestForm: React.FC<CreateTestFormProps> = ({ onSuccess, onCancel }) 
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                      <span
+  className="flex-shrink-0 w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold"
+  style={{
+    background: "var(--primary)",
+  }}
+>
+  1
+</span>
+
                       <div className="flex-1">
                         <p className="text-sm font-medium text-text">Sample multiple choice question?</p>
                         <div className="mt-2 space-y-2">

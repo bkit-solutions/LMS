@@ -2,159 +2,370 @@ import React, { useEffect, useState } from "react";
 import { Clock, AlertTriangle } from "lucide-react";
 
 interface TestTimerProps {
-    durationMinutes: number | null; // null means unlimited time
+    durationMinutes: number | null;
     onTimeUp: () => void;
     isPaused?: boolean;
 }
 
-const TestTimer: React.FC<TestTimerProps> = ({ durationMinutes, onTimeUp, isPaused = false }) => {
-    const [secondsRemaining, setSecondsRemaining] = useState<number | null>(
-        durationMinutes ? durationMinutes * 60 : null
-    );
-    const [showWarning, setShowWarning] = useState(false);
+const TestTimer: React.FC<TestTimerProps> = ({
+    durationMinutes,
+    onTimeUp,
+    isPaused = false
+}) => {
+
+    const [secondsRemaining, setSecondsRemaining] =
+        useState<number | null>(
+            durationMinutes ? durationMinutes * 60 : null
+        );
+
+    const [showWarning, setShowWarning] =
+        useState(false);
+
+
+
+    /* TIMER EFFECT */
 
     useEffect(() => {
-        // No timer for unlimited duration
-        if (secondsRemaining === null || isPaused) return;
 
-        // Show warning when 5 minutes remaining
-        if (secondsRemaining === 300 && !showWarning) {
+        if (secondsRemaining === null || isPaused)
+            return;
+
+        if (secondsRemaining === 300 && !showWarning)
             setShowWarning(true);
-        }
 
-        // Timer countdown
         const interval = setInterval(() => {
-            setSecondsRemaining((prev) => {
+
+            setSecondsRemaining(prev => {
+
                 if (prev === null || prev <= 0) {
+
                     clearInterval(interval);
-                    if (prev === 0) onTimeUp();
+
+                    if (prev === 0)
+                        onTimeUp();
+
                     return 0;
                 }
+
                 return prev - 1;
+
             });
+
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [secondsRemaining, isPaused, onTimeUp, showWarning]);
 
-    const formatTime = (seconds: number): string => {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
+    }, [
+        secondsRemaining,
+        isPaused,
+        onTimeUp,
+        showWarning
+    ]);
 
-        if (hours > 0) {
-            return `${hours.toString().padStart(2, "0")}:${minutes
+
+
+    /* FORMAT */
+
+    const formatTime = (seconds: number) => {
+
+        const hours =
+            Math.floor(seconds / 3600);
+
+        const minutes =
+            Math.floor((seconds % 3600) / 60);
+
+        const secs =
+            seconds % 60;
+
+        if (hours > 0)
+            return `${hours
                 .toString()
-                .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-        }
-        return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+                .padStart(2, "0")}:${minutes
+                .toString()
+                .padStart(2, "0")}:${secs
+                .toString()
+                .padStart(2, "0")}`;
+
+        return `${minutes
+            .toString()
+            .padStart(2, "0")}:${secs
+            .toString()
+            .padStart(2, "0")}`;
+
     };
 
-    const getTimerColor = (): string => {
-        if (secondsRemaining === null) return "text-blue-600";
-        if (secondsRemaining <= 300) return "text-red-600"; // Last 5 minutes
-        if (secondsRemaining <= 600) return "text-orange-600"; // Last 10 minutes
-        return "text-green-600";
+
+
+    /* COLORS */
+
+    const getTimerColor = () => {
+
+        if (secondsRemaining === null)
+            return "var(--primary)";
+
+        if (secondsRemaining <= 300)
+            return "var(--primary)";
+
+        if (secondsRemaining <= 600)
+            return "var(--accent)";
+
+        return "var(--primary)";
+
     };
 
-    const getBackgroundColor = (): string => {
-        if (secondsRemaining === null) return "bg-blue-50";
-        if (secondsRemaining <= 300) return "bg-red-50";
-        if (secondsRemaining <= 600) return "bg-orange-50";
-        return "bg-green-50";
-    };
 
-    const getProgressPercentage = (): number => {
-        if (secondsRemaining === null || !durationMinutes) return 100;
-        const totalSeconds = durationMinutes * 60;
-        return (secondsRemaining / totalSeconds) * 100;
-    };
 
-    if (secondsRemaining === null) {
+    const getProgressPercentage = () => {
+
+        if (!durationMinutes || secondsRemaining === null)
+            return 100;
+
+        const total =
+            durationMinutes * 60;
+
         return (
-            <div className="fixed top-4 right-4 z-50">
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl px-6 py-4 shadow-xl backdrop-blur-sm">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                            <Clock className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <div className="text-lg font-bold text-blue-800">No Time Limit</div>
-                            <div className="text-sm text-blue-600">Take your time</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            (secondsRemaining / total) * 100
         );
-    }
+
+    };
+
+
+
+    /* UNLIMITED */
+
+    if (secondsRemaining === null)
+        return (
+
+            <div className="fixed top-4 right-4 z-50">
+
+                <div
+                    className="rounded-xl px-6 py-4 shadow-xl border"
+                    style={{
+                        background:
+                            "var(--card)",
+                        borderColor:
+                            "var(--border)"
+                    }}
+                >
+
+                    <div className="flex items-center gap-3">
+
+                        <div
+                            className="w-10 h-10 rounded-full flex items-center justify-center"
+                            style={{
+                                background:
+                                    "var(--primary)"
+                            }}
+                        >
+
+                            <Clock className="w-5 h-5 text-white" />
+
+                        </div>
+
+                        <div>
+
+                            <div
+                                className="text-lg font-bold"
+                                style={{
+                                    color:
+                                        "var(--text)"
+                                }}
+                            >
+                                No Time Limit
+                            </div>
+
+                            <div
+                                className="text-sm"
+                                style={{
+                                    color:
+                                        "var(--text-secondary)"
+                                }}
+                            >
+                                Take your time
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        );
+
+
 
     return (
-        <>
-            {/* Warning Modal */}
-            {showWarning && secondsRemaining <= 300 && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center animate-fadeIn">
-                    <div className="bg-white rounded-xl p-8 max-w-md mx-4 shadow-2xl">
-                        <div className="flex items-center space-x-3 mb-4">
-                            <AlertTriangle className="w-8 h-8 text-orange-600" />
-                            <h3 className="text-xl font-bold text-gray-800">Time Warning</h3>
-                        </div>
-                        <p className="text-gray-600 mb-6">
-                            You have less than 5 minutes remaining to complete the test. Please review your answers and submit soon.
-                        </p>
-                        <button
-                            onClick={() => setShowWarning(false)}
-                            className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-semibold"
-                        >
-                            Understood
-                        </button>
-                    </div>
-                </div>
-            )}
 
-            {/* Enhanced Timer Display */}
-            <div className="fixed top-4 right-4 z-40">
-                <div className={`${getBackgroundColor()} border-2 ${
-                    secondsRemaining <= 300 ? "border-red-400" : 
-                    secondsRemaining <= 600 ? "border-orange-400" : "border-green-400"
-                } rounded-xl px-6 py-4 shadow-xl backdrop-blur-sm transition-all duration-300 ${
-                    secondsRemaining <= 60 ? "animate-pulse" : ""
-                }`}>
-                    <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 ${
-                            secondsRemaining <= 300 ? 'bg-red-500' : 
-                            secondsRemaining <= 600 ? 'bg-orange-500' : 'bg-green-500'
-                        } rounded-full flex items-center justify-center`}>
-                            <Clock className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <div className={`text-xl font-bold ${getTimerColor()} tabular-nums`}>
-                                {formatTime(secondsRemaining)}
-                            </div>
-                            <div className="text-xs opacity-75">
-                                {secondsRemaining <= 60 
-                                    ? "Last minute!" 
-                                    : secondsRemaining <= 300 
-                                    ? "Hurry up!"
-                                    : "Time remaining"
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {/* Progress bar */}
-                    <div className="mt-3 w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+        <>
+
+            {/* WARNING MODAL */}
+
+            {showWarning &&
+                secondsRemaining <= 300 && (
+
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center"
+                        style={{
+                            background:
+                                "rgba(0,0,0,0.5)"
+                        }}
+                    >
+
                         <div
-                            className={`h-full ${
-                                secondsRemaining <= 300 ? "bg-red-500" :
-                                secondsRemaining <= 600 ? "bg-orange-500" : "bg-green-500"
-                            } transition-all duration-1000 ease-linear rounded-full`}
-                            style={{ width: `${getProgressPercentage()}%` }}
-                        />
+                            className="rounded-xl p-8 shadow-2xl max-w-md"
+                            style={{
+                                background:
+                                    "var(--card)",
+                                border:
+                                    "1px solid var(--border)"
+                            }}
+                        >
+
+                            <div className="flex gap-3 mb-4">
+
+                                <AlertTriangle
+                                    className="w-8 h-8"
+                                    style={{
+                                        color:
+                                            "var(--primary)"
+                                    }}
+                                />
+
+                                <h3
+                                    className="text-xl font-bold"
+                                    style={{
+                                        color:
+                                            "var(--text)"
+                                    }}
+                                >
+                                    Time Warning
+                                </h3>
+
+                            </div>
+
+                            <p
+                                className="mb-6"
+                                style={{
+                                    color:
+                                        "var(--text-secondary)"
+                                }}
+                            >
+                                Less than 5 minutes remaining.
+                                Please submit soon.
+                            </p>
+
+                            <button
+                                onClick={() =>
+                                    setShowWarning(false)
+                                }
+                                className="w-full py-2 rounded-lg font-semibold text-white"
+                                style={{
+                                    background:
+                                        "var(--primary)"
+                                }}
+                            >
+                                Understood
+                            </button>
+
+                        </div>
+
                     </div>
+
+                )}
+
+
+
+            {/* TIMER */}
+
+            <div className="fixed top-4 right-4 z-40">
+
+                <div
+                    className="rounded-xl px-6 py-4 shadow-xl border transition-all"
+                    style={{
+                        background:
+                            "var(--card)",
+                        borderColor:
+                            "var(--border)"
+                    }}
+                >
+
+                    <div className="flex items-center gap-3">
+
+                        <div
+                            className="w-10 h-10 rounded-full flex items-center justify-center"
+                            style={{
+                                background:
+                                    "var(--primary)"
+                            }}
+                        >
+
+                            <Clock className="w-5 h-5 text-white" />
+
+                        </div>
+
+
+                        <div>
+
+                            <div
+                                className="text-xl font-bold tabular-nums"
+                                style={{
+                                    color:
+                                        getTimerColor()
+                                }}
+                            >
+                                {formatTime(
+                                    secondsRemaining
+                                )}
+                            </div>
+
+                            <div
+                                className="text-xs"
+                                style={{
+                                    color:
+                                        "var(--text-secondary)"
+                                }}
+                            >
+                                Time Remaining
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    {/* PROGRESS BAR */}
+
+                    <div
+                        className="mt-3 w-full h-2 rounded-full overflow-hidden"
+                        style={{
+                            background:
+                                "var(--surface)"
+                        }}
+                    >
+
+                        <div
+                            className="h-full transition-all duration-1000"
+                            style={{
+                                width:
+                                    `${getProgressPercentage()}%`,
+                                background:
+                                    "var(--primary)"
+                            }}
+                        />
+
+                    </div>
+
                 </div>
+
             </div>
+
         </>
+
     );
+
 };
 
 export default TestTimer;

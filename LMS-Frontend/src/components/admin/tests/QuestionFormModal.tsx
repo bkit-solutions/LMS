@@ -10,7 +10,13 @@ interface QuestionFormModalProps {
     onCancel: () => void;
 }
 
-const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ testId, question, onSuccess, onCancel }) => {
+const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
+    testId,
+    question,
+    onSuccess,
+    onCancel
+}) => {
+
     const [formData, setFormData] = useState({
         questionText: question?.questionText || "",
         questionType: (question?.questionType || "MCQ") as QuestionTypeType,
@@ -28,15 +34,19 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ testId, question,
         allowFileUpload: question?.allowFileUpload || false,
         fileUploadInstructions: question?.fileUploadInstructions || "",
     });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+
     const handleSubmit = async (e: React.FormEvent) => {
+
         e.preventDefault();
         setLoading(true);
         setError(null);
 
         try {
+
             const questionData: any = {
                 questionType: formData.questionType,
                 questionText: formData.questionText,
@@ -45,396 +55,467 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ testId, question,
             };
 
             if (formData.questionType === "MCQ") {
+
                 questionData.optionA = formData.optionA;
                 questionData.optionB = formData.optionB;
                 questionData.optionC = formData.optionC;
                 questionData.optionD = formData.optionD;
                 questionData.correctOption = formData.correctOption;
-            } else if (formData.questionType === "MAQ") {
+
+            }
+            else if (formData.questionType === "MAQ") {
+
                 questionData.optionA = formData.optionA;
                 questionData.optionB = formData.optionB;
                 questionData.optionC = formData.optionC;
                 questionData.optionD = formData.optionD;
                 questionData.correctOptionsCsv = formData.correctOptionsCsv;
-            } else if (formData.questionType === "FILL_BLANK") {
+
+            }
+            else if (formData.questionType === "FILL_BLANK") {
+
                 questionData.correctAnswer = formData.correctAnswer;
-            } else if (formData.questionType === "TRUE_FALSE") {
+
+            }
+            else if (formData.questionType === "TRUE_FALSE") {
+
                 questionData.optionA = "True";
                 questionData.optionB = "False";
                 questionData.correctOption = formData.correctOption;
-            } else if (formData.questionType === "ESSAY") {
+
+            }
+            else if (formData.questionType === "ESSAY") {
+
                 questionData.characterLimit = formData.characterLimit;
-            } else if (formData.questionType === "IMAGE_BASED") {
+
+            }
+            else if (formData.questionType === "IMAGE_BASED") {
+
                 questionData.imageUrl = formData.imageUrl;
                 questionData.optionA = formData.optionA;
                 questionData.optionB = formData.optionB;
                 questionData.optionC = formData.optionC;
                 questionData.optionD = formData.optionD;
                 questionData.correctOption = formData.correctOption;
-            } else if (formData.questionType === "UPLOAD_ANSWER") {
+
+            }
+            else if (formData.questionType === "UPLOAD_ANSWER") {
+
                 questionData.allowFileUpload = formData.allowFileUpload;
                 questionData.fileUploadInstructions = formData.fileUploadInstructions;
+
             }
 
             const response = question
                 ? await testApi.updateQuestion(question.id, questionData)
                 : await testApi.createQuestion(testId, questionData);
 
-            if (response.success) {
-                onSuccess();
-            } else {
-                setError(response.message);
-            }
-        } catch (err: any) {
-            setError(err.response?.data?.message || `Failed to ${question ? 'update' : 'create'} question`);
-        } finally {
-            setLoading(false);
+            if (response.success) onSuccess();
+            else setError(response.message);
+
         }
+        catch (err: any) {
+
+            setError(
+                err.response?.data?.message ||
+                `Failed to ${question ? "update" : "create"} question`
+            );
+
+        }
+        finally {
+
+            setLoading(false);
+
+        }
+
     };
 
+
     return (
+
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-            <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full my-8">
-                <div className="px-6 py-5 border-b border-border bg-primary">
+
+            {/* MODAL */}
+            <div
+                className="rounded-xl shadow-2xl max-w-3xl w-full my-8 border"
+                style={{
+                    background: "var(--card)",
+                    borderColor: "var(--border)"
+                }}
+            >
+
+
+                {/* HEADER */}
+                <div
+                    className="px-6 py-5 border-b"
+                    style={{
+                        background: "var(--primary)",
+                        borderColor: "var(--border)"
+                    }}
+                >
+
                     <div className="flex items-center justify-between">
+
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                                <HelpCircle className="w-6 h-6 text-primary" />
+
+                            <div
+                                className="w-10 h-10 rounded-lg flex items-center justify-center"
+                                style={{ background: "var(--card)" }}
+                            >
+                                <HelpCircle
+                                    className="w-6 h-6"
+                                    style={{ color: "var(--primary)" }}
+                                />
                             </div>
+
                             <div>
-                                <h2 className="text-xl font-bold text-white">{question ? 'Edit Question' : 'Add New Question'}</h2>
-                                <p className="text-red-100 text-sm">Fill in the details below</p>
+
+                                <h2 className="text-xl font-bold text-white">
+                                    {question ? "Edit Question" : "Add New Question"}
+                                </h2>
+
+                                <p
+                                    className="text-sm"
+                                    style={{ color: "rgba(255,255,255,0.85)" }}
+                                >
+                                    Fill in the details below
+                                </p>
+
                             </div>
+
                         </div>
+
+
                         <button
                             onClick={onCancel}
-                            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                            className="p-2 rounded-lg transition-colors"
+                            style={{ color: "white" }}
                         >
-                            <X className="w-6 h-6 text-white" />
+                            <X className="w-6 h-6" />
                         </button>
+
                     </div>
+
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+
+
+                {/* FORM */}
+                <form
+                    onSubmit={handleSubmit}
+                    className="p-6 space-y-6 max-h-[70vh] overflow-y-auto"
+                >
+
+
+                    {/* ERROR */}
                     {error && (
-                        <div className="flex items-center space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <AlertCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                            <span className="text-sm text-primary font-medium">{error}</span>
+
+                        <div
+                            className="flex items-center space-x-3 p-4 border rounded-lg"
+                            style={{
+                                background: "var(--primary-soft)",
+                                borderColor: "var(--primary)",
+                                color: "var(--primary)"
+                            }}
+                        >
+
+                            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+
+                            <span className="text-sm font-medium">
+                                {error}
+                            </span>
+
                         </div>
+
                     )}
 
+
+
+                    {/* QUESTION TYPE */}
                     <div>
+
                         <label className="block text-sm font-semibold text-text mb-2">
-                            Question Type <span className="text-primary">*</span>
+                            Question Type
                         </label>
+
                         <select
                             value={formData.questionType}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                questionType: e.target.value as QuestionTypeType,
-                                correctOption: "",
-                                correctOptionsCsv: "",
-                                correctAnswer: "",
-                                characterLimit: undefined,
-                                imageUrl: "",
-                                allowFileUpload: false,
-                                fileUploadInstructions: "",
-                            })}
-                            className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                            required
-                            disabled={!!question}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    questionType: e.target.value as QuestionTypeType,
+                                    correctOption: "",
+                                    correctOptionsCsv: "",
+                                    correctAnswer: "",
+                                    characterLimit: undefined,
+                                    imageUrl: "",
+                                    allowFileUpload: false,
+                                    fileUploadInstructions: "",
+                                })
+                            }
+                            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary transition-all"
+                            style={{
+                                borderColor: "var(--border)",
+                                background: "var(--card)"
+                            }}
                         >
+
                             <option value="MCQ">Multiple Choice (Single Correct Answer)</option>
-                            <option value="MAQ">Multiple Answer Question (Multiple Correct)</option>
+                            <option value="MAQ">Multiple Answer Question</option>
                             <option value="FILL_BLANK">Fill in the Blank</option>
-                            <option value="TRUE_FALSE">True/False</option>
+                            <option value="TRUE_FALSE">True / False</option>
                             <option value="ESSAY">Essay</option>
                             <option value="IMAGE_BASED">Image Based</option>
                             <option value="UPLOAD_ANSWER">Upload Answer</option>
+
                         </select>
+
                     </div>
 
+
+
+                    {/* QUESTION TEXT */}
                     <div>
+
                         <label className="block text-sm font-semibold text-text mb-2">
-                            Question Text <span className="text-primary">*</span>
+                            Question Text
                         </label>
+
                         <textarea
                             value={formData.questionText}
-                            onChange={(e) => setFormData({ ...formData, questionText: e.target.value })}
-                            className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                            onChange={(e) =>
+                                setFormData({ ...formData, questionText: e.target.value })
+                            }
                             rows={4}
+                            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary transition-all resize-none"
+                            style={{
+                                borderColor: "var(--border)",
+                                background: "var(--card)"
+                            }}
                             placeholder="Enter your question here..."
                             required
                         />
+
                     </div>
 
+
+                    {/* MARKS */}
                     <div className="grid grid-cols-2 gap-6">
+
                         <div>
+
                             <label className="block text-sm font-semibold text-text mb-2">
-                                Marks <span className="text-primary">*</span>
+                                Marks
                             </label>
+
                             <input
                                 type="number"
                                 value={formData.marks}
-                                onChange={(e) => setFormData({ ...formData, marks: parseInt(e.target.value) })}
-                                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        marks: parseInt(e.target.value)
+                                    })
+                                }
+                                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary"
+                                style={{
+                                    borderColor: "var(--border)",
+                                    background: "var(--card)"
+                                }}
                                 min="1"
-                                placeholder="1"
-                                required
                             />
+
                         </div>
+
+
                         <div>
+
                             <label className="block text-sm font-semibold text-text mb-2">
                                 Negative Marks
                             </label>
+
                             <input
                                 type="number"
                                 value={formData.negativeMarks}
-                                onChange={(e) => setFormData({ ...formData, negativeMarks: parseInt(e.target.value) })}
-                                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        negativeMarks: parseInt(e.target.value)
+                                    })
+                                }
+                                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary"
+                                style={{
+                                    borderColor: "var(--border)",
+                                    background: "var(--card)"
+                                }}
                                 min="0"
-                                placeholder="0"
-                                required
                             />
+
                         </div>
+
                     </div>
 
-                    {(formData.questionType === "MCQ" || formData.questionType === "MAQ") && (
+
+
+                    {/* OPTIONS — MCQ + MAQ */}
+                    {(formData.questionType === "MCQ" ||
+                        formData.questionType === "MAQ") && (
+
                         <div>
+
                             <label className="block text-sm font-semibold text-text mb-3">
-                                Options <span className="text-primary">*</span>
+                                Options
                             </label>
+
                             <div className="space-y-3">
-                                {['A', 'B', 'C', 'D'].map((opt) => (
+
+                                {["A", "B", "C", "D"].map((opt) => (
+
                                     <div key={opt} className="flex items-center space-x-3">
-                                        <span className="flex items-center justify-center w-10 h-10 bg-surface text-text font-bold rounded-lg">
+
+                                        <span
+                                            className="flex items-center justify-center w-10 h-10 font-bold rounded-lg"
+                                            style={{
+                                                background: "var(--surface)",
+                                                color: "var(--text)"
+                                            }}
+                                        >
                                             {opt}
                                         </span>
+
+
                                         <input
                                             type="text"
-                                            value={formData[`option${opt}` as keyof typeof formData] as string}
-                                            onChange={(e) => setFormData({ ...formData, [`option${opt}`]: e.target.value })}
-                                            className="flex-1 px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                            value={
+                                                formData[`option${opt}` as keyof typeof formData] as string
+                                            }
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    [`option${opt}`]: e.target.value
+                                                })
+                                            }
+                                            className="flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary"
+                                            style={{
+                                                borderColor: "var(--border)",
+                                                background: "var(--card)"
+                                            }}
                                             placeholder={`Option ${opt}`}
-                                            required
                                         />
+
+
                                         {formData.questionType === "MCQ" ? (
+
                                             <input
                                                 type="radio"
                                                 name="correctOption"
                                                 value={opt}
                                                 checked={formData.correctOption === opt}
-                                                onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
-                                                className="w-5 h-5 text-primary focus:ring-primary border-border"
-                                                required
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        correctOption: e.target.value
+                                                    })
+                                                }
+                                                className="w-5 h-5"
+                                                style={{ accentColor: "var(--primary)" }}
                                             />
+
                                         ) : (
+
                                             <input
                                                 type="checkbox"
                                                 checked={formData.correctOptionsCsv.includes(opt)}
                                                 onChange={() => {
-                                                    const current = formData.correctOptionsCsv.split(",").filter(x => x);
-                                                    const newValue = current.includes(opt)
-                                                        ? current.filter(x => x !== opt)
-                                                        : [...current, opt];
-                                                    setFormData({ ...formData, correctOptionsCsv: newValue.join(",") });
+
+                                                    const current =
+                                                        formData.correctOptionsCsv.split(",").filter(x => x);
+
+                                                    const newValue =
+                                                        current.includes(opt)
+                                                            ? current.filter(x => x !== opt)
+                                                            : [...current, opt];
+
+                                                    setFormData({
+                                                        ...formData,
+                                                        correctOptionsCsv: newValue.join(",")
+                                                    });
+
                                                 }}
-                                                className="w-5 h-5 text-primary focus:ring-primary border-border rounded"
+                                                className="w-5 h-5"
+                                                style={{ accentColor: "var(--primary)" }}
                                             />
+
                                         )}
+
                                     </div>
+
                                 ))}
+
                             </div>
-                            <p className="mt-2 text-sm text-text-secondary">
-                                {formData.questionType === "MCQ"
-                                    ? "Select the radio button for the correct answer"
-                                    : "Check all correct answers"}
-                            </p>
+
                         </div>
+
                     )}
 
-                    {formData.questionType === "FILL_BLANK" && (
-                        <div>
-                            <label className="block text-sm font-semibold text-text mb-2">
-                                Correct Answer <span className="text-primary">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.correctAnswer}
-                                onChange={(e) => setFormData({ ...formData, correctAnswer: e.target.value })}
-                                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                placeholder="Enter the correct answer"
-                                required
-                            />
-                        </div>
-                    )}
-
-                    {formData.questionType === "TRUE_FALSE" && (
-                        <div>
-                            <label className="block text-sm font-semibold text-text mb-3">
-                                Correct Answer <span className="text-primary">*</span>
-                            </label>
-                            <div className="flex space-x-6">
-                                <label className="flex items-center space-x-2">
-                                    <input
-                                        type="radio"
-                                        name="correctOption"
-                                        value="A"
-                                        checked={formData.correctOption === "A"}
-                                        onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
-                                        className="w-5 h-5 text-primary focus:ring-primary border-border"
-                                        required
-                                    />
-                                    <span>True</span>
-                                </label>
-                                <label className="flex items-center space-x-2">
-                                    <input
-                                        type="radio"
-                                        name="correctOption"
-                                        value="B"
-                                        checked={formData.correctOption === "B"}
-                                        onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
-                                        className="w-5 h-5 text-primary focus:ring-primary border-border"
-                                        required
-                                    />
-                                    <span>False</span>
-                                </label>
-                            </div>
-                        </div>
-                    )}
-
-                    {formData.questionType === "ESSAY" && (
-                        <div>
-                            <label className="block text-sm font-semibold text-text mb-2">
-                                Character Limit <span className="text-primary">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                value={formData.characterLimit || ""}
-                                onChange={(e) => setFormData({ ...formData, characterLimit: parseInt(e.target.value) || undefined })}
-                                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                min="1"
-                                placeholder="Enter character limit (optional)"
-                            />
-                            <p className="mt-1 text-sm text-text-secondary">
-                                Leave empty for no character limit
-                            </p>
-                        </div>
-                    )}
-
-                    {formData.questionType === "IMAGE_BASED" && (
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-text mb-2">
-                                    Image URL <span className="text-primary">*</span>
-                                </label>
-                                <input
-                                    type="url"
-                                    value={formData.imageUrl}
-                                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                    className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                    placeholder="https://example.com/image.jpg"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-text mb-3">
-                                    Options <span className="text-primary">*</span>
-                                </label>
-                                <div className="space-y-3">
-                                    {['A', 'B', 'C', 'D'].map((opt) => (
-                                        <div key={opt} className="flex items-center space-x-3">
-                                            <span className="flex items-center justify-center w-10 h-10 bg-surface text-text font-bold rounded-lg">
-                                                {opt}
-                                            </span>
-                                            <input
-                                                type="text"
-                                                value={formData[`option${opt}` as keyof typeof formData] as string}
-                                                onChange={(e) => setFormData({ ...formData, [`option${opt}`]: e.target.value })}
-                                                className="flex-1 px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                                placeholder={`Option ${opt}`}
-                                                required
-                                            />
-                                            <input
-                                                type="radio"
-                                                name="correctOption"
-                                                value={opt}
-                                                checked={formData.correctOption === opt}
-                                                onChange={(e) => setFormData({ ...formData, correctOption: e.target.value })}
-                                                className="w-5 h-5 text-primary focus:ring-primary border-border"
-                                                required
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                                <p className="mt-2 text-sm text-text-secondary">
-                                    Select the radio button for the correct answer
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-                    {formData.questionType === "UPLOAD_ANSWER" && (
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-text mb-2">
-                                    Allow File Upload <span className="text-primary">*</span>
-                                </label>
-                                <div className="flex items-center space-x-2">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.allowFileUpload}
-                                        onChange={(e) => setFormData({ ...formData, allowFileUpload: e.target.checked })}
-                                        className="w-5 h-5 text-primary focus:ring-primary border-border rounded"
-                                    />
-                                    <span className="text-sm text-text">Enable file upload for this question</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-text mb-2">
-                                    Upload Instructions
-                                </label>
-                                <textarea
-                                    value={formData.fileUploadInstructions}
-                                    onChange={(e) => setFormData({ ...formData, fileUploadInstructions: e.target.value })}
-                                    className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
-                                    rows={3}
-                                    placeholder="Enter instructions for file upload (optional)"
-                                />
-                            </div>
-                        </div>
-                    )}
                 </form>
 
-                <div className="px-6 py-4 border-t border-border bg-surface flex justify-end space-x-3">
+
+
+                {/* FOOTER */}
+                <div
+                    className="px-6 py-4 border-t flex justify-end space-x-3"
+                    style={{
+                        background: "var(--surface)",
+                        borderColor: "var(--border)"
+                    }}
+                >
+
                     <button
-                        type="button"
                         onClick={onCancel}
-                        className="px-6 py-3 text-sm font-semibold text-text-secondary hover:text-text hover:bg-gray-200 rounded-lg transition-colors"
+                        className="px-6 py-3 text-sm font-semibold rounded-lg"
+                        style={{
+                            background: "var(--surface)",
+                            color: "var(--text-secondary)"
+                        }}
                     >
                         Cancel
                     </button>
+
+
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
-                        className="px-6 py-3 text-sm font-semibold text-white bg-primary hover:bg-secondary rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                        className="px-6 py-3 text-sm font-semibold text-white rounded-lg shadow-md flex items-center space-x-2"
+                        style={{ background: "var(--primary)" }}
                     >
+
                         {loading ? (
                             <>
-                                <Loader2 className="animate-spin h-5 w-5 text-white" />
-                                <span>{question ? 'Updating...' : 'Creating...'}</span>
+                                <Loader2 className="animate-spin w-5 h-5" />
+                                <span>
+                                    {question ? "Updating..." : "Creating..."}
+                                </span>
                             </>
                         ) : (
                             <>
                                 <Check className="w-5 h-5" />
-                                <span>{question ? 'Update Question' : 'Create Question'}</span>
+                                <span>
+                                    {question ? "Update Question" : "Create Question"}
+                                </span>
                             </>
                         )}
+
                     </button>
+
                 </div>
+
             </div>
+
         </div>
+
     );
+
 };
 
 export default QuestionFormModal;

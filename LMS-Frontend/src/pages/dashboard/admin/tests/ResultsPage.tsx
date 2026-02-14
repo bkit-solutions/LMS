@@ -6,176 +6,380 @@ import { Video } from "lucide-react";
 import SessionReportModal from "../../../../components/admin/tests/SessionReportModal";
 
 const ResultsPage: React.FC = () => {
+
   const { testId } = useParams<{ testId: string }>();
+
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [selectedAttemptId, setSelectedAttemptId] = useState<number | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchResults = async () => {
-      try {
-        setLoading(true);
-        let response;
-        if (testId) {
-          response = await testApi.getTestResults(parseInt(testId));
-        } else {
-          response = await testApi.getAdminResults();
-        }
 
-        if (response.success && response.data) {
+    const fetchResults = async () => {
+
+      try {
+
+        setLoading(true);
+
+        let response;
+
+        if (testId)
+          response = await testApi.getTestResults(parseInt(testId));
+        else
+          response = await testApi.getAdminResults();
+
+        if (response.success && response.data)
           setResults(response.data);
-        } else {
+        else
           setError(response.message);
-        }
+
       } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to load results");
+
+        setError(
+          err.response?.data?.message ||
+          "Failed to load results"
+        );
+
       } finally {
+
         setLoading(false);
+
       }
     };
 
     fetchResults();
+
   }, [testId]);
 
+
   const handleDeleteResult = async (resultId: number) => {
-    if (!confirm("Are you sure you want to delete this result?")) return;
+
+    if (!confirm("Are you sure you want to delete this result?"))
+      return;
+
     try {
+
       const response = await testApi.deleteResult(resultId);
-      if (response.success) {
+
+      if (response.success)
         setResults(results.filter(r => r.id !== resultId));
-      } else {
+      else
         alert(response.message || "Failed to delete result");
-      }
-    } catch (err: any) {
+
+    } catch {
+
       alert("Failed to delete result");
+
     }
   };
 
+
   if (loading) {
+
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-text">Loading results...</div>
+
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "var(--background)" }}
+      >
+        <div style={{ color: "var(--text)" }}>
+          Loading results...
+        </div>
       </div>
+
     );
   }
+
 
   if (error) {
+
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-accent">{error}</div>
+
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "var(--background)" }}
+      >
+        <div style={{ color: "var(--accent)" }}>
+          {error}
+        </div>
       </div>
+
     );
   }
 
+
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+
+    <div
+      className="min-h-screen p-4 sm:p-6 lg:p-8"
+      style={{ background: "var(--background)" }}
+    >
+
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-text">
+
+
+        {/* HEADER */}
+
+        <div>
+
+          <h1
+            className="text-2xl sm:text-3xl font-bold"
+            style={{ color: "var(--text)" }}
+          >
             Test Results
           </h1>
+
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-border overflow-hidden">
+
+
+        {/* RESULTS TABLE */}
+
+        <div
+          className="rounded-lg border overflow-hidden"
+          style={{
+            background: "var(--card)",
+            borderColor: "var(--border)"
+          }}
+        >
+
           {results.length > 0 ? (
+
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border">
-                <thead className="bg-gray-50">
+
+              <table className="min-w-full">
+
+                <thead
+                  style={{
+                    background: "var(--surface)",
+                    borderBottom: "1px solid var(--border)"
+                  }}
+                >
+
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
-                      Test Title
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
-                      Student
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
-                      Score
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
-                      Percentage
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
-                      Submitted At
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
-                      Report
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
-                      Actions
-                    </th>
+
+                    {[
+                      "Test Title",
+                      "Student",
+                      "Score",
+                      "Percentage",
+                      "Submitted At",
+                      "Status",
+                      "Report",
+                      "Actions"
+                    ].map((heading) => (
+
+                      <th
+                        key={heading}
+                        className="px-6 py-3 text-left text-xs font-medium uppercase"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
+                        {heading}
+                      </th>
+
+                    ))}
+
                   </tr>
+
                 </thead>
-                <tbody className="bg-white divide-y divide-border">
-                  {results.map((result) => (
-                    <tr key={result.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text">
-                        {result.test.title}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                        {result.student.name} ({result.student.email})
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                        {result.score}/{result.test.totalMarks}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                        {(
-                          (result.score / result.test.totalMarks) *
-                          100
-                        ).toFixed(2)}
-                        %
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                        {new Date(result.submittedAt || "").toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                        {result.isValidTest ? "Valid" : "Invalid"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                        <button
-                          onClick={() => {
-                            setSelectedAttemptId(result.id);
-                            setIsReportModalOpen(true);
+
+
+                <tbody>
+
+                  {results.map((result) => {
+
+                    const percentage =
+                      (
+                        result.score /
+                        result.test.totalMarks
+                      ) * 100;
+
+                    return (
+
+                      <tr
+                        key={result.id}
+                        style={{
+                          borderBottom:
+                            "1px solid var(--border)"
+                        }}
+                      >
+
+                        {/* TEST TITLE */}
+
+                        <td
+                          className="px-6 py-4 text-sm font-medium"
+                          style={{ color: "var(--text)" }}
+                        >
+                          {result.test.title}
+                        </td>
+
+
+                        {/* STUDENT */}
+
+                        <td
+                          className="px-6 py-4 text-sm"
+                          style={{
+                            color:
+                              "var(--text-secondary)"
                           }}
-                          className="flex items-center text-blue-600 hover:text-blue-900 font-medium transition-colors"
                         >
-                          <Video className="w-4 h-4 mr-1" />
-                          View
-                        </button>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                        <button
-                          onClick={() => handleDeleteResult(result.id)}
-                          className="text-red-600 hover:text-red-900 font-medium"
+                          {result.student.name}
+                          <br />
+                          <span className="text-xs">
+                            {result.student.email}
+                          </span>
+                        </td>
+
+
+                        {/* SCORE */}
+
+                        <td
+                          className="px-6 py-4 text-sm"
+                          style={{
+                            color:
+                              "var(--text-secondary)"
+                          }}
                         >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                          {result.score} /
+                          {result.test.totalMarks}
+                        </td>
+
+
+                        {/* PERCENTAGE */}
+
+                        <td
+                          className="px-6 py-4 text-sm font-medium"
+                          style={{
+                            color:
+                              percentage >= 40
+                                ? "var(--primary)"
+                                : "var(--accent)"
+                          }}
+                        >
+                          {percentage.toFixed(2)}%
+                        </td>
+
+
+                        {/* DATE */}
+
+                        <td
+                          className="px-6 py-4 text-sm"
+                          style={{
+                            color:
+                              "var(--text-secondary)"
+                          }}
+                        >
+                          {new Date(
+                            result.submittedAt || ""
+                          ).toLocaleString()}
+                        </td>
+
+
+                        {/* STATUS */}
+
+                        <td
+                          className="px-6 py-4 text-sm font-medium"
+                          style={{
+                            color:
+                              result.isValidTest
+                                ? "var(--primary)"
+                                : "var(--accent)"
+                          }}
+                        >
+                          {result.isValidTest
+                            ? "Valid"
+                            : "Invalid"}
+                        </td>
+
+
+                        {/* REPORT */}
+
+                        <td className="px-6 py-4 text-sm">
+
+                          <button
+                            onClick={() => {
+
+                              setSelectedAttemptId(
+                                result.id
+                              );
+
+                              setIsReportModalOpen(true);
+
+                            }}
+                            className="flex items-center font-medium"
+                            style={{
+                              color: "var(--primary)"
+                            }}
+                          >
+                            <Video className="w-4 h-4 mr-1" />
+                            View
+                          </button>
+
+                        </td>
+
+
+                        {/* DELETE */}
+
+                        <td className="px-6 py-4 text-sm">
+
+                          <button
+                            onClick={() =>
+                              handleDeleteResult(
+                                result.id
+                              )
+                            }
+                            style={{
+                              color: "var(--accent)"
+                            }}
+                            className="font-medium"
+                          >
+                            Delete
+                          </button>
+
+                        </td>
+
+                      </tr>
+
+                    );
+                  })}
+
                 </tbody>
+
               </table>
+
             </div>
+
           ) : (
-            <div className="p-4 text-center text-text-secondary">
+
+            <div
+              className="p-6 text-center"
+              style={{
+                color: "var(--text-secondary)"
+              }}
+            >
               No results yet
             </div>
+
           )}
 
         </div>
+
       </div>
 
-      {/* Session Report Modal */}
+
+      {/* REPORT MODAL */}
+
       <SessionReportModal
         attemptId={selectedAttemptId}
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
       />
+
     </div>
+
   );
 };
 

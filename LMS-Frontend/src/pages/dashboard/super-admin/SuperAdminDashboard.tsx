@@ -62,17 +62,32 @@ const SuperAdminDashboard: React.FC = () => {
       let userData: any[] = [];
       let collegeData: CollegeResponse[] = [];
 
-      if (usersResponse.status === "fulfilled" && usersResponse.value.success && usersResponse.value.data) {
+      if (
+        usersResponse.status === "fulfilled" &&
+        usersResponse.value.success &&
+        usersResponse.value.data
+      ) {
         userData = usersResponse.value.data;
       }
-      if (collegesResponse.status === "fulfilled" && collegesResponse.value.success && collegesResponse.value.data) {
+
+      if (
+        collegesResponse.status === "fulfilled" &&
+        collegesResponse.value.success &&
+        collegesResponse.value.data
+      ) {
         collegeData = collegesResponse.value.data;
       }
 
       const activeColleges = collegeData.filter((c) => c.isActive).length;
-      const admins = userData.filter((u: any) => u.type === "ADMIN" || u.role === "COLLEGE_ADMIN").length;
-      const faculty = userData.filter((u: any) => u.type === "FACULTY" || u.role === "FACULTY").length;
-      const students = userData.filter((u: any) => u.type === "USER" || u.role === "STUDENT").length;
+      const admins = userData.filter(
+        (u: any) => u.type === "ADMIN" || u.role === "COLLEGE_ADMIN"
+      ).length;
+      const faculty = userData.filter(
+        (u: any) => u.type === "FACULTY" || u.role === "FACULTY"
+      ).length;
+      const students = userData.filter(
+        (u: any) => u.type === "USER" || u.role === "STUDENT"
+      ).length;
 
       setColleges(collegeData.slice(0, 4));
       setStats({
@@ -83,10 +98,8 @@ const SuperAdminDashboard: React.FC = () => {
         totalStudents: students,
       });
 
-      // Build real recent activities from actual data
       const activities: RecentActivity[] = [];
 
-      // Add recent colleges
       collegeData.slice(0, 2).forEach((college) => {
         activities.push({
           id: activities.length + 1,
@@ -94,266 +107,471 @@ const SuperAdminDashboard: React.FC = () => {
           action: "College onboarded",
           entity: college.name,
           timestamp: "Recently",
-          status: college.isActive ? "success" : "pending"
+          status: college.isActive ? "success" : "pending",
         });
       });
 
-      // Add recent users (admins/students)
       userData.slice(0, 3).forEach((user) => {
-        const userType = user.type === "ADMIN" ? "Admin" : user.type === "FACULTY" ? "Faculty" : "Student";
+        const userType =
+          user.type === "ADMIN"
+            ? "Admin"
+            : user.type === "FACULTY"
+            ? "Faculty"
+            : "Student";
+
         activities.push({
           id: activities.length + 1,
           type: user.type === "ADMIN" ? "admin" : "course",
           action: `${userType} account created`,
           entity: user.name || user.email,
           timestamp: "Recently",
-          status: "success"
+          status: "success",
         });
       });
 
       setRecentActivities(activities.slice(0, 5));
     } catch (error) {
-      console.error("Failed to fetch dashboard data:", error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   const quickActions = [
-    { title: "Onboard College", icon: Building2, href: "/dashboard/colleges", color: "bg-blue-500", description: "Add new institution" },
-    { title: "Manage Users", icon: Users, href: "/dashboard/users", color: "bg-purple-500", description: "View all users" },
-    { title: "View Tests", icon: BarChart3, href: "/dashboard/tests", color: "bg-green-500", description: "All tests & results" },
-    { title: "Manage Courses", icon: Activity, href: "/dashboard/courses", color: "bg-orange-500", description: "Course catalog" },
+    {
+      title: "Onboard College",
+      icon: Building2,
+      href: "/dashboard/colleges",
+      description: "Add new institution",
+    },
+    {
+      title: "Manage Users",
+      icon: Users,
+      href: "/dashboard/users",
+      description: "View all users",
+    },
+    {
+      title: "View Tests",
+      icon: BarChart3,
+      href: "/dashboard/tests",
+      description: "All tests & results",
+    },
+    {
+      title: "Manage Courses",
+      icon: Activity,
+      href: "/dashboard/courses",
+      description: "Course catalog",
+    },
   ];
 
   const statCards = [
-    { title: "Total Colleges", value: stats.totalColleges, active: stats.activeColleges, icon: Building2, color: "text-blue-600", bg: "bg-blue-50" },
-    { title: "College Admins", value: stats.totalAdmins, icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
-    { title: "Faculty Members", value: stats.totalFaculty, icon: GraduationCap, color: "text-green-600", bg: "bg-green-50" },
-    { title: "Students", value: stats.totalStudents, icon: BookOpen, color: "text-orange-600", bg: "bg-orange-50" },
+    {
+      title: "Total Colleges",
+      value: stats.totalColleges,
+      active: stats.activeColleges,
+      icon: Building2,
+    },
+    { title: "College Admins", value: stats.totalAdmins, icon: Users },
+    { title: "Faculty Members", value: stats.totalFaculty, icon: GraduationCap },
+    { title: "Students", value: stats.totalStudents, icon: BookOpen },
   ];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-96">
+        <div
+          className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin"
+          style={{ borderColor: "var(--primary)" }}
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 p-4 sm:p-6 lg:p-8">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary via-secondary to-primary text-white rounded-xl shadow-2xl p-8 mb-8">
-        <div className="flex items-center justify-between">
+    <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+
+      {/* HERO */}
+      <div
+        className="rounded-2xl border p-8"
+        style={{
+          background: "var(--surface)",
+          borderColor: "var(--border)",
+        }}
+      >
+        <div className="flex flex-col md:flex-row justify-between gap-6">
+
           <div>
-            <h1 className="text-4xl font-bold mb-2">Welcome back, {user?.name || 'Admin'}!</h1>
-            <p className="text-blue-100 text-lg">Super Admin Control Center - Manage your entire LMS ecosystem</p>
+            <h1 className="text-3xl font-black heading-font">
+              Welcome back, {user?.name || "Admin"}!
+            </h1>
+
+            <p className="text-[var(--muted-foreground)] mt-2">
+              Super Admin Control Center - Manage your entire LMS ecosystem
+            </p>
           </div>
-          <div className="hidden md:flex items-center gap-6">
+
+          <div className="flex items-center gap-10">
+
             <div className="text-center">
-              <div className="text-3xl font-bold">{stats.totalColleges}</div>
-              <div className="text-sm text-blue-100">Colleges</div>
+              <div className="text-3xl font-bold">
+                {stats.totalColleges}
+              </div>
+              <div className="text-sm text-[var(--muted-foreground)]">
+                Colleges
+              </div>
             </div>
-            <div className="h-12 w-px bg-blue-300"></div>
+
+            <div className="w-px h-10 bg-[var(--border)]" />
+
             <div className="text-center">
-              <div className="text-3xl font-bold">{stats.totalStudents}</div>
-              <div className="text-sm text-blue-100">Students</div>
+              <div className="text-3xl font-bold">
+                {stats.totalStudents}
+              </div>
+              <div className="text-sm text-[var(--muted-foreground)]">
+                Students
+              </div>
             </div>
+
           </div>
         </div>
       </div>
 
-      {/* Quick Actions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* QUICK ACTIONS */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
         {quickActions.map((action) => (
+
           <Link
             key={action.title}
             to={action.href}
-            className="group bg-white rounded-xl shadow-md border border-border p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            className="group rounded-xl border p-6 transition hover:shadow-md hover:-translate-y-1"
+            style={{
+              background: "var(--card)",
+              borderColor: "var(--border)",
+            }}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className={`${action.color} p-3 rounded-lg text-white`}>
-                <action.icon className="w-6 h-6" />
+
+            <div className="flex justify-between mb-4">
+
+              <div
+                className="p-3 rounded-lg text-white"
+                style={{ background: "var(--primary)" }}
+              >
+                <action.icon className="w-5 h-5" />
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
+
+              <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] group-hover:text-[var(--primary)]" />
+
             </div>
-            <h3 className="font-semibold text-lg text-text mb-1">{action.title}</h3>
-            <p className="text-sm text-gray-500">{action.description}</p>
+
+            <h3 className="font-semibold">
+              {action.title}
+            </h3>
+
+            <p className="text-sm text-[var(--muted-foreground)]">
+              {action.description}
+            </p>
+
           </Link>
+
         ))}
+
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* STATS */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
         {statCards.map((stat) => (
-          <div key={stat.title} className="bg-white rounded-xl shadow-md border border-border p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`${stat.bg} p-3 rounded-lg`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
-              </div>
+
+          <div
+            key={stat.title}
+            className="rounded-xl border p-6"
+            style={{
+              background: "var(--card)",
+              borderColor: "var(--border)",
+            }}
+          >
+
+            <div
+              className="p-2 rounded-lg w-fit mb-3 text-white"
+              style={{ background: "var(--primary)" }}
+            >
+              <stat.icon className="w-5 h-5" />
             </div>
-            <h3 className="text-gray-600 text-sm font-medium mb-1">{stat.title}</h3>
+
+            <p className="text-sm text-[var(--muted-foreground)]">
+              {stat.title}
+            </p>
+
             <div className="flex items-baseline gap-2">
-              <p className="text-3xl font-bold text-text">{stat.value}</p>
+
+              <p className="text-3xl font-bold">
+                {stat.value}
+              </p>
+
               {stat.active !== undefined && (
-                <span className="text-sm text-green-600 font-medium">({stat.active} active)</span>
+                <span className="text-green-600 text-sm">
+                  ({stat.active} active)
+                </span>
               )}
+
             </div>
+
           </div>
+
         ))}
+
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-border p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-text flex items-center gap-2">
-              <Activity className="w-6 h-6 text-primary" />
+      {/* RECENT ACTIVITY + DEV RESOURCES */}
+      <div className="grid lg:grid-cols-3 gap-6">
+
+        {/* RECENT ACTIVITY */}
+
+        <div
+          className="lg:col-span-2 rounded-xl border p-6"
+          style={{
+            background: "var(--card)",
+            borderColor: "var(--border)",
+          }}
+        >
+
+          <div className="flex justify-between mb-4">
+
+            <h2 className="font-semibold flex gap-2">
+              <Activity className="w-5 h-5 text-[var(--primary)]" />
               Recent Activity
             </h2>
-            <Link to="/dashboard/users" className="text-sm text-primary hover:underline font-medium">View All</Link>
+
+            <Link
+              to="/dashboard/users"
+              className="text-[var(--primary)] text-sm"
+            >
+              View All
+            </Link>
+
           </div>
-          <div className="space-y-4">
+
+          <div className="space-y-3">
+
             {recentActivities.map((activity) => (
-              <div key={activity.id} className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                <div className={`p-2 rounded-lg ${activity.type === "college" ? "bg-blue-100 text-blue-600" :
-                  activity.type === "admin" ? "bg-purple-100 text-purple-600" :
-                    "bg-green-100 text-green-600"
-                  }`}>
-                  {activity.type === "college" ? <Building2 className="w-5 h-5" /> :
-                    activity.type === "admin" ? <Users className="w-5 h-5" /> :
-                      <BookOpen className="w-5 h-5" />}
+
+              <div
+                key={activity.id}
+                className="p-4 rounded-lg"
+                style={{
+                  background: "var(--surface)",
+                }}
+              >
+
+                <div className="flex justify-between">
+
+                  <div>
+                    <p className="font-medium">
+                      {activity.action}
+                    </p>
+
+                    <p className="text-sm text-[var(--muted-foreground)]">
+                      {activity.entity}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-sm text-[var(--muted-foreground)]">
+                    <Clock className="w-4 h-4" />
+                    {activity.timestamp}
+                  </div>
+
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-text">{activity.action}</p>
-                  <p className="text-sm text-gray-600">{activity.entity}</p>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Clock className="w-4 h-4" />
-                  {activity.timestamp}
-                </div>
+
               </div>
+
             ))}
+
           </div>
+
         </div>
 
-        {/* Developer Resources */}
-        <div className="bg-white rounded-xl shadow-md border border-border p-6">
-          <h2 className="text-xl font-semibold text-text mb-6 flex items-center gap-2">
-            <Globe className="w-6 h-6 text-primary" />
+        {/* DEV RESOURCES */}
+
+        <div
+          className="rounded-xl border p-6"
+          style={{
+            background: "var(--card)",
+            borderColor: "var(--border)",
+          }}
+        >
+
+          <h2 className="font-semibold mb-4 flex gap-2">
+            <Globe className="w-5 h-5 text-[var(--primary)]" />
             Developer Resources
           </h2>
-          <div className="space-y-4">
-            <a
-              href="http://localhost:8080/swagger-ui.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-4 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors border border-blue-200"
+
+          <div className="space-y-3">
+
+            <a href="http://localhost:8080/swagger-ui.html" target="_blank" rel="noopener noreferrer"
+               className="block p-3 border rounded-lg hover:shadow-sm"
+               style={{ borderColor: "var(--border)" }}
             >
-              <div className="flex items-center gap-3">
-                <Globe className="w-5 h-5 text-blue-600" />
-                <div>
-                  <span className="font-medium text-text">Interactive API</span>
-                  <p className="text-sm text-gray-600">Swagger UI Documentation</p>
-                </div>
-              </div>
-              <ArrowRight className="w-5 h-5 text-blue-600" />
-            </a>
-            
-            <a
-              href="http://localhost:8080/v3/api-docs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-4 rounded-lg bg-green-50 hover:bg-green-100 transition-colors border border-green-200"
-            >
-              <div className="flex items-center gap-3">
-                <BookOpen className="w-5 h-5 text-green-600" />
-                <div>
-                  <span className="font-medium text-text">OpenAPI Spec</span>
-                  <p className="text-sm text-gray-600">JSON API Documentation</p>
-                </div>
-              </div>
-              <ArrowRight className="w-5 h-5 text-green-600" />
+              Swagger UI
             </a>
 
-            <a
-              href="https://github.com/bkit-solutions/LMS"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-4 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors border border-purple-200"
+            <a href="http://localhost:8080/v3/api-docs" target="_blank" rel="noopener noreferrer"
+               className="block p-3 border rounded-lg hover:shadow-sm"
+               style={{ borderColor: "var(--border)" }}
             >
-              <div className="flex items-center gap-3">
-                <Building2 className="w-5 h-5 text-purple-600" />
-                <div>
-                  <span className="font-medium text-text">GitHub Repository</span>
-                  <p className="text-sm text-gray-600">Source Code & Documentation</p>
-                </div>
-              </div>
-              <ArrowRight className="w-5 h-5 text-purple-600" />
+              OpenAPI Docs
             </a>
+
+            <a href="https://github.com/bkit-solutions/LMS" target="_blank" rel="noopener noreferrer"
+               className="block p-3 border rounded-lg hover:shadow-sm"
+               style={{ borderColor: "var(--border)" }}
+            >
+              GitHub Repository
+            </a>
+
           </div>
 
-          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-            <div className="flex items-center gap-3 mb-2">
-              <Activity className="w-5 h-5 text-blue-600" />
-              <span className="font-semibold text-text">System Status</span>
-            </div>
-            <div className="grid grid-cols-2 gap-3 mt-3">
-              <div>
-                <p className="text-sm text-gray-600">Frontend</p>
-                <p className="text-lg font-bold text-green-600">Online</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Backend</p>
-                <p className="text-lg font-bold text-green-600">Online</p>
-              </div>
-            </div>
-          </div>
         </div>
+
       </div>
 
-      {/* Recent Colleges */}
-      <div className="bg-white rounded-xl shadow-md border border-border p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-text flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-primary" />
-            Recently Onboarded Colleges
-          </h2>
-          <Link to="/dashboard/colleges" className="flex items-center gap-2 text-primary hover:underline font-medium">
-            View All
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {colleges.map((college) => (
-            <Link
-              key={college.id}
-              to={`/dashboard/colleges`}
-              className="group border border-border rounded-lg p-4 hover:shadow-lg transition-all duration-300 hover:border-primary"
+ {/* ================= RECENT COLLEGES ================= */}
+
+<div
+  className="rounded-2xl border p-6 md:p-8"
+  style={{
+    background: "var(--card)",
+    borderColor: "var(--border)",
+  }}
+>
+
+  {/* Header */}
+  <div className="flex items-center justify-between mb-6">
+
+    <div>
+      <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
+        <Building2 className="w-5 h-5 text-[var(--primary)]" />
+        Recently Onboarded Colleges
+      </h2>
+
+      <p className="text-sm text-[var(--muted-foreground)] mt-1">
+        Newly registered institutions on your LMS platform
+      </p>
+    </div>
+
+    <Link
+      to="/dashboard/colleges"
+      className="flex items-center gap-1 text-sm font-medium hover:underline"
+      style={{ color: "var(--primary)" }}
+    >
+      View All
+      <ArrowRight className="w-4 h-4" />
+    </Link>
+
+  </div>
+
+
+  {/* Colleges Grid */}
+  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+    {colleges.map((college) => (
+
+      <Link
+        key={college.id}
+        to="/dashboard/colleges"
+        className="group rounded-xl border p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+        style={{
+          borderColor: "var(--border)",
+          background: "var(--surface)",
+        }}
+      >
+
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+
+          {college.logoUrl ? (
+            <img
+              src={college.logoUrl}
+              alt={college.name}
+              className="w-16 h-16 object-contain rounded-lg border p-2"
+              style={{ borderColor: "var(--border)" }}
+            />
+          ) : (
+            <div
+              className="w-16 h-16 rounded-lg flex items-center justify-center text-white"
+              style={{ background: "var(--primary)" }}
             >
-              {college.logoUrl ? (
-                <img src={college.logoUrl} alt={college.name} className="w-16 h-16 object-contain mb-3 mx-auto" />
-              ) : (
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mb-3 mx-auto">
-                  <Building2 className="w-8 h-8 text-white" />
-                </div>
-              )}
-              <h3 className="font-semibold text-center text-text group-hover:text-primary transition-colors mb-1">
-                {college.name}
-              </h3>
-              <p className="text-sm text-gray-500 text-center mb-2">{college.code}</p>
-              <div className="flex items-center justify-center gap-2">
-                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${college.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
-                  }`}>
-                  {college.isActive ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-                  {college.isActive ? "Active" : "Inactive"}
-                </span>
-              </div>
-            </Link>
-          ))}
+              <Building2 className="w-8 h-8" />
+            </div>
+          )}
+
         </div>
-      </div>
+
+
+        {/* College Name */}
+        <h3 className="text-center font-semibold text-base group-hover:text-[var(--primary)] transition">
+          {college.name}
+        </h3>
+
+
+        {/* College Code */}
+        <p className="text-center text-sm text-[var(--muted-foreground)] mt-1">
+          {college.code}
+        </p>
+
+
+        {/* Status */}
+        <div className="flex justify-center mt-3">
+
+          <span
+            className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"
+            style={{
+              background: college.isActive
+                ? "rgba(34,197,94,0.1)"
+                : "rgba(148,163,184,0.15)",
+
+              color: college.isActive
+                ? "rgb(34,197,94)"
+                : "rgb(100,116,139)",
+            }}
+          >
+            {college.isActive ? (
+              <>
+                <CheckCircle className="w-3 h-3" />
+                Active
+              </>
+            ) : (
+              <>
+                <AlertCircle className="w-3 h-3" />
+                Inactive
+              </>
+            )}
+          </span>
+
+        </div>
+
+
+        {/* Hover Footer */}
+        <div className="flex justify-center mt-4 opacity-0 group-hover:opacity-100 transition">
+
+          <span
+            className="text-xs font-medium"
+            style={{ color: "var(--primary)" }}
+          >
+            View Details →
+          </span>
+
+        </div>
+
+      </Link>
+
+    ))}
+
+  </div>
+
+</div>
+
+
     </div>
   );
 };
