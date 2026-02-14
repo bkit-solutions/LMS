@@ -67,6 +67,14 @@ const StudentCourseViewPage: React.FC = () => {
         setProgress(progressRes.data);
       }
     } catch (err: any) {
+      if (err.response?.status === 404) {
+        // Course not found - redirect to 404 page with original path
+        navigate("/404", { 
+          replace: true, 
+          state: { originalPath: window.location.pathname } 
+        });
+        return;
+      }
       setError(err.response?.data?.message || "Failed to load course");
     } finally {
       setLoading(false);

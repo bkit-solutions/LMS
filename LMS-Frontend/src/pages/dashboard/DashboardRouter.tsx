@@ -12,6 +12,7 @@ import TopicListPage from "./student/TopicListPage";
 import TopicViewerPage from "./student/TopicViewerPage";
 import EnhancedCollegeManagement from "./super-admin/EnhancedCollegeManagement";
 import AdminManagement from "./super-admin/AdminManagement";
+import UserManagementPage from "./super-admin/UserManagementPage";
 import StudentCoursesPage from "./student/StudentCoursesPage";
 import StudentCertificatesPage from "./student/StudentCertificatesPage";
 import TestList from "../../components/admin/tests/TestList";
@@ -20,6 +21,10 @@ import CreateTopicPage from "./admin/topics/CreateTopicPage";
 import TopicDetailPage from "./admin/topics/TopicDetailPage";
 import CourseManagementPage from "./admin/courses/CourseManagementPage";
 import CourseDetailPage from "./admin/courses/CourseDetailPage";
+import CreateTestPage from "./admin/tests/CreateTestPage";
+import TestDetailPage from "./admin/tests/TestDetailPage";
+import ResultsPage from "./admin/tests/ResultsPage";
+import QuestionManagementPage from "./admin/tests/QuestionManagementPage";
 
 const DashboardRouter: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
@@ -58,8 +63,13 @@ const DashboardRouter: React.FC = () => {
       {userRole === "SUPERADMIN" && (
         <>
           <Route path="colleges" element={<EnhancedCollegeManagement />} />
+          <Route path="users" element={<UserManagementPage />} />
           <Route path="admins" element={<AdminManagement />} />
           <Route path="tests" element={<TestList />} />
+          <Route path="tests/create" element={<CreateTestPage />} />
+          <Route path="tests/:id" element={<TestDetailPage />} />
+          <Route path="tests/:id/questions" element={<QuestionManagementPage />} />
+          <Route path="results" element={<ResultsPage />} />
           <Route path="courses" element={<CourseManagementPage />} />
           <Route path="courses/create" element={<CourseManagementPage />} />
           <Route path="courses/:id" element={<CourseDetailPage />} />

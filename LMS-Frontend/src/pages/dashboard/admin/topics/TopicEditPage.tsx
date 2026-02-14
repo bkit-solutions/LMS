@@ -37,7 +37,15 @@ const TopicEditPage: React.FC = () => {
       if (chaptersRes.success && chaptersRes.data) {
         setChapters(chaptersRes.data);
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        // Topic not found - redirect to 404 page with original path
+        navigate("/404", { 
+          replace: true, 
+          state: { originalPath: window.location.pathname } 
+        });
+        return;
+      }
       console.error("Failed to load topic:", err);
     } finally {
       setLoading(false);

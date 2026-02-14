@@ -4,12 +4,9 @@ import {
   User,
   FileText,
   ChevronDown,
-  Download,
-  Loader2
 } from "lucide-react";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { clearError } from "../../../features/auth/authSlice";
 
 import { UserCreationMode } from "../../../types";
 import type { UserCreationModeType } from "../../../types";
@@ -77,8 +74,6 @@ const GenericUserForm: React.FC<GenericUserFormProps> = ({
 
   const [csvUsers, setCsvUsers] = useState<CsvUser[]>([]);
 
-  const [csvResults, setCsvResults] = useState<CsvResult[]>([]);
-
   const [csvUploading, setCsvUploading] = useState(false);
 
   const [csvError, setCsvError] = useState<string | null>(null);
@@ -131,11 +126,7 @@ const GenericUserForm: React.FC<GenericUserFormProps> = ({
 
 
 
-  const handleClearError = () => {
 
-    dispatch(clearError());
-
-  };
 
 
 
@@ -236,8 +227,6 @@ const GenericUserForm: React.FC<GenericUserFormProps> = ({
 
       setCsvError(null);
 
-      setCsvResults([]);
-
       if (!file.name.endsWith(".csv")) {
 
         setCsvError("Please upload CSV file");
@@ -322,26 +311,13 @@ const GenericUserForm: React.FC<GenericUserFormProps> = ({
 
     }
 
-    setCsvResults(results);
-
     setCsvUploading(false);
 
   };
 
 
 
-  const handleClearCsv = () => {
 
-    setCsvUsers([]);
-
-    setCsvResults([]);
-
-    setCsvError(null);
-
-    if (fileInputRef.current)
-      fileInputRef.current.value = "";
-
-  };
 
 
 

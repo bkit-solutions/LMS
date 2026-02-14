@@ -239,21 +239,12 @@ const ImprovedPreTestInstructions: React.FC = () => {
         });
     };
 
-    const getDifficultyColor = (level?: string) => {
-        switch (level?.toUpperCase()) {
-            case 'EASY': return 'bg-green-100 text-green-800 border-green-300';
-            case 'MEDIUM': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-            case 'HARD': return 'bg-red-100 text-red-800 border-red-300';
-            default: return 'bg-gray-100 text-gray-800 border-gray-300';
-        }
-    };
-
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading test details...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-3"></div>
+                    <p className="text-gray-600">Loading test...</p>
                 </div>
             </div>
         );
@@ -262,11 +253,11 @@ const ImprovedPreTestInstructions: React.FC = () => {
     if (error || !test) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
-                    <div className="text-red-600 mb-4 text-lg">{error || "Test not found"}</div>
+                <div className="bg-white rounded-lg shadow p-6 max-w-md w-full text-center">
+                    <div className="text-red-600 mb-4 text-lg font-semibold">{error || "Test not found"}</div>
                     <button
                         onClick={() => navigate(`/${collegeCode}/dashboard`)}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                     >
                         Back to Dashboard
                     </button>
@@ -276,115 +267,97 @@ const ImprovedPreTestInstructions: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-surface py-8">
-            <div className="max-w-5xl mx-auto px-4">
-                {/* Header Section */}
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-                    <div className="bg-primary px-8 py-6 text-white">
-                        <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                                <h1 className="text-3xl font-bold mb-2">{test.title}</h1>
-                                <p className="text-blue-100 text-lg">{test.description}</p>
-                            </div>
-                            {test.difficultyLevel && (
-                                <span className={`px-4 py-2 rounded-full text-sm font-semibold border ${getDifficultyColor(test.difficultyLevel)}`}>
-                                    {test.difficultyLevel}
-                                </span>
-                            )}
-                        </div>
+        <div className="min-h-screen bg-gray-50 py-6">
+            <div className="max-w-4xl mx-auto px-4">
+                <div className="bg-white rounded-lg shadow mb-6">
+                    <div className="bg-blue-600 px-6 py-5 text-white">
+                        <h1 className="text-2xl font-bold mb-2">{test.title}</h1>
+                        <p className="text-blue-100">{test.description}</p>
                     </div>
 
-                    {/* Quick Stats */}
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4 p-6 bg-gray-50 border-b">
                         <div className="text-center">
-                            <div className="text-2xl font-bold text-blue-600">{questionCount}</div>
+                            <div className="text-2xl font-bold text-gray-900">{questionCount}</div>
                             <div className="text-sm text-gray-600">Questions</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-2xl font-bold text-gray-800">{test.durationMinutes || '∞'}</div>
+                            <div className="text-2xl font-bold text-gray-900">{test.durationMinutes || '∞'}</div>
                             <div className="text-sm text-gray-600">{test.durationMinutes ? 'Minutes' : 'Unlimited'}</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-2xl font-bold text-gray-800">{test.totalMarks || 'TBD'}</div>
+                            <div className="text-2xl font-bold text-gray-900">{test.totalMarks || '-'}</div>
                             <div className="text-sm text-gray-600">Total Marks</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-2xl font-bold text-gray-800">{test.maxAttempts}</div>
+                            <div className="text-2xl font-bold text-gray-900">{test.maxAttempts}</div>
                             <div className="text-sm text-gray-600">Max Attempts</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-2xl font-bold text-gray-800">{test.passingPercentage || 'N/A'}%</div>
-                            <div className="text-sm text-gray-600">Passing %</div>
+                            <div className="text-2xl font-bold text-gray-900">{test.passingPercentage || 'N/A'}%</div>
+                            <div className="text-sm text-gray-600">Passing</div>
                         </div>
                     </div>
 
-                    {/* Test Schedule */}
                     <div className="p-6 space-y-3 border-b">
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-3">
                             <Calendar className="w-5 h-5 text-gray-500" />
                             <span className="text-gray-700"><strong>Available From:</strong> {formatDate(test.startTime)}</span>
                         </div>
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-3">
                             <Clock className="w-5 h-5 text-gray-500" />
                             <span className="text-gray-700"><strong>Available Until:</strong> {formatDate(test.endTime)}</span>
                         </div>
                         {test.proctored && (
-                            <div className="flex items-center space-x-3 text-orange-700 bg-orange-50 p-3 rounded-lg">
+                            <div className="flex items-center gap-3 text-orange-700 bg-orange-50 p-3 rounded">
                                 <Video className="w-5 h-5" />
-                                <span className="font-semibold">This is a proctored test - Camera and microphone required</span>
+                                <span className="font-medium">Camera and microphone required</span>
                             </div>
                         )}
                     </div>
 
-                    {/* Custom Instructions */}
                     {test.instructions && (
                         <div className="p-6 border-b">
-                            <h3 className="text-lg font-bold mb-3 text-gray-800">Special Instructions</h3>
-                            <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
+                            <h3 className="text-lg font-semibold mb-3 text-gray-900">Special Instructions</h3>
+                            <div className="text-gray-700 whitespace-pre-wrap">
                                 {test.instructions}
                             </div>
                         </div>
                     )}
 
-                    {/* General Instructions */}
                     <div className="p-6">
-                        <h3 className="text-lg font-bold mb-4 text-gray-800">General Instructions</h3>
+                        <h3 className="text-lg font-semibold mb-4 text-gray-900">General Instructions</h3>
                         <ul className="space-y-3 text-gray-700">
-                            <li className="flex items-start space-x-3">
-                                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                                <span>Ensure stable internet connection before starting the test</span>
+                            <li className="flex items-start gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-medium">1</span>
+                                <span>Ensure stable internet connection before starting</span>
                             </li>
-                            <li className="flex items-start space-x-3">
-                                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                                <span>The test will start as soon as you click &quot;Start Test&quot; button</span>
+                            <li className="flex items-start gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-medium">2</span>
+                                <span>Test will start when you click "Start Test" button</span>
                             </li>
                             {test.durationMinutes && (
-                                <li className="flex items-start space-x-3">
-                                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                                    <span>You have <strong>{test.durationMinutes} minutes</strong> to complete the test</span>
+                                <li className="flex items-start gap-3">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-medium">3</span>
+                                    <span>You have <strong>{test.durationMinutes} minutes</strong> to complete this test</span>
                                 </li>
                             )}
-                            <li className="flex items-start space-x-3">
-                                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">{test.durationMinutes ? '4' : '3'}</span>
-                                <span>You can navigate between questions using the question palette</span>
+                            <li className="flex items-start gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-medium">{test.durationMinutes ? '4' : '3'}</span>
+                                <span>Navigate between questions using the question palette</span>
                             </li>
-                            <li className="flex items-start space-x-3">
-                                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">{test.durationMinutes ? '5' : '4'}</span>
-                                <span>Your answers are automatically saved when you move to the next question</span>
+                            <li className="flex items-start gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-medium">{test.durationMinutes ? '5' : '4'}</span>
+                                <span>Answers are automatically saved</span>
                             </li>
                             {test.proctored && (
                                 <>
-                                    <li className="flex items-start space-x-3 text-orange-700 font-semibold">
-                                        <span className="flex-shrink-0 w-6 h-6 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-sm font-bold">{test.durationMinutes ? '6' : '5'}</span>
-                                        <span>Keep your face visible to the camera at all times</span>
+                                    <li className="flex items-start gap-3 text-orange-700">
+                                        <span className="flex-shrink-0 w-6 h-6 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-sm font-medium">{test.durationMinutes ? '6' : '5'}</span>
+                                        <span>Keep your face visible to camera at all times</span>
                                     </li>
-                                    <li className="flex items-start space-x-3 text-orange-700 font-semibold">
-                                        <span className="flex-shrink-0 w-6 h-6 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-sm font-bold">{test.durationMinutes ? '7' : '6'}</span>
-                                        <span>Do not switch tabs or minimize the window - violations will be recorded</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3 text-orange-700 font-semibold">
-                                        <span className="flex-shrink-0 w-6 h-6 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-sm font-bold">{test.durationMinutes ? '8' : '7'}</span>
-                                        <span>Ensure good lighting and no one else is visible in the frame</span>
+                                    <li className="flex items-start gap-3 text-orange-700">
+                                        <span className="flex-shrink-0 w-6 h-6 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-sm font-medium">{test.durationMinutes ? '7' : '6'}</span>
+                                        <span>Do not switch tabs or minimize window</span>
                                     </li>
                                 </>
                             )}
@@ -392,61 +365,60 @@ const ImprovedPreTestInstructions: React.FC = () => {
                     </div>
                 </div>
 
-                {/* System Check Section */}
                 {test.proctored && (
-                    <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-                        <h3 className="text-xl font-bold mb-4 text-gray-800">System Requirements Check</h3>
+                    <div className="bg-white rounded-lg shadow p-6 mb-6">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-900">System Requirements Check</h3>
                         <SystemCheck onComplete={handleSystemCheckComplete} />
                         {modelStatus === "loading" && (
-                            <div className="mt-4 flex items-center space-x-3 text-blue-600">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                                <span>Loading proctoring AI model...</span>
+                            <div className="mt-4 flex items-center gap-3 text-blue-600">
+                                <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
+                                <span>Loading proctoring model...</span>
                             </div>
                         )}
                         {modelStatus === "error" && (
-                            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded text-red-700">
                                 Failed to load proctoring model. Please refresh the page.
                             </div>
                         )}
                     </div>
                 )}
 
-                {/* Consent and Start */}
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                    <label className="flex items-start space-x-3 cursor-pointer">
+                <div className="bg-white rounded-lg shadow p-6">
+                    <label className="flex items-start gap-3 cursor-pointer">
                         <input
                             type="checkbox"
                             checked={agreed}
                             onChange={(e) => setAgreed(e.target.checked)}
-                            className="mt-1 w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                            className="mt-1 w-5 h-5 text-blue-600 rounded border-gray-300"
                         />
                         <span className="text-gray-700">
-                            I have read and understood all the instructions and agree to follow the test rules. I understand that any violation may result in test cancellation.
+                            I have read and understood all instructions and agree to follow test rules. I understand that violations may result in test cancellation.
                         </span>
                     </label>
 
                     <div className="mt-6 flex justify-between items-center">
                         <button
                             onClick={() => navigate(`/${collegeCode}/dashboard`)}
-                            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                            className="px-6 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleStartTest}
                             disabled={!canStartTest}
-                            className={`px-8 py-3 rounded-lg font-bold text-white transition-all ${canStartTest
-                                ? "bg-green-600 hover:bg-green-700 shadow-lg"
-                                : "bg-gray-300 cursor-not-allowed"
-                                }`}
+                            className={`px-8 py-2 rounded font-medium text-white transition-colors ${
+                                canStartTest
+                                    ? "bg-green-600 hover:bg-green-700"
+                                    : "bg-gray-300 cursor-not-allowed"
+                            }`}
                         >
-                            {starting ? "Initializing Test..." : test?.proctored ? "Start Test (Camera & Fullscreen)" : "Start Test"}
+                            {starting ? "Starting..." : test?.proctored ? "Start Test" : "Start Test"}
                         </button>
                     </div>
 
                     {!systemCheckComplete && test.proctored && (
                         <p className="mt-4 text-sm text-gray-500 text-center">
-                            Complete the system check to enable the start button
+                            Complete the system check to enable start button
                         </p>
                     )}
                 </div>

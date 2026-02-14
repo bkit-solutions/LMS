@@ -54,6 +54,14 @@ const TopicDetailPage: React.FC = () => {
         setChapters(chaptersRes.data);
       }
     } catch (err: any) {
+      if (err.response?.status === 404) {
+        // Topic not found - redirect to 404 page with original path
+        navigate("/404", { 
+          replace: true, 
+          state: { originalPath: window.location.pathname } 
+        });
+        return;
+      }
       setError(err.response?.data?.message || "Failed to load topic");
     } finally {
       setLoading(false);
@@ -102,15 +110,7 @@ const TopicDetailPage: React.FC = () => {
     }
   };
 
-  const handleDeleteTopic = async () => {
-    if (!confirm("Delete this topic and all its chapters permanently?")) return;
-    try {
-      await topicApi.deleteTopic(topicId);
-      navigate("../topics");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to delete topic");
-    }
-  };
+
 
   const handleAddChapter = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,18 +218,19 @@ const TopicDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ background: 'var(--background)' }}>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Back button */}
         <button
           onClick={() => navigate("../topics")}
-          className="text-primary hover:text-secondary text-sm font-medium"
+          className="text-sm font-medium hover:opacity-70 transition-opacity"
+          style={{ color: 'var(--primary)' }}
         >
           ← Back to Topics
         </button>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="border px-4 py-3 rounded-lg" style={{ background: 'rgba(239, 68, 68, 0.1)', borderColor: 'var(--error)', color: 'var(--error)' }}>
             {error}
             <button onClick={() => setError(null)} className="ml-2 font-bold">
               ×
@@ -238,35 +239,38 @@ const TopicDetailPage: React.FC = () => {
         )}
 
         {/* Topic Info */}
-        <div className="bg-white rounded-lg shadow-sm border border-border p-6">
+        <div className="rounded-lg shadow-sm border p-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           {editingTopic ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text mb-1">
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
                   Title
                 </label>
                 <input
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text mb-1">
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
                   Description
                 </label>
                 <textarea
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
                 />
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={handleUpdateTopic}
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors text-sm font-medium"
+                  className="px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+                  style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}
                 >
                   Save
                 </button>
@@ -276,7 +280,8 @@ const TopicDetailPage: React.FC = () => {
                     setEditTitle(topic.title);
                     setEditDescription(topic.description || "");
                   }}
-                  className="px-4 py-2 border border-border text-text rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                  className="px-4 py-2 border rounded-lg transition-colors text-sm font-medium"
+                  style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
                 >
                   Cancel
                 </button>
@@ -286,53 +291,48 @@ const TopicDetailPage: React.FC = () => {
             <div>
               <div className="flex items-start justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-text">
+                  <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>
                     {topic.title}
                   </h1>
-                  <p className="text-text-secondary mt-1">
+                  <p className="mt-1" style={{ color: 'var(--muted-foreground)' }}>
                     {topic.description || "No description"}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`px-2 py-1 text-xs rounded-full font-medium ${
-                      topic.published
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
+                    className="px-2 py-1 text-xs rounded-full font-medium"
+                    style={{
+                      background: topic.published ? 'var(--success)' : 'var(--warning)',
+                      color: 'white'
+                    }}
                   >
                     {topic.published ? "Published" : "Draft"}
                   </span>
+                  <button
+                    onClick={() => setEditingTopic(true)}
+                    className="px-3 py-1 border rounded-lg text-sm font-medium transition-colors"
+                    style={{ borderColor: 'var(--border)', color: 'var(--primary)' }}
+                  >
+                    Edit
+                  </button>
+                  {topic.published ? (
+                    <button
+                      onClick={handleUnpublish}
+                      className="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
+                      style={{ background: 'var(--warning)', color: 'white' }}
+                    >
+                      Unpublish
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handlePublish}
+                      className="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
+                      style={{ background: 'var(--success)', color: 'white' }}
+                    >
+                      Publish
+                    </button>
+                  )}
                 </div>
-              </div>
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => setEditingTopic(true)}
-                  className="px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary hover:text-white border border-primary rounded-md transition-colors"
-                >
-                  Edit
-                </button>
-                {!topic.published ? (
-                  <button
-                    onClick={handlePublish}
-                    className="px-3 py-1.5 text-sm font-medium text-green-600 hover:bg-green-600 hover:text-white border border-green-600 rounded-md transition-colors"
-                  >
-                    Publish
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleUnpublish}
-                    className="px-3 py-1.5 text-sm font-medium text-yellow-600 hover:bg-yellow-600 hover:text-white border border-yellow-600 rounded-md transition-colors"
-                  >
-                    Unpublish
-                  </button>
-                )}
-                <button
-                  onClick={handleDeleteTopic}
-                  className="px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white border border-red-600 rounded-md transition-colors"
-                >
-                  Delete
-                </button>
               </div>
             </div>
           )}

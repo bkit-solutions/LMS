@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   BookOpen,
   Star,
-  CheckCircle,
 } from "lucide-react";
 import WhatsAppFloat from "../../components/common/WhatsAppFloat";
 

@@ -60,20 +60,7 @@ const CollegeDashboardRouter: React.FC = () => {
   return (
     <CollegeRouteGuard>
 
-      {/* ================= MAIN DASHBOARD LAYOUT WRAPPER ================= */}
-
-      <div
-        className="min-h-screen"
-        style={{
-          background: "var(--background)",
-          color: "var(--foreground)"
-        }}
-      >
-
-        {/* Content Container aligned with Navbar */}
-        <div className="max-w-7xl mx-auto px-6 py-8">
-
-          <Routes>
+      <Routes>
 
             {/* ================= DASHBOARD INDEX ================= */}
 
@@ -243,10 +230,6 @@ const CollegeDashboardRouter: React.FC = () => {
             )}
 
           </Routes>
-
-        </div>
-
-      </div>
 
     </CollegeRouteGuard>
   );

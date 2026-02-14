@@ -17,6 +17,8 @@ export const QuestionType = {
   ESSAY: "ESSAY",
   IMAGE_BASED: "IMAGE_BASED",
   UPLOAD_ANSWER: "UPLOAD_ANSWER",
+  VIDEO_BASED: "VIDEO_BASED",
+  AUDIO_BASED: "AUDIO_BASED",
 } as const;
 
 export type QuestionTypeType = (typeof QuestionType)[keyof typeof QuestionType];
@@ -95,11 +97,17 @@ export interface Question {
   optionB?: string;
   optionC?: string;
   optionD?: string;
+  optionAImageUrl?: string;
+  optionBImageUrl?: string;
+  optionCImageUrl?: string;
+  optionDImageUrl?: string;
   correctOption?: string;
   correctOptionsCsv?: string;
   correctAnswer?: string;
   characterLimit?: number;
   imageUrl?: string;
+  videoUrl?: string;
+  audioUrl?: string;
   allowFileUpload?: boolean;
   fileUploadInstructions?: string;
 }
@@ -113,11 +121,17 @@ export interface CreateQuestionRequest {
   optionB?: string;
   optionC?: string;
   optionD?: string;
+  optionAImageUrl?: string;
+  optionBImageUrl?: string;
+  optionCImageUrl?: string;
+  optionDImageUrl?: string;
   correctOption?: string;
   correctOptionsCsv?: string;
   correctAnswer?: string;
   characterLimit?: number;
   imageUrl?: string;
+  videoUrl?: string;
+  audioUrl?: string;
   allowFileUpload?: boolean;
   fileUploadInstructions?: string;
 }
@@ -131,11 +145,17 @@ export interface UpdateQuestionRequest {
   optionB?: string;
   optionC?: string;
   optionD?: string;
+  optionAImageUrl?: string;
+  optionBImageUrl?: string;
+  optionCImageUrl?: string;
+  optionDImageUrl?: string;
   correctOption?: string;
   correctOptionsCsv?: string;
   correctAnswer?: string;
   characterLimit?: number;
   imageUrl?: string;
+  videoUrl?: string;
+  audioUrl?: string;
   allowFileUpload?: boolean;
   fileUploadInstructions?: string;
 }

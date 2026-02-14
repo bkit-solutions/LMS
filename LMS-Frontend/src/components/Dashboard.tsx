@@ -3,6 +3,7 @@ import { useAppSelector } from "../app/hooks";
 import LoginForm from "../pages/auth/LoginPage";
 import UserLists from "./admin/users/UserList";
 import Navbar from "./common/Navbar";
+import { UserCreationMode } from "../types";
 
 type ViewType = "login" | "dashboard";
 
@@ -20,7 +21,7 @@ const Dashboard: React.FC = () => {
   const renderView = () => {
     switch (currentView) {
       case "dashboard":
-        return <UserLists />;
+        return <UserLists mode={UserCreationMode.CREATE_USER} onSubmitAction={() => {}} title="Dashboard" description="Dashboard" successMessage="Success" redirectPath="/dashboard" />;
       case "login":
         return <LoginForm />;
       default:

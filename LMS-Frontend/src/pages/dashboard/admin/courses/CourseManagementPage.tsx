@@ -162,19 +162,22 @@ const CourseManagementPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      <div className="flex items-center justify-center min-h-96">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-[var(--muted-foreground)]">Loading courses...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-text">Course Management</h1>
-          <p className="text-text-secondary mt-1">Create, manage, and organize your courses</p>
+          <h1 className="text-3xl font-bold text-[var(--foreground)] heading-font">Course Management</h1>
+          <p className="text-[var(--muted-foreground)] mt-1">Create, manage, and organize your courses</p>
         </div>
         <button
           onClick={() => {
@@ -183,7 +186,7 @@ const CourseManagementPage: React.FC = () => {
             }
             setShowForm(!showForm);
           }}
-          className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-secondary transition-colors font-medium shadow-sm"
+          className="bg-[var(--primary)] text-white px-6 py-2.5 rounded-lg hover:bg-[var(--primary-hover)] transition-colors font-medium shadow-md"
         >
           {showForm ? "Cancel" : "+ Create Course"}
         </button>
@@ -204,52 +207,52 @@ const CourseManagementPage: React.FC = () => {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-border p-4 text-center">
-            <p className="text-2xl font-bold text-primary">{stats.totalCourses}</p>
-            <p className="text-xs text-text-secondary mt-1">Total Courses</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-[var(--primary)]">{stats.totalCourses}</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">Total Courses</p>
           </div>
-          <div className="bg-white rounded-xl border border-border p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">{stats.publishedCourses}</p>
-            <p className="text-xs text-text-secondary mt-1">Published</p>
+          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-[var(--success)]">{stats.publishedCourses}</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">Published</p>
           </div>
-          <div className="bg-white rounded-xl border border-border p-4 text-center">
-            <p className="text-2xl font-bold text-yellow-600">{stats.draftCourses}</p>
-            <p className="text-xs text-text-secondary mt-1">Drafts</p>
+          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-[var(--warning)]">{stats.draftCourses}</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">Drafts</p>
           </div>
-          <div className="bg-white rounded-xl border border-border p-4 text-center">
-            <p className="text-2xl font-bold text-gray-500">{stats.archivedCourses || 0}</p>
-            <p className="text-xs text-text-secondary mt-1">Archived</p>
+          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-[var(--muted-foreground)]">{stats.archivedCourses || 0}</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">Archived</p>
           </div>
-          <div className="bg-white rounded-xl border border-border p-4 text-center">
-            <p className="text-2xl font-bold text-blue-600">{stats.totalEnrollments}</p>
-            <p className="text-xs text-text-secondary mt-1">Enrollments</p>
+          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-[var(--info)]">{stats.totalEnrollments}</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">Enrollments</p>
           </div>
-          <div className="bg-white rounded-xl border border-border p-4 text-center">
-            <p className="text-2xl font-bold text-indigo-600">{stats.totalTopics}</p>
-            <p className="text-xs text-text-secondary mt-1">Modules</p>
+          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-[var(--secondary)]">{stats.totalTopics}</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">Modules</p>
           </div>
-          <div className="bg-white rounded-xl border border-border p-4 text-center">
+          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
             <p className="text-2xl font-bold text-purple-600">{stats.totalChapters}</p>
-            <p className="text-xs text-text-secondary mt-1">Lessons</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">Lessons</p>
           </div>
         </div>
       )}
 
       {/* Search & Filters */}
-      <div className="bg-white rounded-xl border border-border p-4 mb-6">
+      <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <input
             type="text"
             placeholder="Search courses..."
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
-            className="border border-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
           />
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="border border-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
           >
             <option value="">All Categories</option>
             {categories.map((cat) => (
@@ -259,7 +262,7 @@ const CourseManagementPage: React.FC = () => {
           <select
             value={filterDifficulty}
             onChange={(e) => setFilterDifficulty(e.target.value)}
-            className="border border-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
           >
             <option value="">All Levels</option>
             <option value="BEGINNER">Beginner</option>
@@ -269,7 +272,7 @@ const CourseManagementPage: React.FC = () => {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as any)}
-            className="border border-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
           >
             <option value="all">All Status</option>
             <option value="PUBLISHED">Published</option>
@@ -281,22 +284,22 @@ const CourseManagementPage: React.FC = () => {
 
       {/* Create Form */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-md border border-border p-6 mb-8">
-          <h2 className="text-xl font-semibold text-text mb-4">Create New Course</h2>
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 shadow-md">
+          <h2 className="text-xl font-semibold text-[var(--foreground)] mb-4">Create New Course</h2>
           <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-text-secondary mb-1">Course Title *</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">Course Title *</label>
               <input
                 type="text"
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
                 placeholder="e.g., Introduction to Computer Science"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Course Code</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">Course Code</label>
               <input
                 type="text"
                 value={formData.courseCode}

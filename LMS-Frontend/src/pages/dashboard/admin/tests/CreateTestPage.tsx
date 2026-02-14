@@ -12,11 +12,11 @@ const CreateTestPage: React.FC = () => {
   }, [applyTheme]);
 
   const handleSuccess = () => {
-    navigate("../tests", { relative: "path" });
+    navigate("..", { relative: "path" });
   };
 
   const handleCancel = () => {
-    navigate("../tests", { relative: "path" });
+    navigate("..", { relative: "path" });
   };
 
   return (

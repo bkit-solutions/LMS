@@ -68,6 +68,14 @@ const CourseDetailPage: React.FC = () => {
       }
       if (statsRes.success && statsRes.data) setStats(statsRes.data);
     } catch (err: any) {
+      if (err.response?.status === 404) {
+        // Course not found - redirect to 404 page with original path
+        navigate("/404", { 
+          replace: true, 
+          state: { originalPath: window.location.pathname } 
+        });
+        return;
+      }
       setError(err.response?.data?.message || "Failed to load course");
     } finally {
       setLoading(false);
@@ -101,24 +109,7 @@ const CourseDetailPage: React.FC = () => {
     }
   };
 
-  const handleToggleEnrollment = async () => {
-    if (!course) return;
-    try {
-      await courseApi.toggleEnrollment(courseId, !course.enrollmentOpen);
-      fetchData();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to toggle enrollment");
-    }
-  };
 
-  const handleClone = async () => {
-    try {
-      await courseApi.cloneCourse(courseId);
-      flashSuccess("Course cloned successfully!");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to clone course");
-    }
-  };
 
   const handleDelete = async () => {
     if (!confirm("Delete this course permanently? This action cannot be undone.")) return;
@@ -252,119 +243,124 @@ const CourseDetailPage: React.FC = () => {
         )}
 
         {/* Header */}
-        <div className="bg-white rounded-xl border border-border p-6 mb-6">
+        <div className="rounded-xl border p-6 mb-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-2xl font-bold text-text">{course.title}</h1>
+                <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>{course.title}</h1>
                 {course.courseCode && (
-                  <span className="text-xs font-mono bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded" style={{ background: 'var(--muted)', color: 'var(--muted-foreground)' }}>
                     {course.courseCode}
                   </span>
                 )}
                 <span
-                  className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
-                    course.status === "PUBLISHED"
-                      ? "bg-green-100 text-green-800"
-                      : course.status === "ARCHIVED"
-                      ? "bg-gray-100 text-gray-600"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
+                  className="text-xs font-medium px-2.5 py-0.5 rounded-full"
+                  style={{
+                    background: course.status === "PUBLISHED" || course.published
+                      ? 'var(--success)' :
+                      course.status === "ARCHIVED"
+                      ? 'var(--muted)'
+                      : 'var(--warning)',
+                    color: 'white'
+                  }}
                 >
                   {course.status || (course.published ? "Published" : "Draft")}
                 </span>
                 {course.enrollmentOpen && (
-                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full" style={{ background: 'var(--info)', color: 'white' }}>
                     Enrollment Open
                   </span>
                 )}
               </div>
-              {course.description && <p className="text-text-secondary text-sm">{course.description}</p>}
+              {course.description && <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{course.description}</p>}
               <div className="flex flex-wrap gap-2 mt-2">
                 {course.category && (
-                  <span className="text-xs bg-surface px-2 py-0.5 rounded text-text-secondary">{course.category}</span>
+                  <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'var(--muted)', color: 'var(--muted-foreground)' }}>{course.category}</span>
                 )}
                 {course.department && (
-                  <span className="text-xs bg-indigo-50 px-2 py-0.5 rounded text-indigo-700">{course.department}</span>
+                  <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>{course.department}</span>
                 )}
                 {course.semester && (
-                  <span className="text-xs bg-purple-50 px-2 py-0.5 rounded text-purple-700">Sem {course.semester}</span>
+                  <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>Sem {course.semester}</span>
                 )}
                 {course.credits && (
-                  <span className="text-xs bg-blue-50 px-2 py-0.5 rounded text-blue-700">{course.credits} credits</span>
+                  <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'var(--info)', color: 'white', opacity: 0.9 }}>{course.credits} credits</span>
                 )}
                 {course.difficultyLevel && (
                   <span
-                    className={`text-xs px-2 py-0.5 rounded ${
-                      course.difficultyLevel === "BEGINNER"
-                        ? "bg-green-50 text-green-700"
+                    className="text-xs px-2 py-0.5 rounded"
+                    style={{
+                      background: course.difficultyLevel === "BEGINNER"
+                        ? 'var(--success)'
                         : course.difficultyLevel === "INTERMEDIATE"
-                        ? "bg-yellow-50 text-yellow-700"
-                        : "bg-red-50 text-red-700"
-                    }`}
+                        ? 'var(--warning)'
+                        : 'var(--error)',
+                      color: 'white',
+                      opacity: 0.9
+                    }}
                   >
                     {course.difficultyLevel}
                   </span>
                 )}
                 {course.estimatedHours && (
-                  <span className="text-xs bg-surface px-2 py-0.5 rounded text-text-secondary">
-                    {course.estimatedHours}h
+                  <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'var(--muted)', color: 'var(--muted-foreground)' }}>
+                    ~{course.estimatedHours}h
                   </span>
                 )}
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
+                onClick={() => setEditing(!editing)}
+                className="text-xs px-4 py-2 rounded-lg font-medium transition-colors border"
+                style={{
+                  background: editing ? 'var(--primary)' : 'var(--card)',
+                  color: editing ? 'var(--primary-foreground)' : 'var(--primary)',
+                  borderColor: 'var(--primary)'
+                }}
+              >
+                {editing ? "Cancel Edit" : "Edit"}
+              </button>
+              <button
                 onClick={handleTogglePublish}
-                className={`text-xs px-4 py-2 rounded-lg font-medium transition-colors ${
-                  course.published
-                    ? "bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200"
-                    : "bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
-                }`}
+                className="text-xs px-4 py-2 rounded-lg font-medium transition-colors"
+                style={{
+                  background: course.published ? 'var(--warning)' : 'var(--success)',
+                  color: 'white'
+                }}
               >
                 {course.published ? "Unpublish" : "Publish"}
               </button>
               <button
-                onClick={handleToggleEnrollment}
-                className={`text-xs px-4 py-2 rounded-lg font-medium transition-colors ${
-                  course.enrollmentOpen
-                    ? "bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200"
-                    : "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
-                }`}
+                onClick={handleDelete}
+                className="text-xs px-4 py-2 rounded-lg font-medium transition-colors border"
+                style={{
+                  background: 'var(--card)',
+                  color: 'var(--error)',
+                  borderColor: 'var(--error)'
+                }}
               >
-                {course.enrollmentOpen ? "Close Enrollment" : "Open Enrollment"}
-              </button>
-              <button
-                onClick={handleClone}
-                className="text-xs px-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors font-medium border border-indigo-200"
-              >
-                Clone
+                Delete
               </button>
             </div>
           </div>
-
-          {/* Stats Row */}
           {stats && (
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-5 pt-5 border-t border-border">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-5 border-t" style={{ borderColor: 'var(--border)' }}>
               <div className="text-center">
-                <p className="text-lg font-bold text-primary">{stats.totalTopics}</p>
-                <p className="text-xs text-text-secondary">Topics</p>
+                <p className="text-lg font-bold" style={{ color: 'var(--primary)' }}>{stats.totalTopics}</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Topics</p>
               </div>
               <div className="text-center">
-                <p className="text-lg font-bold text-blue-600">{stats.totalChapters}</p>
-                <p className="text-xs text-text-secondary">Chapters</p>
+                <p className="text-lg font-bold" style={{ color: 'var(--info)' }}>{stats.totalChapters}</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Chapters</p>
               </div>
               <div className="text-center">
-                <p className="text-lg font-bold text-green-600">{stats.totalEnrollments}</p>
-                <p className="text-xs text-text-secondary">Enrollments</p>
+                <p className="text-lg font-bold" style={{ color: 'var(--success)' }}>{course.enrollmentCount || 0}</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Enrolled</p>
               </div>
               <div className="text-center">
-                <p className="text-lg font-bold text-purple-600">{stats.activeEnrollments}</p>
-                <p className="text-xs text-text-secondary">Active</p>
-              </div>
-              <div className="text-center">
-                <p className="text-lg font-bold text-indigo-600">{stats.completedEnrollments}</p>
-                <p className="text-xs text-text-secondary">Completed</p>
+                <p className="text-lg font-bold" style={{ color: 'var(--warning)' }}>{stats.completionRate || 0}%</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Completion</p>
               </div>
             </div>
           )}

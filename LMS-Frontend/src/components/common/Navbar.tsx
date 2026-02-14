@@ -59,7 +59,10 @@ const Navbar: React.FC = () => {
     SUPERADMIN: [
       { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
       { label: "Colleges", path: "/dashboard/colleges", icon: BookOpen },
-      { label: "Admins", path: "/dashboard/admins", icon: User },
+      { label: "Users", path: "/dashboard/users", icon: User },
+      { label: "Admins", path: "/dashboard/admins", icon: GraduationCap },
+      { label: "Courses", path: "/dashboard/courses", icon: BookText },
+      { label: "Tests", path: "/dashboard/tests", icon: FileCheck },
     ],
     ADMIN: [
       { label: "Dashboard", path: getDashboardPath(), icon: LayoutDashboard },

@@ -220,26 +220,29 @@ const EnhancedCollegeManagement: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      <div className="flex items-center justify-center min-h-96">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-[var(--muted-foreground)]">Loading colleges...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-text flex items-center gap-3">
-            <Building2 className="w-8 h-8 text-primary" />
+          <h1 className="text-3xl font-bold text-[var(--foreground)] heading-font flex items-center gap-3">
+            <Building2 className="w-8 h-8 text-[var(--primary)]" />
             College Management
           </h1>
-          <p className="text-text-secondary mt-1">Onboard and manage colleges across the platform</p>
+          <p className="text-[var(--muted-foreground)] mt-1">Onboard and manage colleges across the platform</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-secondary transition-colors font-medium flex items-center gap-2"
+          className="bg-[var(--primary)] text-white px-6 py-2.5 rounded-lg hover:bg-[var(--primary-hover)] transition-colors font-medium flex items-center gap-2 shadow-md"
         >
           <Plus className="w-5 h-5" />
           {showForm ? "Cancel" : "Onboard College"}
@@ -265,62 +268,62 @@ const EnhancedCollegeManagement: React.FC = () => {
       )}
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-sm border border-border p-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-text-secondary">Total Colleges</p>
-              <p className="text-2xl font-bold text-text">{colleges.length}</p>
+              <p className="text-sm text-[var(--muted-foreground)]">Total Colleges</p>
+              <p className="text-3xl font-bold text-[var(--foreground)] mt-1">{colleges.length}</p>
             </div>
-            <Building2 className="w-10 h-10 text-blue-500 opacity-20" />
+            <Building2 className="w-12 h-12 text-[var(--primary)] opacity-20" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-border p-4">
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-text-secondary">Active</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-sm text-[var(--muted-foreground)]">Active</p>
+              <p className="text-3xl font-bold text-[var(--success)] mt-1">
                 {colleges.filter(c => c.isActive).length}
               </p>
             </div>
-            <CheckCircle className="w-10 h-10 text-green-500 opacity-20" />
+            <CheckCircle className="w-12 h-12 text-[var(--success)] opacity-20" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-border p-4">
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-text-secondary">Inactive</p>
-              <p className="text-2xl font-bold text-red-600">
+              <p className="text-sm text-[var(--muted-foreground)]">Inactive</p>
+              <p className="text-3xl font-bold text-[var(--error)] mt-1">
                 {colleges.filter(c => !c.isActive).length}
               </p>
             </div>
-            <XCircle className="w-10 h-10 text-red-500 opacity-20" />
+            <XCircle className="w-12 h-12 text-[var(--error)] opacity-20" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-border p-4">
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-text-secondary">Total Users</p>
-              <p className="text-2xl font-bold text-text">
+              <p className="text-sm text-[var(--muted-foreground)]">Total Users</p>
+              <p className="text-3xl font-bold text-[var(--foreground)] mt-1">
                 {colleges.reduce((sum, c) => sum + c.totalUsers, 0)}
               </p>
             </div>
-            <Users className="w-10 h-10 text-purple-500 opacity-20" />
+            <Users className="w-12 h-12 text-[var(--secondary)] opacity-20" />
           </div>
         </div>
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white rounded-lg shadow-sm border border-border p-4 mb-6">
+      <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[var(--muted-foreground)]" />
             <input
               type="text"
               placeholder="Search by name, code, or domain..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
             />
           </div>
           <div className="flex gap-2">
@@ -328,8 +331,8 @@ const EnhancedCollegeManagement: React.FC = () => {
               onClick={() => setFilterStatus("ALL")}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 filterStatus === "ALL" 
-                  ? "bg-primary text-white" 
-                  : "bg-gray-100 text-text-secondary hover:bg-gray-200"
+                  ? "bg-[var(--primary)] text-white" 
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]/80"
               }`}
             >
               All
@@ -338,8 +341,8 @@ const EnhancedCollegeManagement: React.FC = () => {
               onClick={() => setFilterStatus("ACTIVE")}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 filterStatus === "ACTIVE" 
-                  ? "bg-green-600 text-white" 
-                  : "bg-gray-100 text-text-secondary hover:bg-gray-200"
+                  ? "bg-[var(--success)] text-white" 
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]/80"
               }`}
             >
               Active
@@ -348,8 +351,8 @@ const EnhancedCollegeManagement: React.FC = () => {
               onClick={() => setFilterStatus("INACTIVE")}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 filterStatus === "INACTIVE" 
-                  ? "bg-red-600 text-white" 
-                  : "bg-gray-100 text-text-secondary hover:bg-gray-200"
+                  ? "bg-[var(--error)] text-white" 
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]/80"
               }`}
             >
               Inactive
@@ -360,43 +363,43 @@ const EnhancedCollegeManagement: React.FC = () => {
 
       {/* Create/Edit Form */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-md border border-border p-6 mb-8">
-          <h2 className="text-xl font-semibold text-text mb-4 flex items-center gap-2">
-            {editMode ? <Edit2 className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 shadow-md">
+          <h2 className="text-xl font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+            {editMode ? <Edit2 className="w-6 h-6 text-[var(--primary)]" /> : <Plus className="w-6 h-6 text-[var(--primary)]" />}
             {editMode ? "Edit College" : "Onboard New College"}
           </h2>
           <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Basic Info */}
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">College Name *</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">College Name *</label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
                 placeholder="e.g., MIT College of Engineering"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">College Code *</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">College Code *</label>
               <input
                 type="text"
                 required
                 value={formData.code}
                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                className="w-full border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
                 placeholder="e.g., MITCOE"
               />
             </div>
 
             {/* Description */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-text-secondary mb-1">Description</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
                 rows={3}
                 placeholder="Brief description about the college..."
               />
@@ -404,51 +407,51 @@ const EnhancedCollegeManagement: React.FC = () => {
 
             {/* Contact Info */}
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Domain</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">Domain</label>
               <input
                 type="text"
                 value={formData.domain}
                 onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
-                className="w-full border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
                 placeholder="e.g., mitcoe.edu.in"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Contact Email</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">Contact Email</label>
               <input
                 type="email"
                 value={formData.contactEmail}
                 onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                className="w-full border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
                 placeholder="contact@college.edu"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Contact Phone</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">Contact Phone</label>
               <input
                 type="text"
                 value={formData.contactPhone}
                 onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                className="w-full border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
                 placeholder="+1 234 567 8900"
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-text-secondary mb-1">Address</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">Address</label>
               <input
                 type="text"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="w-full border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)]"
                 placeholder="Complete address"
               />
             </div>
 
             {/* Branding */}
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">College Logo</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">College Logo</label>
               <div className="flex items-start gap-3">
-                <label className="flex-1 border-2 border-dashed border-border rounded-lg px-4 py-3 text-center cursor-pointer hover:border-primary hover:bg-blue-50 transition-all">
+                <label className="flex-1 border-2 border-dashed border-[var(--border)] rounded-lg px-4 py-3 text-center cursor-pointer hover:border-[var(--primary)] hover:bg-[var(--primary-light)] transition-all">
                   <input
                     type="file"
                     accept="image/*"
@@ -456,11 +459,11 @@ const EnhancedCollegeManagement: React.FC = () => {
                     className="hidden"
                     disabled={uploadingLogo}
                   />
-                  <Upload className={`w-5 h-5 mx-auto mb-1 ${uploadingLogo ? 'text-primary animate-pulse' : 'text-text-secondary'}`} />
-                  <span className="text-sm text-text-secondary block">
+                  <Upload className={`w-5 h-5 mx-auto mb-1 ${uploadingLogo ? 'text-[var(--primary)] animate-pulse' : 'text-[var(--muted-foreground)]'}`} />
+                  <span className="text-sm text-[var(--muted-foreground)] block">
                     {uploadingLogo ? "Uploading..." : formData.logoUrl ? "Change Logo" : "Upload Logo"}
                   </span>
-                  <span className="text-xs text-text-secondary opacity-75 block mt-1">
+                  <span className="text-xs text-[var(--muted-foreground)] opacity-75 block mt-1">
                     Max 10MB, recommended 200x200px
                   </span>
                 </label>
@@ -469,7 +472,7 @@ const EnhancedCollegeManagement: React.FC = () => {
                     <img 
                       src={formData.logoUrl} 
                       alt="Logo Preview" 
-                      className="w-20 h-20 object-contain rounded-lg border-2 border-border shadow-sm" 
+                      className="w-20 h-20 object-contain rounded-lg border-2 border-[var(--border)] shadow-sm" 
                       onError={(e) => {
                         console.error('Logo failed to load:', formData.logoUrl);
                         e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999"%3ELogo%3C/text%3E%3C/svg%3E';
@@ -488,9 +491,9 @@ const EnhancedCollegeManagement: React.FC = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">College Banner</label>
+              <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">College Banner</label>
               <div className="flex items-start gap-3">
-                <label className="flex-1 border-2 border-dashed border-border rounded-lg px-4 py-3 text-center cursor-pointer hover:border-primary hover:bg-blue-50 transition-all">
+                <label className="flex-1 border-2 border-dashed border-[var(--border)] rounded-lg px-4 py-3 text-center cursor-pointer hover:border-[var(--primary)] hover:bg-[var(--primary-light)] transition-all">
                   <input
                     type="file"
                     accept="image/*"

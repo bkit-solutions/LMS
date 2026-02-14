@@ -54,8 +54,14 @@ export const testApi = {
   },
 
   // Publish test
-  publishTest: async (testId: number): Promise<ApiResponse<void>> => {
+  publishTest: async (testId: number): Promise<ApiResponse<Test>> => {
     const response = await api.patch(`/api/tests/${testId}/publish`);
+    return response.data;
+  },
+
+  // Unpublish test
+  unpublishTest: async (testId: number): Promise<ApiResponse<Test>> => {
+    const response = await api.patch(`/api/tests/${testId}/unpublish`);
     return response.data;
   },
 
